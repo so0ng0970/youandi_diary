@@ -23,10 +23,10 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.blue[200],
             ),
             child: Column(
-              children: [
+              children: const [
                 Text(
-                  isLoginScreen ? 'Login' : 'sign',
-                  style: const TextStyle(
+                  'Login',
+                  style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -42,6 +42,7 @@ class _LoginPageState extends State<LoginPage> {
               width: MediaQuery.of(context).size.width - 80,
               decoration: BoxDecoration(
                 color: Colors.blue[200],
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Form(
                 key: _formKey,
@@ -49,26 +50,11 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     TextFormField(
                       decoration: const InputDecoration(
-                        hintText: '닉네임',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      decoration: const InputDecoration(
                         hintText: '이메일주소',
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                          ),
                           borderRadius: BorderRadius.all(
                             Radius.circular(20.0),
                           ),
@@ -84,23 +70,6 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       decoration: const InputDecoration(
                         hintText: '비밀번호',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: '비밀번호(확인)',
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.all(
