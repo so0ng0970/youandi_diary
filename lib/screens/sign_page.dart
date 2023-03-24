@@ -163,23 +163,23 @@ class _SignScreenState extends State<SignScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                    // TextFormField(
-                    //   decoration: const InputDecoration(
-                    //     hintText: '비밀번호(확인)',
-                    //     enabledBorder: OutlineInputBorder(
-                    //       borderSide: BorderSide(color: Colors.grey),
-                    //       borderRadius: BorderRadius.all(
-                    //         Radius.circular(20.0),
-                    //       ),
-                    //     ),
-                    //     focusedBorder: OutlineInputBorder(
-                    //       borderSide: BorderSide(color: Colors.grey),
-                    //       borderRadius: BorderRadius.all(
-                    //         Radius.circular(20.0),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: '비밀번호(확인)',
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(20.0),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(20.0),
+                          ),
+                        ),
+                      ),
+                    ),
                     IconButton(
                         onPressed: () async {
                           formKey.currentState?.validate();
