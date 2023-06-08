@@ -88,6 +88,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.check),
+                    ),
                     TextButton(
                       onPressed: () {
                         Navigator.push(
@@ -102,10 +106,6 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text(
                         '회원이 아니신가요?',
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.check),
                     ),
                     _GoogleButton(
                       onPressed: () async {
@@ -163,12 +163,28 @@ class _GoogleButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
+        elevation: 2.0,
         backgroundColor: GOOGLE_COLOR,
+        minimumSize: const Size(50, 50),
       ),
-      child: Text(
-        '구글 로그인',
-        style: TextStyle(
-          color: Colors.blue[800],
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width / 2,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SizedBox(
+              height: 30,
+              child: Image.asset(
+                'asset/image/google.png',
+              ),
+            ),
+            Text(
+              'Google로 로그인',
+              style: TextStyle(
+                color: Colors.blue[800],
+              ),
+            ),
+          ],
         ),
       ),
     );
