@@ -13,9 +13,9 @@ class SignScreen extends StatefulWidget {
 
 class _SignScreenState extends State<SignScreen> {
   final _authentication = FirebaseAuth.instance;
-  final FocusNode _nicknameFocus = FocusNode();
-  final FocusNode _emailFocus = FocusNode();
-  final FocusNode _passwordFocus = FocusNode();
+  final FocusNode nicknameFocus = FocusNode();
+  final FocusNode emailFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
   String userName = '';
   String userEmail = '';
   String userPassword = '';
@@ -74,9 +74,9 @@ class _SignScreenState extends State<SignScreen> {
                     children: [
                       TextFormField(
                         key: const ValueKey(1),
-                        focusNode: _nicknameFocus,
+                        focusNode: nicknameFocus,
                         validator: (value) => CheckValidate()
-                            .validateNickName(_nicknameFocus, value!),
+                            .validateNickName(nicknameFocus, value!),
                         keyboardType: TextInputType.name,
                         onSaved: (value) {
                           userName = value!;
@@ -105,9 +105,9 @@ class _SignScreenState extends State<SignScreen> {
                       ),
                       TextFormField(
                         key: const ValueKey(2),
-                        focusNode: _emailFocus,
+                        focusNode: emailFocus,
                         validator: (value) =>
-                            CheckValidate().validateEmail(_emailFocus, value!),
+                            CheckValidate().validateEmail(emailFocus, value!),
                         keyboardType: TextInputType.emailAddress,
                         onSaved: (newValue) {
                           userEmail = newValue!;
@@ -136,14 +136,14 @@ class _SignScreenState extends State<SignScreen> {
                       ),
                       TextFormField(
                         key: const ValueKey(3),
-                        focusNode: _passwordFocus,
+                        focusNode: passwordFocus,
                         validator: (value) => CheckValidate()
-                            .validatePassword(_passwordFocus, value!),
+                            .validatePassword(passwordFocus, value!),
                         keyboardType: TextInputType.name,
                         onSaved: (value) {
                           userPassword = value!;
                         },
-                        onChanged: (value) {
+                        onChanged: (String value) {
                           userPassword = value;
                         },
                         decoration: const InputDecoration(
