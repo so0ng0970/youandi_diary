@@ -16,6 +16,7 @@ class SocialViewModel {
     if (isLogined) {
       user = await kakao.UserApi.instance.me();
 
+      
       final token = await _firebaseAuthDataSource.createCustomToken(
         {
           'uid': user!.id.toString(),
@@ -24,6 +25,7 @@ class SocialViewModel {
           'photoURL': user!.kakaoAccount!.profile!.profileImageUrl!,
         },
       );
+    
       await FirebaseAuth.instance.signInWithCustomToken(token);
     }
   }
