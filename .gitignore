@@ -127,3 +127,5 @@ app.*.symbols
 web/
 macos/
 android/
+lib/const/data.dart
+functions/youandi-5b3cd-firebase-adminsdk-wbrno-c791a170d1.json

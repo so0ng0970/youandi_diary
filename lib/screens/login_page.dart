@@ -2,8 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:youandi_diary/const/color.dart';
+import 'package:youandi_diary/layout/button_layout.dart';
+import 'package:youandi_diary/layout/sign_login_layout.dart';
 import 'package:youandi_diary/screens/home_screen.dart';
 import 'package:youandi_diary/screens/sign_page.dart';
+import 'package:youandi_diary/user/model/kakao_login.dart';
+import 'package:youandi_diary/user/model/social_view_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,122 +17,113 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final viewModel = SocialViewModel(
+    KakaoLogin(),
+  );
   final _formKey = GlobalKey<FormState>();
   bool isLoginScreen = true;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue[100],
-      body: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.fromLTRB(20, 50, 20, 0),
-            decoration: BoxDecoration(
-              color: Colors.blue[200],
-            ),
-            child: Column(
-              children: const [
-                Text(
-                  'Login',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+    return SignLoginLayout(
+      titleText: 'Login',
+      child: Form(
+        key: _formKey,
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            return Column(
+              children: [
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: '이메일주소',
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(20.0),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(20.0),
+                      ),
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 80),
-              height: MediaQuery.of(context).size.height - 280,
-              width: MediaQuery.of(context).size.width - 80,
-              decoration: BoxDecoration(
-                color: Colors.blue[200],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: '이메일주소',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey,
-                          ),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: '비밀번호',
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(20.0),
                       ),
                     ),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: '비밀번호',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(20.0),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.check),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return const SignScreen();
-                            },
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        '회원이 아니신가요?',
-                      ),
-                    ),
-                    _GoogleButton(
-                      onPressed: () async {
-                        final google = await signInWithGoogle();
-                        if (google != null) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (BuildContext context) {
-                                return const HomeScreen();
-                              },
-                            ),
-                          );
-                        } else {
-                          const Text('실패');
-                        }
-                      },
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-        ],
+                IconButton(
+                  onPressed: () async {},
+                  icon: const Icon(Icons.check),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const SignScreen();
+                        },
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    '회원이 아니신가요?',
+                  ),
+                ),
+                _GoogleButton(
+                  onPressed: () async {
+                    final google = await signInWithGoogle();
+                    if (google != null) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (BuildContext context) {
+                            return const HomeScreen();
+                          },
+                        ),
+                      );
+                    } else {
+                      const Text('실패');
+                    }
+                  },
+                ),
+                _KakaoButton(onPressed: () async {
+                  await viewModel.logout();
+                  setState(() {});
+                }),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text('${viewModel.isLogined}'),
+                if (viewModel.isLogined == true)
+                  Image.network(
+                      viewModel.user?.kakaoAccount?.profile?.profileImageUrl ?? ''),
+                _KakaoButton(onPressed: () async {
+                  await viewModel.login();
+                  setState(() {});
+                }),
+              ],
+            );
+          }
+        ),
       ),
     );
   }
@@ -160,33 +155,28 @@ class _GoogleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return ButtonLayout(
+      bgColor: GOOGLE_COLOR,
+      textColor: const Color.fromARGB(255, 1, 64, 119),
       onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        elevation: 2.0,
-        backgroundColor: GOOGLE_COLOR,
-        minimumSize: const Size(50, 50),
-      ),
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width / 2,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            SizedBox(
-              height: 30,
-              child: Image.asset(
-                'asset/image/google.png',
-              ),
-            ),
-            Text(
-              'Google로 로그인',
-              style: TextStyle(
-                color: Colors.blue[800],
-              ),
-            ),
-          ],
-        ),
-      ),
+      imageIcon: 'asset/image/google.png',
+      buttonText: 'Google로 로그인',
+    );
+  }
+}
+
+class _KakaoButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  const _KakaoButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ButtonLayout(
+      textColor: Colors.brown[700]!,
+      bgColor: KAKAOTALK_COLOR,
+      onPressed: onPressed,
+      imageIcon: 'asset/image/kakao.png',
+      buttonText: 'Kakao로 로그인',
     );
   }
 }
