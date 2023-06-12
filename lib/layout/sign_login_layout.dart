@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:youandi_diary/const/color.dart';
 
 class SignLoginLayout extends StatelessWidget {
   final Widget child;
@@ -20,31 +21,40 @@ class SignLoginLayout extends StatelessWidget {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           children: [
-            Container(
-              margin: const EdgeInsets.fromLTRB(20, 50, 20, 0),
-              child: Column(
-                children: [
-                  Text(
-                    titleText,
-                    style: const TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+            SizedBox(
+                height: appBar != null
+                    ? MediaQuery.of(context).size.height / 3 - kToolbarHeight
+                    : MediaQuery.of(context).size.height / 3,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      titleText,
+                      style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: WHITE_COLOR,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.3),
+                              offset: const Offset(10, 5),
+                              blurRadius: 15,
+                            ),
+                          ]),
                     ),
+                  ],
+                )),
+            Container(
+              height: MediaQuery.of(context).size.height * 2 / 3,
+              decoration: BoxDecoration(
+                color: Colors.blue[200],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(
+                    90,
                   ),
-                ],
+                ),
               ),
-            ),
-            Center(
-              child: Container(
-                  margin: const EdgeInsets.only(top: 80),
-                  height: MediaQuery.of(context).size.height - 280,
-                  width: MediaQuery.of(context).size.width - 80,
-                  decoration: BoxDecoration(
-                    color: Colors.blue[200],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: child),
+              child: child,
             ),
           ],
         ),

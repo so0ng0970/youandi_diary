@@ -25,104 +25,135 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    InputDecoration inputDecoration(
+      String hintText,
+    ) {
+      return InputDecoration(
+        hintText: hintText,
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: UNDERLINE_INPUT_COLOR,
+          ),
+        ),
+      );
+    }
+
     return SignLoginLayout(
       titleText: 'Login',
-      child: Form(
-        key: _formKey,
-        child: StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            return Column(
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(
-                    hintText: '이메일주소',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                      ),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20.0),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20.0),
-                      ),
-                    ),
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: 40,
+          left: 50,
+          right: 50,
+          bottom: 10,
+        ),
+        child: Form(
+          key: _formKey,
+          child: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextFormField(
+                    decoration: inputDecoration('이메일 주소'),
                   ),
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    hintText: '비밀번호',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20.0),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20.0),
-                      ),
-                    ),
+                  const SizedBox(
+                    height: 10,
                   ),
-                ),
-                IconButton(
-                  onPressed: () async {},
-                  icon: const Icon(Icons.check),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return const SignScreen();
-                        },
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    '회원이 아니신가요?',
+                  TextFormField(
+                    decoration: inputDecoration('비밀번호'),
                   ),
-                ),
-                _GoogleButton(
-                  onPressed: () async {
-                    final google = await signInWithGoogle();
-                    if (google != null) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (BuildContext context) {
-                            return const HomeScreen();
-                          },
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  _LoginButton(onPressed: () {}),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 12,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Or',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: WHITE_COLOR,
                         ),
-                      );
-                    } else {
-                      const Text('실패');
-                    }
-                  },
-                ),
-                _KakaoButton(onPressed: () async {
-                  await viewModel.logout();
-                  setState(() {});
-                }),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text('${viewModel.isLogined}'),
-                if (viewModel.isLogined == true)
-                  Image.network(
-                      viewModel.user?.kakaoAccount?.profile?.profileImageUrl ?? ''),
-                _KakaoButton(onPressed: () async {
-                  await viewModel.login();
-                  setState(() {});
-                }),
-              ],
-            );
-          }
+                      ),
+                    ),
+                  ),
+                  _GoogleButton(
+                    onPressed: () async {
+                      final google = await signInWithGoogle();
+                      if (google != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) {
+                              return HomeScreen();
+                            },
+                          ),
+                        );
+                      } else {
+                        const Text('실패');
+                      }
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  _KakaoButton(
+                    onPressed: () async {
+                      final kakao = await viewModel.login();
+
+                      setState(() {});
+
+                      if (kakao == null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) {
+                              return HomeScreen();
+                            },
+                          ),
+                        );
+                      } else {
+                        const Text('실패');
+                      }
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        '회원이 아니신가요?',
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return const SignScreen();
+                              },
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          '회원가입 하러가기',
+                          style: TextStyle(
+                              color: SIGN_TEXT_COLOR,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -144,6 +175,22 @@ class _LoginPageState extends State<LoginPage> {
 
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+}
+
+class _LoginButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  const _LoginButton({
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ButtonLayout(
+        bgColor: LOGIN_COLOR,
+        textColor: WHITE_COLOR,
+        onPressed: onPressed,
+        buttonText: '로그인');
   }
 }
 

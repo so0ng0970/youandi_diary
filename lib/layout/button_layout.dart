@@ -4,7 +4,7 @@ class ButtonLayout extends StatelessWidget {
   final VoidCallback onPressed;
   final Color bgColor;
   final Color textColor;
-  final String imageIcon;
+  final String? imageIcon;
   final String buttonText;
 
   const ButtonLayout(
@@ -12,7 +12,7 @@ class ButtonLayout extends StatelessWidget {
       required this.textColor,
       required this.onPressed,
       super.key,
-      required this.imageIcon,
+      this.imageIcon,
       required this.buttonText});
 
   @override
@@ -23,18 +23,26 @@ class ButtonLayout extends StatelessWidget {
         elevation: 2.0,
         backgroundColor: bgColor,
         minimumSize: const Size(50, 50),
+        shape: imageIcon == null
+            ? const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(50),
+                ),
+              )
+            : null,
       ),
       child: SizedBox(
         width: MediaQuery.of(context).size.width / 2,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            SizedBox(
-              height: 30,
-              child: Image.asset(
-                imageIcon,
+            if (imageIcon != null)
+              SizedBox(
+                height: 30,
+                child: Image.asset(
+                  imageIcon!,
+                ),
               ),
-            ),
             Text(
               buttonText,
               style: TextStyle(

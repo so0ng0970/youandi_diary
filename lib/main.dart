@@ -11,6 +11,7 @@ void main() async {
     nativeAppKey: NATIVE_KEY,
   );
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

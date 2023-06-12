@@ -9,6 +9,7 @@ class KakaoLogin implements SocialLogin {
       if (isInstalled) {
         try {
           await UserApi.instance.loginWithKakaoTalk();
+
           return true;
         } catch (e) {
           return false;
