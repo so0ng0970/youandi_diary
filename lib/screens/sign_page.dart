@@ -19,27 +19,72 @@ class _SignScreenState extends State<SignScreen> {
   final FocusNode nicknameFocus = FocusNode();
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
-  String userName = '';
-  String userEmail = '';
-  String userPassword = '';
+  final TextEditingController nicknameFocusController = TextEditingController();
+  final TextEditingController emailFocusController = TextEditingController();
+  final TextEditingController passwordFocusController = TextEditingController();
+  String photoUrl = '';
 
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  InputDecoration inputDecoration(String hintText) {
+    return InputDecoration(
+      hintText: hintText,
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: UNDERLINE_INPUT_COLOR,
+        ),
+      ),
+    );
+  }
+
+  Future<void> registerUser() async {
+    formKey.currentState?.validate();
+    try {
+      final newUser = await _authentication.createUserWithEmailAndPassword(
+        email: emailFocusController.text,
+        password: passwordFocusController.text,
+      );
+      await FirebaseFirestore.instance
+          .collection('user')
+          .doc(newUser.user!.uid)
+          .set({
+        'photoUrl': photoUrl,
+        'userName': nicknameFocusController.text,
+        'email': emailFocusController.text,
+      });
+      if (newUser.user != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return const LoginPage();
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('이메일과 비밀번호를 확인해주세요'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    nicknameFocusController.dispose();
+    emailFocusController.dispose();
+    passwordFocusController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    InputDecoration inputDecoration(
-      String hintText,
-    ) {
-      return InputDecoration(
-        hintText: hintText,
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: UNDERLINE_INPUT_COLOR,
-          ),
-        ),
-      );
-    }
-
     return SignLoginLayout(
       appBar: AppBar(
         toolbarHeight: 30,
@@ -53,7 +98,7 @@ class _SignScreenState extends State<SignScreen> {
           },
         ),
       ),
-      titleText: 'Sign',
+      titleText: '회원가입',
       child: Form(
         key: formKey,
         child: Padding(
@@ -61,21 +106,17 @@ class _SignScreenState extends State<SignScreen> {
             top: 40,
             left: 50,
             right: 50,
+            bottom: 10,
           ),
           child: Column(
             children: [
               TextFormField(
                 key: const ValueKey(1),
+                controller: nicknameFocusController,
                 focusNode: nicknameFocus,
                 validator: (value) =>
                     CheckValidate().validateNickName(nicknameFocus, value!),
                 keyboardType: TextInputType.name,
-                onSaved: (value) {
-                  userName = value!;
-                },
-                onChanged: (value) {
-                  userName = value;
-                },
                 decoration: inputDecoration('닉네임'),
               ),
               const SizedBox(
@@ -83,16 +124,11 @@ class _SignScreenState extends State<SignScreen> {
               ),
               TextFormField(
                 key: const ValueKey(2),
+                controller: emailFocusController,
                 focusNode: emailFocus,
                 validator: (value) =>
                     CheckValidate().validateEmail(emailFocus, value!),
                 keyboardType: TextInputType.emailAddress,
-                onSaved: (newValue) {
-                  userEmail = newValue!;
-                },
-                onChanged: (value) {
-                  userEmail = value;
-                },
                 decoration: inputDecoration('이메일'),
               ),
               const SizedBox(
@@ -100,16 +136,11 @@ class _SignScreenState extends State<SignScreen> {
               ),
               TextFormField(
                 key: const ValueKey(3),
+                controller: passwordFocusController,
                 focusNode: passwordFocus,
                 validator: (value) =>
                     CheckValidate().validatePassword(passwordFocus, value!),
                 keyboardType: TextInputType.name,
-                onSaved: (value) {
-                  userPassword = value!;
-                },
-                onChanged: (String value) {
-                  userPassword = value;
-                },
                 decoration: inputDecoration('비밀번호'),
               ),
               const SizedBox(
@@ -122,44 +153,7 @@ class _SignScreenState extends State<SignScreen> {
                 height: 50,
               ),
               _SignButton(
-                onPressed: () async {
-                  formKey.currentState?.validate();
-                  try {
-                    final newUser =
-                        await _authentication.createUserWithEmailAndPassword(
-                      email: userEmail,
-                      password: userPassword,
-                    );
-                    await FirebaseFirestore.instance
-                        .collection('user')
-                        .doc(newUser.user!.uid)
-                        .set({
-                      'userName': userEmail,
-                      'email': userEmail,
-                    });
-                    if (newUser.user != null) {
-                      // ignore: use_build_context_synchronously
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return const LoginPage();
-                          },
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    print(e);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please check your email and password'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    }
-                  }
-                },
+                onPressed: registerUser,
               )
             ],
           ),
@@ -171,16 +165,16 @@ class _SignScreenState extends State<SignScreen> {
 
 class _SignButton extends StatelessWidget {
   final VoidCallback onPressed;
-  const _SignButton({
-    required this.onPressed,
-  });
+
+  const _SignButton({required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return ButtonLayout(
-        bgColor: SIGN_TEXT_COLOR,
-        textColor: WHITE_COLOR,
-        onPressed: () {},
-        buttonText: '회원가입');
+      bgColor: SIGN_TEXT_COLOR,
+      textColor: WHITE_COLOR,
+      onPressed: onPressed,
+      buttonText: '회원가입',
+    );
   }
 }
