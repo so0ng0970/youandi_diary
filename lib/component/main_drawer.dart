@@ -23,7 +23,7 @@ class MainDrawer extends StatelessWidget {
               ),
             ),
             accountName: const Text('soonger'),
-            accountEmail: const Text('soonger'),
+            accountEmail: const Text('soongerdd'),
           )
         ],
       ),

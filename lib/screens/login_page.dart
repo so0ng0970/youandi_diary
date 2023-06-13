@@ -4,30 +4,40 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:youandi_diary/const/color.dart';
 import 'package:youandi_diary/layout/button_layout.dart';
 import 'package:youandi_diary/layout/sign_login_layout.dart';
+import 'package:youandi_diary/models/validate.dart';
 import 'package:youandi_diary/screens/home_screen.dart';
 import 'package:youandi_diary/screens/sign_page.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final viewModel = SocialViewModel(
-    KakaoLogin(),
-  );
+  final viewModel = SocialViewModel(KakaoLogin());
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FocusNode nicknameFocus = FocusNode();
+  final FocusNode emailFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
   bool isLoginScreen = true;
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    InputDecoration inputDecoration(
-      String hintText,
-    ) {
+    InputDecoration inputDecoration(String hintText) {
       return InputDecoration(
         hintText: hintText,
         enabledBorder: const UnderlineInputBorder(
@@ -52,23 +62,83 @@ class _LoginPageState extends State<LoginPage> {
           child: StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
+              final isFirebaseUserLoggedIn = snapshot.hasData;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextFormField(
+                    key: const ValueKey(1),
+                    validator: (value) =>
+                        CheckValidate().validateEmail(emailFocus, value!),
+                    controller: _emailController,
+                    focusNode: emailFocus,
                     decoration: inputDecoration('이메일 주소'),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
                   TextFormField(
+                    key: const ValueKey(2),
+                    controller: _passwordController,
+                    focusNode: passwordFocus,
                     decoration: inputDecoration('비밀번호'),
+                    validator: (value) =>
+                        CheckValidate().validatePassword(passwordFocus, value!),
                   ),
                   const SizedBox(
                     height: 50,
                   ),
-                  _LoginButton(onPressed: () {}),
+                  _LoginButton(
+                    onPressed: isFirebaseUserLoggedIn
+                        ? () async {
+                            final email = _emailController.text;
+                            final password = _passwordController.text;
+                            if (email.isNotEmpty && password.isNotEmpty) {
+                              try {
+                                final credential = EmailAuthProvider.credential(
+                                  email: email,
+                                  password: password,
+                                );
+                                await FirebaseAuth.instance
+                                    .signInWithCredential(credential);
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                      return HomeScreen();
+                                    },
+                                  ),
+                                );
+                              } on FirebaseAuthException catch (e) {
+                                // 로그인 실패 처리
+                                print(e);
+                                if (e.code == 'user-not-found') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('등록되지 않은 이메일입니다'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else if (e.code == 'wrong-password') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('비밀번호가 틀렸습니다'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else {
+                                  SnackBar(
+                                    content: Text(e.code),
+                                    backgroundColor: Colors.green,
+                                  );
+                                }
+                              }
+                            } else {
+                              // 이메일과 비밀번호를 입력하라는 안내 메시지 출력
+                            }
+                          }
+                        : null, // Firebase 인증 정보가 없는 경우 버튼 비활성화
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(
                       vertical: 12,
@@ -104,21 +174,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   _KakaoButton(
                     onPressed: () async {
-                      final kakao = await viewModel.login();
-
+                      await viewModel.login(context);
                       setState(() {});
-
-                      if (kakao == null) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (BuildContext context) {
-                              return HomeScreen();
-                            },
-                          ),
-                        );
-                      } else {
-                        const Text('실패');
-                      }
                     },
                   ),
                   Row(
@@ -160,26 +217,19 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth =
         await googleUser?.authentication;
-
-    // Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
-
-    // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 }
 
 class _LoginButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final Future<void> Function()? onPressed;
   const _LoginButton({
     required this.onPressed,
   });
@@ -189,7 +239,7 @@ class _LoginButton extends StatelessWidget {
     return ButtonLayout(
         bgColor: LOGIN_COLOR,
         textColor: WHITE_COLOR,
-        onPressed: onPressed,
+        onPressed: onPressed != null ? () => onPressed!() : () {},
         buttonText: '로그인');
   }
 }
