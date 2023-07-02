@@ -12,10 +12,13 @@ class MainDrawer extends StatelessWidget {
       KakaoLogin(),
     );
     return Drawer(
-      backgroundColor: Colors.amber,
+      backgroundColor: Colors.blue,
       child: ListView(
         children: [
           UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
             currentAccountPicture: CircleAvatar(
               // 현재 계정 이미지 set
               backgroundImage: NetworkImage(
@@ -23,7 +26,7 @@ class MainDrawer extends StatelessWidget {
               ),
             ),
             accountName: const Text('soonger'),
-            accountEmail: const Text('soongerdd'),
+            accountEmail: null,
           )
         ],
       ),
