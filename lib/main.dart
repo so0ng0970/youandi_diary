@@ -2,9 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:youandi_diary/firebase_options.dart';
-import 'package:youandi_diary/screens/splash_screen.dart';
+import 'package:youandi_diary/common/screen/splash_screen.dart';
 
-import 'const/data.dart';
+import 'common/const/data.dart';
 
 void main() async {
   KakaoSdk.init(

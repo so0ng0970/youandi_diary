@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:youandi_diary/const/color.dart';
+import 'package:youandi_diary/common/const/color.dart';
 
 class SignLoginLayout extends StatelessWidget {
   final Widget child;

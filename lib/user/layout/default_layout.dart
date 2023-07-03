@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:youandi_diary/component/main_drawer.dart';
+import 'package:youandi_diary/common/component/main_drawer.dart';
 
 class DefaultLayout extends StatelessWidget {
   final Widget child;

@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart' as kakao;
-import 'package:youandi_diary/screens/home_screen.dart';
+import 'package:youandi_diary/common/screen/home_screen.dart';
 import 'package:youandi_diary/user/model/firebase_auth_remote_data_source.dart';
 import 'package:youandi_diary/user/model/social_login.dart';
 
