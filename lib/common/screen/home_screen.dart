@@ -13,7 +13,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
-      profileImg: '${viewModel.user?.kakaoAccount?.profile?.profileImageUrl}',
       child: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -22,10 +21,11 @@ class HomeScreen extends StatelessWidget {
             } else {
               return Center(
                 child: Column(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       '로그인 성공 ',
                     ),
+                    Text('${snapshot.data.displayName}'),
                   ],
                 ),
               );

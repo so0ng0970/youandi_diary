@@ -4,7 +4,9 @@ import 'package:youandi_diary/user/model/social_view_model.dart';
 
 class MainDrawer extends StatelessWidget {
   final String profileImg;
-  const MainDrawer({required this.profileImg, super.key});
+  final String nickName;
+  const MainDrawer(
+      {required this.profileImg, required this.nickName, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,7 @@ class MainDrawer extends StatelessWidget {
         children: [
           UserAccountsDrawerHeader(
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: Color.fromARGB(255, 120, 149, 159),
             ),
             currentAccountPicture: CircleAvatar(
               // 현재 계정 이미지 set
@@ -25,7 +27,7 @@ class MainDrawer extends StatelessWidget {
                 profileImg,
               ),
             ),
-            accountName: const Text('soonger'),
+            accountName: Text(nickName),
             accountEmail: null,
           )
         ],
