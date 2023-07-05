@@ -28,6 +28,7 @@ class DefaultLayout extends StatelessWidget {
             return MainDrawer(
               profileImg: user.photoURL ?? '',
               nickName: user.displayName ?? '',
+              email: user.email ?? '',
             );
           }
         },

@@ -5,9 +5,10 @@ import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/user/layout/button_layout.dart';
 import 'package:youandi_diary/user/layout/sign_login_layout.dart';
 import 'package:youandi_diary/user/model/validate.dart';
-import 'package:youandi_diary/user/screens/login_page.dart';
+import 'package:youandi_diary/user/screens/login_screen.dart';
 
 class SignScreen extends StatefulWidget {
+  static String get routeName => '/sign';
   const SignScreen({super.key});
 
   @override
@@ -57,7 +58,7 @@ class _SignScreenState extends State<SignScreen> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return const LoginPage();
+              return const LoginScreen();
             },
           ),
         );

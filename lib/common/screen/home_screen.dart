@@ -5,6 +5,8 @@ import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
+  static String get routeName => 'home';
+
   final viewModel = SocialViewModel(
     KakaoLogin(),
   );

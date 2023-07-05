@@ -1,23 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/user/layout/button_layout.dart';
 import 'package:youandi_diary/user/layout/sign_login_layout.dart';
 import 'package:youandi_diary/user/model/validate.dart';
 import 'package:youandi_diary/common/screen/home_screen.dart';
-import 'package:youandi_diary/user/screens/sign_page.dart';
+import 'package:youandi_diary/user/screens/sign_screen.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+  static String get routeName => 'login';
+
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
   final viewModel = SocialViewModel(KakaoLogin());
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
@@ -102,12 +105,8 @@ class _LoginPageState extends State<LoginPage> {
                                 );
                                 await FirebaseAuth.instance
                                     .signInWithCredential(credential);
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      return HomeScreen();
-                                    },
-                                  ),
+                                context.goNamed(
+                                  HomeScreen.routeName,
                                 );
                               } on FirebaseAuthException catch (e) {
                                 // 로그인 실패 처리
@@ -157,12 +156,8 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () async {
                       final google = await signInWithGoogle();
                       if (google != null) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (BuildContext context) {
-                              return HomeScreen();
-                            },
-                          ),
+                        context.goNamed(
+                          HomeScreen.routeName,
                         );
                       } else {
                         const Text('실패');
@@ -189,20 +184,16 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return const SignScreen();
-                              },
-                            ),
+                          context.pushNamed(
+                            SignScreen.routeName,
                           );
                         },
                         child: const Text(
                           '회원가입 하러가기',
                           style: TextStyle(
-                              color: SIGN_TEXT_COLOR,
-                              fontWeight: FontWeight.w600),
+                            color: SIGN_TEXT_COLOR,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],

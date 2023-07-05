@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:youandi_diary/user/screens/login_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:youandi_diary/user/screens/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
+  static String get routeName => 'splash';
   const SplashScreen({super.key});
 
   @override
@@ -15,13 +17,8 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Timer(const Duration(seconds: 2), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return const LoginPage();
-          },
-        ),
+      context.goNamed(
+        LoginScreen.routeName,
       );
     });
   }
