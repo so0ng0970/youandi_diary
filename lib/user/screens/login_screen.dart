@@ -160,7 +160,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           HomeScreen.routeName,
                         );
                       } else {
-                        const Text('실패');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('구글 로그인에 실패했습니다.'),
+                          ),
+                        );
                       }
                     },
                   ),
