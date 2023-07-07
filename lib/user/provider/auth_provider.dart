@@ -47,14 +47,17 @@ class AuthProvider extends ChangeNotifier {
     // 유저 상태
     final user = _user;
     // 유저 정보가 없는데
-    // 로그인 중이면 그대로 로그인 페이지에 두고
-    // 만약에 로그인 중이 아니라면 로그인 페이지로 이동
+    // 로그인 중이면 그대로 현재 페이지에 두고
+    // 만약 로그인 중이 아니라면 로그인 페이지로 이동
     if (user == null) {
       return loginIn ? null : '/login';
+    } else {
+      // Firebase에 로그인 상태가 풀렸을 때
+      if (!_firebaseAuth.currentUser!.emailVerified ?? true) {
+        return '/login';
+      }
     }
-    return loginIn || state.location == '/splash' ? '/' : null;
-
-    // 사용자 정보가 있는 상태이므로 리디렉션 필요 없음
+    return loginIn ? '/' : null;
   }
 
   Future<void> logout() async {
