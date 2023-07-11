@@ -14,8 +14,6 @@ final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
 
 class AuthProvider extends ChangeNotifier {
   final Ref ref;
-
-  User? _user;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   AuthProvider({required this.ref});
@@ -45,7 +43,14 @@ class AuthProvider extends ChangeNotifier {
   String? redirectLogic(_, GoRouterState state) {
     final loginIn = state.location == '/login';
     // 유저 상태
-    final user = _user;
+    // final firebaseAuth =
+    //     FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    //   if (user == null) {
+    //     loginIn ? null : '/login';
+    //   }
+    //   loginIn || state.location == '/splash' ? '/' : null;
+    // });
+    User? user = _firebaseAuth.currentUser;
     // 유저 정보가 없는데
     // 로그인 중이면 그대로 로그인 페이지에 두고
     // 만약에 로그인 중이 아니라면 로그인 페이지로 이동
@@ -58,7 +63,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await _firebaseAuth.signOut();
+    await FirebaseAuth.instance.signOut();
     notifyListeners();
   }
 }
