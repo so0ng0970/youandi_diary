@@ -1,9 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
+import 'package:youandi_diary/user/provider/auth_provider.dart';
 
-class MainDrawer extends StatelessWidget {
+class MainDrawer extends ConsumerWidget {
   final String profileImg;
   final String nickName;
   final String email;
@@ -14,7 +15,8 @@ class MainDrawer extends StatelessWidget {
       super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final provider = ref.watch(authProvider);
     final viewModel = SocialViewModel(
       KakaoLogin(),
     );
@@ -52,7 +54,7 @@ class MainDrawer extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              FirebaseAuth.instance.signOut();
+              provider.logout();
             },
             child: const Text(
               '로그아웃',

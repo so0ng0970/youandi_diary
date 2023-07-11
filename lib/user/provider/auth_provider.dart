@@ -55,7 +55,7 @@ class AuthProvider extends ChangeNotifier {
     // 로그인 중이면 그대로 로그인 페이지에 두고
     // 만약에 로그인 중이 아니라면 로그인 페이지로 이동
     if (user == null) {
-      return loginIn ? null : '/login';
+      return loginIn ? null : '/splash';
     }
     return loginIn || state.location == '/splash' ? '/' : null;
 
