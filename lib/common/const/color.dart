@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // common
 
 const WHITE_COLOR = Color(0xFFFFFFFF);
+const BACKGROUND_COLOR = Color(0xFFb8d6f2);
 
 // login logout
 const GOOGLE_COLOR = Color(0xFFF4F4F4);
