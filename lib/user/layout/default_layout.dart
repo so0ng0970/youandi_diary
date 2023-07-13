@@ -4,16 +4,18 @@ import 'package:youandi_diary/common/component/main_drawer.dart';
 
 class DefaultLayout extends StatelessWidget {
   final Widget child;
+  final AppBar? appBar;
 
   const DefaultLayout({
     Key? key,
+    this.appBar,
     required this.child,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appbar(),
+      appBar: appBar,
       drawer: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
@@ -35,9 +37,5 @@ class DefaultLayout extends StatelessWidget {
       ),
       body: child,
     );
-  }
-
-  AppBar? appbar() {
-    return AppBar();
   }
 }
