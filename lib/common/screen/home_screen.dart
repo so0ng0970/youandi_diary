@@ -51,9 +51,39 @@ class HomeScreen extends StatelessWidget {
                 shrinkWrap: true, // 스크롤 가능한 영역만 차지하도록 설정
                 physics: const NeverScrollableScrollPhysics(), // 스크롤 비활성화
                 children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text(''),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      MaterialButton(
+                        textColor: Colors.white,
+                        child: Container(
+                          height: 200,
+                          width: 150,
+                          decoration: const BoxDecoration(
+                            image: DecorationImage(
+                                image:
+                                    AssetImage('asset/image/diary/diary1.jpg'),
+                                fit: BoxFit.cover),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("안녕"),
+                          ),
+                        ),
+                        // ),
+                        onPressed: () {
+                          print('Tapped');
+                        },
+                      ),
+                      SizedBox(
+                        height: 200,
+                        width: 150,
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          child: const Text(''),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
