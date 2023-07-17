@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
@@ -46,51 +47,105 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: Container(
-              child: ListView(
-                shrinkWrap: true, // 스크롤 가능한 영역만 차지하도록 설정
-                physics: const NeverScrollableScrollPhysics(), // 스크롤 비활성화
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+            child: ListView(
+              shrinkWrap: true, // 스크롤 가능한 영역만 차지하도록 설정
+              physics: const NeverScrollableScrollPhysics(), // 스크롤 비활성화
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.end, // 자식 위젯들을 가로 폭 전체로 늘립니다.
                     children: [
-                      MaterialButton(
-                        textColor: Colors.white,
-                        child: Container(
-                          height: 200,
-                          width: 150,
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                                image:
-                                    AssetImage('asset/image/diary/diary1.jpg'),
-                                fit: BoxFit.cover),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text("안녕"),
-                          ),
-                        ),
-                        // ),
-                        onPressed: () {
-                          print('Tapped');
-                        },
-                      ),
                       SizedBox(
-                        height: 200,
-                        width: 150,
+                        width: 150, // 버튼의 폭을 30으로 설정합니다.
                         child: ElevatedButton(
-                          onPressed: () {},
-                          child: const Text(''),
+                          onPressed: () {
+                            _showModalDialog(context);
+                          },
+                          child: const Text(
+                            '다이어리 생성 +',
+                          ),
                         ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          MaterialButton(
+                            textColor: Colors.white,
+                            child: Container(
+                              height: 200,
+                              width: 150,
+                              decoration: const BoxDecoration(
+                                image: DecorationImage(
+                                    image: AssetImage(
+                                        'asset/image/diary/diary1.jpg'),
+                                    fit: BoxFit.cover),
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text("안녕"),
+                              ),
+                            ),
+                            // ),
+                            onPressed: () {
+                              print('Tapped');
+                            },
+                          ),
+                          SizedBox(
+                            height: 200,
+                            width: 150,
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              child: const Text(''),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showModalDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Center(
+          child: Container(
+            width: 300,
+            height: 500,
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: const Icon(
+                        Icons.close,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
