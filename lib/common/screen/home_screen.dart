@@ -124,7 +124,7 @@ class HomeScreen extends StatelessWidget {
           child: Container(
             width: 300,
             height: 500,
-            color: Colors.white,
+            color: BACKGROUND_COLOR,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -141,6 +141,24 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                Column(
+                  children: const [
+                    Text(
+                      '다이어리 만들기',
+                      style: TextStyle(
+                          fontSize: 30.0,
+                          color: WHITE_COLOR,
+                          decoration: TextDecoration.none),
+                    ),
+                    Text(
+                      '다이어리 커버 고르기',
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
