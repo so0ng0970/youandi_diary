@@ -1,18 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static String get routeName => 'home';
 
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final viewModel = SocialViewModel(
     KakaoLogin(),
   );
 
-  HomeScreen({Key? key}) : super(key: key);
-
+  // List<String> diaryCoverImages = [1, 2, 3, 4]
+  //     .map((e) => Text(
+  //           'asset/image/diary/diary$e.jpg',
+  //         ))
+  //     .toList();
+  List<String> diaryCoverImages = [
+    'asset/image/diary/diary1.jpg',
+    'asset/image/diary/diary2.jpg',
+    'asset/image/diary/diary3.jpg',
+    'asset/image/diary/diary4.jpg',
+  ];
+  String selectedImage = 'asset/image/diary/diary1.jpg'; // 기본 이미지 설정
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,23 +133,25 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showModalDialog(BuildContext context) {
+    ImageCache().clear();
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Center(
+        return Dialog(
           child: Container(
             width: 300,
             height: 500,
             color: BACKGROUND_COLOR,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        context.pop();
+                        Navigator.of(context).pop(); // 다이얼로그 닫기
                       },
                       child: const Icon(
                         Icons.close,
@@ -141,24 +159,47 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                Column(
-                  children: const [
-                    Text(
-                      '다이어리 만들기',
-                      style: TextStyle(
-                          fontSize: 30.0,
-                          color: WHITE_COLOR,
-                          decoration: TextDecoration.none),
-                    ),
-                    Text(
-                      '다이어리 커버 고르기',
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        decoration: TextDecoration.none,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    color: Colors.blueGrey,
+                    width: 450,
+                    height: 100,
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 100.0,
+                        crossAxisSpacing: 8.0,
                       ),
+                      itemCount: diaryCoverImages.length,
+                      itemBuilder: (context, index) {
+                        final imagePath = diaryCoverImages[index];
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedImage = imagePath;
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              image: DecorationImage(
+                                image: AssetImage(imagePath),
+                                fit: BoxFit.cover,
+                              ),
+                              border: Border.all(
+                                color: selectedImage == imagePath
+                                    ? Colors.blue
+                                    : Colors.transparent,
+                                width: 3.0,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                )
+                  ),
+                ),
               ],
             ),
           ),
