@@ -159,44 +159,49 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
+                const Text('   다이어리 만들기'),
+                const Text('다이어리 커버 고르기'),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Container(
                     color: Colors.blueGrey,
-                    width: 450,
-                    height: 100,
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 100.0,
-                        crossAxisSpacing: 8.0,
-                      ),
-                      itemCount: diaryCoverImages.length,
-                      itemBuilder: (context, index) {
-                        final imagePath = diaryCoverImages[index];
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedImage = imagePath;
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.0),
-                              image: DecorationImage(
-                                image: AssetImage(imagePath),
-                                fit: BoxFit.cover,
-                              ),
-                              border: Border.all(
-                                color: selectedImage == imagePath
-                                    ? Colors.blue
-                                    : Colors.transparent,
-                                width: 3.0,
+                    width: 430,
+                    height: 120,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 100.0,
+                          crossAxisSpacing: 8.0,
+                        ),
+                        itemCount: diaryCoverImages.length,
+                        itemBuilder: (context, index) {
+                          final imagePath = diaryCoverImages[index];
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedImage = imagePath;
+                              });
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                image: DecorationImage(
+                                  image: AssetImage(imagePath),
+                                  fit: BoxFit.cover,
+                                ),
+                                border: Border.all(
+                                  color: selectedImage == imagePath
+                                      ? Colors.blue
+                                      : Colors.transparent,
+                                  width: 3.0,
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
