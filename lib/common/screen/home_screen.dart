@@ -161,12 +161,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ElevatedButton(
+                        TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(); // 다이얼로그 닫기
                           },
-                          child: const Icon(
+                          child: Icon(
                             Icons.close,
+                            color: Colors.blue[800],
                           ),
                         ),
                       ],
@@ -174,9 +175,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text(
                       '다이어리 만들기',
                       style: TextStyle(
-                        fontSize: 25,
+                        fontSize: 30,
                         fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    const SizedBox(
+                      height: 30,
                     ),
                     Container(
                       decoration: const ShapeDecoration(
@@ -216,7 +220,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    const Text('다이어리 커버 고르기'),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    const Text(
+                      '다이어리 커버 고르기',
+                      style: TextStyle(
+                        fontSize: 17,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Container(
