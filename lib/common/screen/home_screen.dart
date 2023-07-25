@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   static String get routeName => 'home';
 
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   final viewModel = SocialViewModel(
     KakaoLogin(),
   );
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'asset/image/diary/diary4.jpg',
   ];
   String selectedImage = 'asset/image/diary/diary1.jpg'; // 기본 이미지 설정
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
