@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youandi_diary/common/component/main_drawer.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
+import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static String get routeName => 'home';
@@ -33,13 +35,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(firebase_auth_Provider);
     return Scaffold(
       backgroundColor: HOMESCREEN_COLOR,
-      // drawer: MainDrawer(
-      //   profileImg: profileImg,
-      //   nickName: nickName,
-      //   email: email,
-      // ),
+      drawer: authState.when(
+        data: (user) {
+          if (user == null) {
+            return const Text('Not authenticated');
+          } else {
+            return MainDrawer(
+              profileImg: user.photoURL ?? '',
+              nickName: user.displayName ?? '',
+              email: user.email ?? '',
+            );
+          }
+        },
+        loading: () => const CircularProgressIndicator(),
+        error: (error, stackTrace) => Text('Error: $error'),
+      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
