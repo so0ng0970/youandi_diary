@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/screen/home_screen.dart';
 import 'package:youandi_diary/user/screens/sign_screen.dart';
 
@@ -35,10 +36,16 @@ class AuthProvider extends ChangeNotifier {
           builder: (context, state) => const SignScreen(),
         ),
         GoRoute(
-          path: '/',
-          name: HomeScreen.routeName,
-          builder: (context, state) => HomeScreen(),
-        )
+            path: '/',
+            name: HomeScreen.routeName,
+            builder: (context, state) => const HomeScreen(),
+            routes: [
+              GoRoute(
+                path: 'diaryModal',
+                name: DiaryModal.routeName,
+                builder: (context, state) => const DiaryModal(),
+              ),
+            ])
       ];
   String? redirectLogic(_, GoRouterState state) {
     final loginIn = state.location == '/login';
