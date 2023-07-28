@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class DiaryModalLayout extends StatelessWidget {
   final String title;
+  final IconData icon;
   final List<Widget> children;
 
   const DiaryModalLayout({
-   required this.children,
+    required this.icon,
+    required this.children,
     required this.title,
     super.key,
   });
@@ -41,7 +43,7 @@ class DiaryModalLayout extends StatelessWidget {
                         Navigator.of(context).pop(); // 다이얼로그 닫기
                       },
                       child: Icon(
-                        Icons.close,
+                        icon,
                         color: Colors.blue[800],
                       ),
                     ),

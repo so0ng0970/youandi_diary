@@ -5,6 +5,7 @@ import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
 
 import '../../user/provider/firebase_auth_provider.dart';
+import '../../user/provider/friend_provider.dart';
 
 class DiaryModal extends ConsumerStatefulWidget {
   static String get routeName => 'diaryModal';
@@ -26,8 +27,10 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(firebase_auth_Provider);
-    bool memberToggle = false;
+    final friendSearch = ref.watch(friendProvider).searchUser;
+
     return DiaryModalLayout(
+      icon: Icons.close,
       title: '다이어리 만들기 ',
       children: [
         Container(
@@ -175,10 +178,9 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                     strokeWidth: 1,
                     child: IconButton(
                       onPressed: () {
-                        setState(() {
-                          memberToggle = !memberToggle;
-                          print(memberToggle);
-                        });
+                        memberModal(
+                          context,
+                        );
                       },
                       icon: Icon(
                         Icons.add,
@@ -193,6 +195,72 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
           ),
         ),
       ],
+    );
+  }
+
+  void memberModal(BuildContext context) {
+    TextEditingController searchController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return DiaryModalLayout(
+            icon: Icons.arrow_back_ios_rounded,
+            title: '친구 추가하기',
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // 열이 자식에 맞게 크기를 조정
+                  children: [
+                    TextField(
+                      controller: searchController,
+                      onChanged: (value) {
+                        ref.read(friendProvider).search(value);
+                      },
+                      decoration: const InputDecoration(
+                          hintText: "초대 보낼 이메일을 입력해주세요",
+                          prefixIcon: Icon(Icons.search)),
+                    ),
+                    // 검색된 친구 목록 (searchUser)을 표시하는 위젯 추가
+                    SizedBox(
+                      height: 300,
+                      child: Consumer(
+                        builder: (context, watch, child) {
+                          final friendSearch =
+                              ref.read(friendProvider).searchUser;
+
+                          return ListView.builder(
+                            shrinkWrap:
+                                true, // ListView가 스크롤 가능한 상위 위젯에 맞게 크기를 조정.
+                            itemCount: friendSearch.length,
+                            itemBuilder: (context, index) {
+                              final friend = friendSearch[index];
+
+                              return ListTile(
+                                title: Text(
+                                  friend.userName,
+                                ),
+                                subtitle: Text(
+                                  friend.email,
+                                ),
+                                onTap: () {
+                                  // 여기에서 친구를 추가하는 기능을 구현하십시오.
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        });
+      },
     );
   }
 }
