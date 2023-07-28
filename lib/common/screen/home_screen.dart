@@ -133,7 +133,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return const DiaryModal();
+        return DiaryModal();
       },
     );
   }

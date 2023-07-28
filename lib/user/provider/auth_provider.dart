@@ -43,7 +43,7 @@ class AuthProvider extends ChangeNotifier {
               GoRoute(
                 path: 'diaryModal',
                 name: DiaryModal.routeName,
-                builder: (context, state) => const DiaryModal(),
+                builder: (context, state) => DiaryModal(),
               ),
             ])
       ];
