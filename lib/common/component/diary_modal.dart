@@ -233,7 +233,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
 
                           return ListView.builder(
                             shrinkWrap:
-                                true, // ListView가 스크롤 가능한 상위 위젯에 맞게 크기를 조정.
+                                true, // ListView가 스크롤 가능한 상위 위젯에 맞게 크기를 조정 .
                             itemCount: friendSearch.length,
                             itemBuilder: (context, index) {
                               final friend = friendSearch[index];
