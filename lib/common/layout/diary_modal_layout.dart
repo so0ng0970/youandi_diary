@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class DiaryModalLayout extends StatelessWidget {
   final String title;
   final IconData icon;
+  final VoidCallback? onPressed;
   final List<Widget> children;
 
   const DiaryModalLayout({
     required this.icon,
     required this.children,
     required this.title,
+    this.onPressed,
     super.key,
   });
 
@@ -40,6 +42,9 @@ class DiaryModalLayout extends StatelessWidget {
                   children: [
                     TextButton(
                       onPressed: () {
+                        if (icon == Icons.arrow_back_ios_rounded) {
+                          onPressed;
+                        }
                         Navigator.of(context).pop(); // 다이얼로그 닫기
                       },
                       child: Icon(
