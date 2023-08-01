@@ -42,4 +42,9 @@ class FriendProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void clearSearch() {
+    searchUser = users;
+    notifyListeners();
+  }
 }

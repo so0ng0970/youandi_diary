@@ -207,6 +207,10 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
         return StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
           return DiaryModalLayout(
+            onPressed: () {
+              ref.read(friendProvider).clearSearch(); // 검색 기록 초기화
+              Navigator.of(context).pop(); // 다이얼로그 닫기
+            },
             icon: Icons.arrow_back_ios_rounded,
             title: '친구 추가하기',
             children: [
@@ -218,6 +222,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                       controller: searchController,
                       onChanged: (value) {
                         ref.read(friendProvider).search(value);
+                        setState() {}
                       },
                       decoration: const InputDecoration(
                           hintText: "초대 보낼 이메일을 입력해주세요",
