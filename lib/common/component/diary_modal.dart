@@ -35,6 +35,8 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
       },
       icon: Icons.close,
       title: '다이어리 만들기 ',
+      buttonText: '제작하기',
+      mainOnPressed: () {},
       children: [
         Container(
           decoration: const ShapeDecoration(
@@ -220,6 +222,8 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
             },
             icon: Icons.arrow_back_ios_rounded,
             title: '친구 추가하기',
+            buttonText: '친구 추가',
+            mainOnPressed: () {},
             children: [
               SingleChildScrollView(
                 child: Column(
@@ -237,6 +241,9 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                         suffixIcon: IconButton(
                           onPressed: () {
                             searchController.clear();
+                            ref
+                                .read(userProvider)
+                                .clearSearch(); // searchUser 목록 초기화
                           },
                           icon: const Icon(Icons.clear),
                         ),
@@ -244,32 +251,37 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                     ),
                     // 검색된 친구 목록 (searchUser)을 표시하는 위젯 추가
                     SizedBox(
-                      height: 300,
+                      height: 250,
                       child: Consumer(
                         builder: (context, watch, child) {
                           final friendSearch =
                               ref.read(userProvider).searchUser;
+                          final textIsEmpty = searchController.text.isEmpty;
+                          return textIsEmpty
+                              ? Container()
+                              : ListView.builder(
+                                  shrinkWrap:
+                                      true, // ListView가 스크롤 가능한 상위 위젯에 맞게 크기를 조정 .
+                                  itemCount: friendSearch.length,
+                                  itemBuilder: (context, index) {
+                                    final friend = friendSearch[index];
 
-                          return ListView.builder(
-                            shrinkWrap:
-                                true, // ListView가 스크롤 가능한 상위 위젯에 맞게 크기를 조정 .
-                            itemCount: friendSearch.length,
-                            itemBuilder: (context, index) {
-                              final friend = friendSearch[index];
-
-                              return ListTile(
-                                title: Text(
-                                  friend.userName,
-                                ),
-                                subtitle: Text(
-                                  friend.email,
-                                ),
-                                onTap: () {
-                                  // 여기에서 친구를 추가하는 기능을 구현하십시오.
-                                },
-                              );
-                            },
-                          );
+                                    return CheckboxListTile(
+                                      title: Text(
+                                        friend.userName,
+                                      ),
+                                      subtitle: Text(
+                                        friend.email,
+                                      ),
+                                      value: friend.isChecked,
+                                      onChanged: (bool? value) {
+                                        modalSetState(() {
+                                          friend.isChecked = value!;
+                                        });
+                                      },
+                                    );
+                                  },
+                                );
                         },
                       ),
                     ),

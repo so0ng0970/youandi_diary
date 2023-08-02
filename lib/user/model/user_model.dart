@@ -6,12 +6,14 @@ class UserModel {
   late String email;
   late String photoUrl;
   late String userName;
+  bool? isChecked = false;
 
   UserModel({
     required this.id,
     required this.photoUrl,
     required this.email,
     required this.userName,
+    this.isChecked,
   });
 
   UserModel.fromSnapshot(DocumentSnapshot snapshot) {

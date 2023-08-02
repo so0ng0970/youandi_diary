@@ -16,3 +16,4 @@ const UNDERLINE_FOCUS_COLOR = Color(0xFF0d66b7);
 
 // homeSreen
 const HOMESCREEN_COLOR = Color(0xFF7cacd8);
+const MODAL_BUTTON = Color(0xFF1f5586);

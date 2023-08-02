@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:youandi_diary/common/const/color.dart';
 
 class DiaryModalLayout extends StatelessWidget {
   final String title;
+  final String buttonText;
   final IconData icon;
   final VoidCallback? onPressed;
+  final VoidCallback? mainOnPressed;
   final List<Widget> children;
 
   const DiaryModalLayout({
@@ -12,6 +15,8 @@ class DiaryModalLayout extends StatelessWidget {
     required this.title,
     this.onPressed,
     super.key,
+    required this.buttonText,
+    this.mainOnPressed,
   });
 
   @override
@@ -61,6 +66,23 @@ class DiaryModalLayout extends StatelessWidget {
                 ),
                 Column(
                   children: children,
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: MODAL_BUTTON,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        20,
+                      ),
+                    ),
+                  ),
+                  onPressed: mainOnPressed,
+                  child: Text(
+                    buttonText,
+                    style: const TextStyle(
+                      fontSize: 15,
+                    ),
+                  ),
                 )
               ],
             ),
