@@ -5,7 +5,7 @@ import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
 
 import '../../user/provider/firebase_auth_provider.dart';
-import '../../user/provider/friend_provider.dart';
+import '../../user/provider/user_provider.dart';
 
 class DiaryModal extends ConsumerStatefulWidget {
   static String get routeName => 'diaryModal';
@@ -27,9 +27,12 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(firebase_auth_Provider);
-    final friendSearch = ref.watch(friendProvider).searchUser;
+    final friendSearch = ref.watch(userProvider).searchUser;
 
     return DiaryModalLayout(
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
       icon: Icons.close,
       title: '다이어리 만들기 ',
       children: [
@@ -205,10 +208,14 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
       context: context,
       builder: (context) {
         return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
+            builder: (BuildContext context, StateSetter modalSetState) {
           return DiaryModalLayout(
             onPressed: () {
-              ref.read(friendProvider).clearSearch(); // 검색 기록 초기화
+              modalSetState(() {
+                ref.read(userProvider).searchUser =
+                    ref.read(userProvider).users;
+              });
+              // 검색 기록 초기화
               Navigator.of(context).pop(); // 다이얼로그 닫기
             },
             icon: Icons.arrow_back_ios_rounded,
@@ -221,12 +228,19 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                     TextField(
                       controller: searchController,
                       onChanged: (value) {
-                        ref.read(friendProvider).search(value);
-                        setState() {}
+                        ref.read(userProvider).search(value);
+                        modalSetState(() {});
                       },
-                      decoration: const InputDecoration(
-                          hintText: "초대 보낼 이메일을 입력해주세요",
-                          prefixIcon: Icon(Icons.search)),
+                      decoration: InputDecoration(
+                        hintText: "초대 보낼 이메일을 입력해주세요",
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            searchController.clear();
+                          },
+                          icon: const Icon(Icons.clear),
+                        ),
+                      ),
                     ),
                     // 검색된 친구 목록 (searchUser)을 표시하는 위젯 추가
                     SizedBox(
@@ -234,7 +248,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                       child: Consumer(
                         builder: (context, watch, child) {
                           final friendSearch =
-                              ref.read(friendProvider).searchUser;
+                              ref.read(userProvider).searchUser;
 
                           return ListView.builder(
                             shrinkWrap:

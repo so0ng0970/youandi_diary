@@ -1,20 +1,19 @@
-// FriendProvider 변경
+// UserProvider 변경
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
 
-final friendProvider =
-    ChangeNotifierProvider.autoDispose<FriendProvider>((ref) {
-  return FriendProvider(FirebaseFirestore.instance.collection('user'));
+final userProvider = ChangeNotifierProvider.autoDispose<UserProvider>((ref) {
+  return UserProvider(FirebaseFirestore.instance.collection('user'));
 });
 
-class FriendProvider with ChangeNotifier {
+class UserProvider with ChangeNotifier {
   CollectionReference userReference;
   List<UserModel> users = [];
   List<UserModel> searchUser = [];
 
-  FriendProvider(this.userReference) {
+  UserProvider(this.userReference) {
     fetchUser();
   }
 
@@ -44,7 +43,7 @@ class FriendProvider with ChangeNotifier {
   }
 
   void clearSearch() {
-    searchUser = users;
+    searchUser = [];
     notifyListeners();
   }
 }

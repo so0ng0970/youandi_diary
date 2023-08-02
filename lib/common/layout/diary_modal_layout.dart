@@ -41,12 +41,7 @@ class DiaryModalLayout extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed: () {
-                        if (icon == Icons.arrow_back_ios_rounded) {
-                          onPressed;
-                        }
-                        Navigator.of(context).pop(); // 다이얼로그 닫기
-                      },
+                      onPressed: onPressed,
                       child: Icon(
                         icon,
                         color: Colors.blue[800],
