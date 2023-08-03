@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
+import 'package:youandi_diary/user/model/user_model.dart';
 
 import '../../user/provider/firebase_auth_provider.dart';
 import '../../user/provider/user_provider.dart';
@@ -23,7 +24,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
     'asset/image/diary/diary4.jpg',
   ];
   String selectedImage = 'asset/image/diary/diary1.jpg'; // 기본 이미지 설정
-
+  final List<UserModel> _selectedMembers = [];
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(firebase_auth_Provider);
@@ -251,7 +252,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                     ),
                     // 검색된 친구 목록 (searchUser)을 표시하는 위젯 추가
                     SizedBox(
-                      height: 250,
+                      height: 200,
                       child: Consumer(
                         builder: (context, watch, child) {
                           final friendSearch =
@@ -267,24 +268,35 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                                     final friend = friendSearch[index];
 
                                     return CheckboxListTile(
-                                      title: Text(
-                                        friend.userName,
-                                      ),
-                                      subtitle: Text(
-                                        friend.email,
-                                      ),
-                                      value: friend.isChecked,
-                                      onChanged: (bool? value) {
-                                        modalSetState(() {
-                                          friend.isChecked = value!;
+                                        title: Text(
+                                          friend.userName,
+                                        ),
+                                        subtitle: Text(
+                                          friend.email,
+                                        ),
+                                        value: friend.isChecked,
+                                        onChanged: (bool? value) {
+                                          modalSetState(() {
+                                            if (value != null) {
+                                              modalSetState(() {
+                                                friend.isChecked = value;
+                                                if (value) {
+                                                  _selectedMembers.add(friend);
+                                                } else {
+                                                  _selectedMembers.removeWhere(
+                                                      (user) =>
+                                                          user.id == friend.id);
+                                                }
+                                              });
+                                            }
+                                          });
                                         });
-                                      },
-                                    );
                                   },
                                 );
                         },
                       ),
                     ),
+                    selectedFriends(),
                   ],
                 ),
               ),
@@ -292,6 +304,45 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
           );
         });
       },
+    );
+  }
+
+  Widget selectedFriends() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: Row(
+          children: _selectedMembers
+              .map(
+                (friend) => Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                  ),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(friend.photoUrl ?? ''),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        friend.userName.length > 7
+                            ? '${friend.userName.substring(0, 7)}...'
+                            : friend.userName,
+                      ),
+                      // 여기서 이메일을 자르는 논리를 추가합니다.
+                      Text(
+                        friend.email.length > 7
+                            ? '${friend.email.substring(0, 7)}...'
+                            : friend.email,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
     );
   }
 }

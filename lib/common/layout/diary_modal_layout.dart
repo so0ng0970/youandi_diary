@@ -54,9 +54,6 @@ class DiaryModalLayout extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
                 Text(
                   title,
                   style: const TextStyle(
@@ -64,8 +61,14 @@ class DiaryModalLayout extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const SizedBox(
+                  height: 5,
+                ),
                 Column(
                   children: children,
+                ),
+                const SizedBox(
+                  height: 15,
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
