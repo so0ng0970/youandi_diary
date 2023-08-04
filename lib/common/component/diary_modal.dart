@@ -322,7 +322,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                   child: Column(
                     children: [
                       CircleAvatar(
-                        backgroundImage: NetworkImage(friend.photoUrl ?? ''),
+                        backgroundImage: selectImage(friend.photoUrl),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -344,5 +344,14 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
         ),
       ),
     );
+  }
+
+  ImageProvider selectImage(String? imageUrl) {
+    if (imageUrl != null &&
+        (imageUrl.startsWith('http') || imageUrl.startsWith('https'))) {
+      return NetworkImage(imageUrl);
+    } else {
+      return const AssetImage('asset/image/diary/diary1.jpg');
+    }
   }
 }
