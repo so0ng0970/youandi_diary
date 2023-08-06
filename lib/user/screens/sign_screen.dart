@@ -23,7 +23,7 @@ class _SignScreenState extends State<SignScreen> {
   final TextEditingController nicknameFocusController = TextEditingController();
   final TextEditingController emailFocusController = TextEditingController();
   final TextEditingController passwordFocusController = TextEditingController();
-  String photoUrl = '';
+  String photoUrl = 'asset/image/diary/modal_bg.jpg';
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -45,6 +45,11 @@ class _SignScreenState extends State<SignScreen> {
         email: emailFocusController.text,
         password: passwordFocusController.text,
       );
+      if (_authentication.currentUser!.providerData
+              .any((userInfo) => userInfo.providerId == 'google.com') &&
+          _authentication.currentUser!.photoURL != null) {
+        photoUrl = _authentication.currentUser!.photoURL!;
+      }
       await FirebaseFirestore.instance
           .collection('user')
           .doc(newUser.user!.uid)
