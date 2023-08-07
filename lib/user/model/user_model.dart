@@ -19,7 +19,7 @@ class UserModel {
   UserModel.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     id = snapshot.id;
-    photoUrl = data['photoUrl'] ?? 'asset/image/diary/diary1.jpg';
+    photoUrl = data['photoUrl'];
     email = data['email'] ?? '';
     userName = data['userName'] ?? '';
   }

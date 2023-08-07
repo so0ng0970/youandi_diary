@@ -1,5 +1,5 @@
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-import 'package:youandi_diary/user/model/social_login.dart';
+import 'package:youandi_diary/user/model/social_view_model.dart';
 
 class KakaoLogin implements SocialLogin {
   @override

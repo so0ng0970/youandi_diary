@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/user/layout/button_layout.dart';
 import 'package:youandi_diary/user/layout/sign_login_layout.dart';
+import 'package:youandi_diary/user/model/social_view_model.dart';
 import 'package:youandi_diary/user/model/validate.dart';
-import 'package:youandi_diary/user/screens/login_screen.dart';
 
 class SignScreen extends StatefulWidget {
   static String get routeName => '/sign';
@@ -16,15 +14,12 @@ class SignScreen extends StatefulWidget {
 }
 
 class _SignScreenState extends State<SignScreen> {
-  final _authentication = FirebaseAuth.instance;
   final FocusNode nicknameFocus = FocusNode();
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
   final TextEditingController nicknameFocusController = TextEditingController();
   final TextEditingController emailFocusController = TextEditingController();
   final TextEditingController passwordFocusController = TextEditingController();
-  String photoUrl = 'asset/image/diary/modal_bg.jpg';
-
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   InputDecoration inputDecoration(String hintText) {
@@ -36,49 +31,6 @@ class _SignScreenState extends State<SignScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> registerUser() async {
-    formKey.currentState?.validate();
-    try {
-      final newUser = await _authentication.createUserWithEmailAndPassword(
-        email: emailFocusController.text,
-        password: passwordFocusController.text,
-      );
-      if (_authentication.currentUser!.providerData
-              .any((userInfo) => userInfo.providerId == 'google.com') &&
-          _authentication.currentUser!.photoURL != null) {
-        photoUrl = _authentication.currentUser!.photoURL!;
-      }
-      await FirebaseFirestore.instance
-          .collection('user')
-          .doc(newUser.user!.uid)
-          .set({
-        'photoUrl': photoUrl,
-        'userName': nicknameFocusController.text,
-        'email': emailFocusController.text,
-      });
-      if (newUser.user != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return const LoginScreen();
-            },
-          ),
-        );
-      }
-    } catch (e) {
-      print(e);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('이메일과 비밀번호를 확인해주세요'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    }
   }
 
   @override
@@ -159,7 +111,18 @@ class _SignScreenState extends State<SignScreen> {
                 height: 50,
               ),
               _SignButton(
-                onPressed: registerUser,
+                onPressed: () async {
+                  if (formKey.currentState?.validate() ?? false) {
+                    final viewModel = LoginSignModel(null);
+                    await viewModel.registerUser(
+                      context,
+                      mounted,
+                      nicknameFocusController,
+                      emailFocusController,
+                      passwordFocusController,
+                    );
+                  }
+                },
               )
             ],
           ),
@@ -170,7 +133,7 @@ class _SignScreenState extends State<SignScreen> {
 }
 
 class _SignButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final Future<void> Function() onPressed;
 
   const _SignButton({required this.onPressed});
 

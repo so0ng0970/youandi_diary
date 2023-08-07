@@ -17,7 +17,7 @@ class MainDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = ref.watch(authProvider);
-    final viewModel = SocialViewModel(
+    final viewModel = LoginSignModel(
       KakaoLogin(),
     );
     return Drawer(
