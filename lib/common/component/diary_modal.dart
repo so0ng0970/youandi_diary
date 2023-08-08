@@ -142,43 +142,20 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
         const SizedBox(
           height: 20,
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
+        Align(
+          alignment: Alignment.centerLeft,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 //  사용자 프로필 이미지 표시
-                authState.when(
-                  data: (user) {
-                    if (user != null) {
-                      return CircleAvatar(
-                        backgroundColor: Colors.blue[900],
-                        radius: 32,
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundImage: NetworkImage(
-                            user.photoURL ?? '',
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const SizedBox(); // 유저 데이터가 없을 경우 빈 SizedBox를 반환하거나 다른 대체 위젯을 사용할 수 있습니다.
-                    }
-                  },
-                  loading: () =>
-                      const CircularProgressIndicator(), // 로딩 중일 때 표시할 위젯
-                  error: (error, stackTrace) =>
-                      Text('Error: $error'), // 에러 발생 시 표시할 위젯
-                ),
-
+                selectedFriends(),
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: 10,
+                    left: 5,
                   ),
                   child: DottedBorder(
-                    padding: const EdgeInsets.all(7),
                     borderType: BorderType.Circle,
                     color: Colors.grey[700]!,
                     strokeWidth: 1,
@@ -195,7 +172,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -218,13 +195,20 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                 ref.read(userProvider).searchUser =
                     ref.read(userProvider).users;
               });
-              // 검색 기록 초기화
+              // for (var user in ref.read(userProvider).users) {
+              //   user.isChecked = false;
+              // }
+              // _selectedMembers.clear();
               Navigator.of(context).pop(); // 다이얼로그 닫기
             },
             icon: Icons.arrow_back_ios_rounded,
             title: '친구 추가하기',
             buttonText: '친구 추가',
-            mainOnPressed: () {},
+            mainOnPressed: () {
+              modalSetState(() {
+                Navigator.of(context).pop();
+              });
+            },
             children: [
               SingleChildScrollView(
                 child: Column(
@@ -308,41 +292,43 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   }
 
   Widget selectedFriends() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: Row(
-          children: _selectedMembers
-              .map(
-                (friend) => Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 8.0,
-                  ),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        backgroundImage: selectImage(
-                          friend.photoUrl,
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: _selectedMembers
+                .map(
+                  (friend) => Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                    ),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: selectImage(
+                            friend.photoUrl,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        friend.userName.length > 7
-                            ? '${friend.userName.substring(0, 7)}...'
-                            : friend.userName,
-                      ),
-                      // 여기서 이메일을 자르는 논리를 추가합니다.
-                      Text(
-                        friend.email.length > 7
-                            ? '${friend.email.substring(0, 7)}...'
-                            : friend.email,
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          friend.userName.length > 7
+                              ? '${friend.userName.substring(0, 7)}...'
+                              : friend.userName,
+                        ),
+                        Text(
+                          friend.email.length > 7
+                              ? '${friend.email.substring(0, 7)}...'
+                              : friend.email,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              )
-              .toList(),
+                )
+                .toList(),
+          ),
         ),
       ),
     );

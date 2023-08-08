@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 import 'package:youandi_diary/user/provider/auth_provider.dart';
+import 'package:youandi_diary/user/provider/user_provider.dart';
 
 class MainDrawer extends ConsumerWidget {
   final String profileImg;
@@ -37,9 +38,7 @@ class MainDrawer extends ConsumerWidget {
               ),
               currentAccountPicture: CircleAvatar(
                 // 현재 계정 이미지 set
-                backgroundImage: NetworkImage(
-                  profileImg,
-                ),
+                backgroundImage: selectImage(imageUrl: profileImg),
               ),
               accountName: Text(
                 nickName,

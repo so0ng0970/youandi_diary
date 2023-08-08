@@ -14,53 +14,37 @@ class LoginSignModel {
   bool isLogined = false;
   kakao.User? user;
 
-  LoginSignModel(
-    this._socialLogin,
-  );
+  LoginSignModel(this._socialLogin);
 
   Future login(BuildContext context) async {
     isLogined = await _socialLogin!.login();
     if (isLogined) {
       user = await kakao.UserApi.instance.me();
 
-      final token = await _firebaseAuthDataSource.createCustomToken({
+      final userInfo = {
         'uid': user!.id.toString(),
         'displayName': user!.kakaoAccount!.profile!.nickname,
         'email': user!.kakaoAccount!.email!,
         'photoURL': user!.kakaoAccount!.profile!.profileImageUrl!,
-      });
+      };
+
+      final token = await _firebaseAuthDataSource.createCustomToken(userInfo);
 
       await FirebaseAuth.instance.signInWithCustomToken(token);
-      try {
-        // 이미 등록된 이메일 주소로 로그인
-        await _authentication.signInWithEmailAndPassword(
-          email: user!.kakaoAccount!.email!,
-          password: user!.kakaoAccount!.profile!.profileImageUrl!,
-        );
-
-        await FirebaseFirestore.instance
-            .collection('user')
-            .doc(_authentication.currentUser!.uid)
-            .set({
-          'displayName': user!.kakaoAccount!.profile!.nickname,
-          'email': user!.kakaoAccount!.email!,
-          'photoURL': user!.kakaoAccount!.profile!.profileImageUrl!,
-        });
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return const HomeScreen();
-            },
-          ),
-        );
-      } catch (e) {
-        print('Failed to sign in with existing email: $e');
-        // 로그인 실패 처리
-        return;
-      }
+      await saveUserFirestore(userInfo);
+      await navigateToHomeScreen(context);
     }
+  }
+
+  Future<void> navigateToHomeScreen(BuildContext context) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return const HomeScreen();
+        },
+      ),
+    );
   }
 
   Future<void> registerUser(
@@ -82,40 +66,55 @@ class LoginSignModel {
         email: emailFocusController.text,
         password: passwordFocusController.text,
       );
-      if (authentication.currentUser!.providerData
-              .any((userInfo) => userInfo.providerId == 'google.com') &&
-          authentication.currentUser!.photoURL != null) {
+
+      if (isProvidedByGoogle(authentication)) {
         photoUrl = authentication.currentUser!.photoURL!;
       }
-      await FirebaseFirestore.instance
-          .collection('user')
-          .doc(newUser.user!.uid)
-          .set({
+
+      final userData = {
         'photoUrl': photoUrl,
         'userName': nicknameFocusController.text,
         'email': emailFocusController.text,
-      });
-      if (newUser.user != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return const LoginScreen();
-            },
-          ),
-        );
-      }
+      };
+
+      await FirebaseFirestore.instance
+          .collection('user')
+          .doc(newUser.user!.uid)
+          .set(userData);
+
+      navigateToLoginScreen(context);
     } catch (e) {
-      print(e);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('이메일과 비밀번호를 확인해주세요'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      handleRegistrationError(context, mounted, e);
     }
+  }
+
+  bool isProvidedByGoogle(FirebaseAuth authentication) {
+    return authentication.currentUser!.providerData
+            .any((userInfo) => userInfo.providerId == 'google.com') &&
+        authentication.currentUser!.photoURL != null;
+  }
+
+  void handleRegistrationError(BuildContext context, bool mounted, dynamic e) {
+    print(e);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('이메일과 비밀번호를 확인해주세요'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  Future<void> navigateToLoginScreen(BuildContext context) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const LoginScreen();
+        },
+      ),
+    );
   }
 
   Future<UserCredential> signInWithGoogle() async {
@@ -126,13 +125,32 @@ class LoginSignModel {
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    await saveUserFirestore({
+      'userName': userCredential.user?.displayName ?? '',
+      'email': userCredential.user?.email ?? '',
+      'photoUrl': userCredential.user?.photoURL ?? '',
+    });
+
+    return userCredential;
   }
 
   Future logout() async {
     await _socialLogin!.logout();
     isLogined = false;
     user = null;
+  }
+
+  Future<void> saveUserFirestore(Map<String, dynamic> userData) async {
+    final user = _authentication.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('user')
+          .doc(user.uid)
+          .set(userData, SetOptions(merge: true));
+    }
   }
 }
 
