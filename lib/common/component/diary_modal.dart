@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
@@ -29,7 +30,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   Widget build(BuildContext context) {
     final authState = ref.watch(firebase_auth_Provider);
     final friendSearch = ref.watch(userProvider).searchUser;
-
+    final selectedMembersProvider = StateProvider<List<UserModel>>((ref) => []);
     return DiaryModalLayout(
       onPressed: () {
         Navigator.of(context).pop();
@@ -146,34 +147,37 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
           alignment: Alignment.centerLeft,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                //  사용자 프로필 이미지 표시
-                selectedFriends(),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 5,
-                  ),
-                  child: DottedBorder(
-                    borderType: BorderType.Circle,
-                    color: Colors.grey[700]!,
-                    strokeWidth: 1,
-                    child: IconButton(
-                      onPressed: () {
-                        memberModal(
-                          context,
-                        );
-                      },
-                      icon: Icon(
-                        Icons.add,
-                        size: 30.0,
-                        color: Colors.grey[900]!,
+            child: SizedBox(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  //  사용자 프로필 이미지 표시
+
+                  selectedFriends(setState),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 5,
+                    ),
+                    child: DottedBorder(
+                      borderType: BorderType.Circle,
+                      color: Colors.grey[700]!,
+                      strokeWidth: 1,
+                      child: IconButton(
+                        onPressed: () {
+                          memberModal(
+                            context,
+                          );
+                        },
+                        icon: Icon(
+                          Icons.add,
+                          size: 30.0,
+                          color: Colors.grey[900]!,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -191,23 +195,24 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
             builder: (BuildContext context, StateSetter modalSetState) {
           return DiaryModalLayout(
             onPressed: () {
-              modalSetState(() {
-                ref.read(userProvider).searchUser =
-                    ref.read(userProvider).users;
-              });
-              // for (var user in ref.read(userProvider).users) {
-              //   user.isChecked = false;
-              // }
-              // _selectedMembers.clear();
+              modalSetState(
+                () {
+                  ref.read(userProvider).searchUser =
+                      ref.read(userProvider).users;
+                  for (var user in ref.read(userProvider).users) {
+                    user.isChecked = false;
+                  }
+                  _selectedMembers.clear();
+                },
+              );
+              // 검색 기록 초기화
               Navigator.of(context).pop(); // 다이얼로그 닫기
             },
             icon: Icons.arrow_back_ios_rounded,
             title: '친구 추가하기',
             buttonText: '친구 추가',
             mainOnPressed: () {
-              modalSetState(() {
-                Navigator.of(context).pop();
-              });
+              context.pop();
             },
             children: [
               SingleChildScrollView(
@@ -260,27 +265,19 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                                         ),
                                         value: friend.isChecked,
                                         onChanged: (bool? value) {
-                                          modalSetState(() {
-                                            if (value != null) {
-                                              modalSetState(() {
-                                                friend.isChecked = value;
-                                                if (value) {
-                                                  _selectedMembers.add(friend);
-                                                } else {
-                                                  _selectedMembers.removeWhere(
-                                                      (user) =>
-                                                          user.id == friend.id);
-                                                }
-                                              });
-                                            }
-                                          });
+                                          modalSetState(
+                                            () => selectFriend(
+                                              value,
+                                              friend,
+                                            ),
+                                          );
                                         });
                                   },
                                 );
                         },
                       ),
                     ),
-                    selectedFriends(),
+                    selectedFriends(modalSetState),
                   ],
                 ),
               ),
@@ -291,47 +288,72 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
     );
   }
 
-  Widget selectedFriends() {
+  Widget selectedFriends(StateSetter modalSetState) {
     return Align(
       alignment: Alignment.centerLeft,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: _selectedMembers
-                .map(
-                  (friend) => Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                    ),
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          backgroundImage: selectImage(
-                            friend.photoUrl,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: _selectedMembers
+              .map(
+                (friend) => Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                  ),
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: selectImage(
+                              friend.photoUrl,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            friend.userName.length > 7
+                                ? '${friend.userName.substring(0, 7)}...'
+                                : friend.userName,
+                          ),
+                          Text(
+                            friend.email.length > 7
+                                ? '${friend.email.substring(0, 7)}...'
+                                : friend.email,
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        top: -14,
+                        left: 24,
+                        child: IconButton(
+                          onPressed: () {
+                            modalSetState(() => {selectFriend(false, friend)});
+                            (() => {selectFriend(false, friend)});
+                          },
+                          icon: const Icon(
+                            Icons.remove_circle_rounded,
+                            color: REMOVE_COLOR,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          friend.userName.length > 7
-                              ? '${friend.userName.substring(0, 7)}...'
-                              : friend.userName,
-                        ),
-                        Text(
-                          friend.email.length > 7
-                              ? '${friend.email.substring(0, 7)}...'
-                              : friend.email,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                )
-                .toList(),
-          ),
+                ),
+              )
+              .toList(),
         ),
       ),
     );
+  }
+
+  void selectFriend(bool? value, UserModel friend) {
+    friend.isChecked = value ?? false;
+    if (value ?? false) {
+      _selectedMembers.add(friend);
+    } else {
+      _selectedMembers.removeWhere((user) => user.id == friend.id);
+    }
   }
 
   ImageProvider selectImage(String? imageUrl) {

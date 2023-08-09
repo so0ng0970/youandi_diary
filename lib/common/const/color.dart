@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // common
-
+const REMOVE_COLOR = Color(0xFFb04343);
 const WHITE_COLOR = Color(0xFFFFFFFF);
 const BACKGROUND_COLOR = Color(0xFFb8d6f2);
 
