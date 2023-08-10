@@ -2,14 +2,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
-  late String id;
+  late String? id;
   late String email;
   late String photoUrl;
   late String userName;
   bool? isChecked = false;
 
   UserModel({
-    required this.id,
+    this.id,
     required this.photoUrl,
     required this.email,
     required this.userName,

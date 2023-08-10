@@ -4,9 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/common/const/data.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
+import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
 
 final userProvider = ChangeNotifierProvider.autoDispose<UserProvider>((ref) {
-  return UserProvider(FirebaseFirestore.instance.collection('user'));
+  final firebaseAuth = ref.watch(firebase_auth_Provider);
+  final currentEmail = firebaseAuth.maybeWhen(
+    data: (user) => user?.email ?? '',
+    orElse: () => '',
+  );
+
+  return UserProvider(
+      FirebaseFirestore.instance.collection(
+        'user',
+      ),
+      currentEmail);
 });
 
 class UserProvider with ChangeNotifier {
@@ -14,15 +25,18 @@ class UserProvider with ChangeNotifier {
   List<UserModel> users = [];
   List<UserModel> searchUser = [];
 
-  UserProvider(this.userReference) {
-    fetchUser();
+  UserProvider(this.userReference, currentEmail) {
+    fetchUser(currentEmail);
   }
 
-  Future<void> fetchUser() async {
+  Future<void> fetchUser(String currentEmail) async {
     users = await userReference.get().then((QuerySnapshot results) {
-      return results.docs.map((DocumentSnapshot document) {
-        return UserModel.fromSnapshot(document);
-      }).toList();
+      return results.docs
+          .map((DocumentSnapshot document) {
+            return UserModel.fromSnapshot(document);
+          })
+          .where((user) => user.email != currentEmail)
+          .toList();
     });
     searchUser = users;
     notifyListeners();
@@ -49,7 +63,7 @@ class UserProvider with ChangeNotifier {
   }
 }
 
-// 사용자 프로필 사진 
+// 사용자 프로필 사진
 ImageProvider selectImage({String? imageUrl}) {
   if (imageUrl != null &&
       (imageUrl.startsWith('http') || imageUrl.startsWith('https'))) {

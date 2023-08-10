@@ -11,6 +11,7 @@ import '../../user/provider/user_provider.dart';
 
 class DiaryModal extends ConsumerStatefulWidget {
   static String get routeName => 'diaryModal';
+
   const DiaryModal({Key? key}) : super(key: key);
 
   @override
@@ -18,19 +19,55 @@ class DiaryModal extends ConsumerStatefulWidget {
 }
 
 class _DiaryModalState extends ConsumerState<DiaryModal> {
+  final bool _isInitialized = false;
   List<String> diaryCoverImages = [
     'asset/image/diary/diary1.jpg',
     'asset/image/diary/diary2.jpg',
     'asset/image/diary/diary3.jpg',
     'asset/image/diary/diary4.jpg',
   ];
+
   String selectedImage = 'asset/image/diary/diary1.jpg'; // 기본 이미지 설정
   final List<UserModel> _selectedMembers = [];
+  String myId = '';
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      final myInfo = ref.watch(firebase_auth_Provider).when(
+        data: (user) {
+          String userName = user?.displayName ?? '';
+          String userEmail = user?.email ?? '이메일 없음';
+          String userPhotoUrl = user?.photoURL ?? '';
+          String userId = user!.uid;
+
+          UserModel myInfo = UserModel(
+            userName: userName,
+            email: userEmail,
+            photoUrl: userPhotoUrl,
+            id: userId,
+          );
+          myId = user.uid;
+
+          setState(() {
+            _selectedMembers.add(myInfo);
+          });
+        },
+        error: (Object error, StackTrace? stackTrace) {
+          // 에러 처리
+        },
+        loading: () {
+          // 로딩 처리
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(firebase_auth_Provider);
     final friendSearch = ref.watch(userProvider).searchUser;
     final selectedMembersProvider = StateProvider<List<UserModel>>((ref) => []);
+
     return DiaryModalLayout(
       onPressed: () {
         Navigator.of(context).pop();
@@ -202,16 +239,24 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                   for (var user in ref.read(userProvider).users) {
                     user.isChecked = false;
                   }
-                  _selectedMembers.clear();
+                  _selectedMembers.removeWhere((e) => e.id != myId);
                 },
               );
-              // 검색 기록 초기화
-              Navigator.of(context).pop(); // 다이얼로그 닫기
+              setState(() {});
+              context.pop(); // 다이얼로그 닫기
             },
             icon: Icons.arrow_back_ios_rounded,
             title: '친구 추가하기',
             buttonText: '친구 추가',
             mainOnPressed: () {
+              setState(() {});
+              print(_selectedMembers
+                  .map(
+                    (e) =>
+                        'UserModel(id: ${e.id}, name: ${e.userName}, email: ${e.email},${e.id})',
+                  )
+                  .toList());
+
               context.pop();
             },
             children: [
@@ -288,7 +333,9 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
     );
   }
 
-  Widget selectedFriends(StateSetter modalSetState) {
+  Widget selectedFriends(
+    StateSetter modalSetState,
+  ) {
     return Align(
       alignment: Alignment.centerLeft,
       child: SingleChildScrollView(
@@ -323,20 +370,22 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                           ),
                         ],
                       ),
-                      Positioned(
-                        top: -14,
-                        left: 24,
-                        child: IconButton(
-                          onPressed: () {
-                            modalSetState(() => {selectFriend(false, friend)});
-                            (() => {selectFriend(false, friend)});
-                          },
-                          icon: const Icon(
-                            Icons.remove_circle_rounded,
-                            color: REMOVE_COLOR,
+                      if (friend.id != myId)
+                        Positioned(
+                          top: -14,
+                          left: 24,
+                          child: IconButton(
+                            onPressed: () {
+                              modalSetState(
+                                  () => {selectFriend(false, friend)});
+                              (() => {selectFriend(false, friend)});
+                            },
+                            icon: const Icon(
+                              Icons.remove_circle_rounded,
+                              color: REMOVE_COLOR,
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
