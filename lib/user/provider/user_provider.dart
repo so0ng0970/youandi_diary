@@ -33,7 +33,7 @@ class UserProvider with ChangeNotifier {
     users = await userReference.get().then((QuerySnapshot results) {
       return results.docs
           .map((DocumentSnapshot document) {
-            return UserModel.fromSnapshot(document);
+            return UserModel.fromJson(document.data() as Map<String, dynamic>);
           })
           .where((user) => user.email != currentEmail)
           .toList();

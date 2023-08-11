@@ -44,6 +44,8 @@ dependencies:
   go_router: ^7.0.1
   flutter_riverpod: ^2.0.2
   dotted_border: ^2.0.0+3
+  json_annotation: ^4.8.0
+  retrofit: ">=4.0.0 <5.0.0"
 
 dev_dependencies:
   flutter_test:
@@ -55,6 +57,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  build_runner: ^2.3.3
+  json_serializable: ^6.6.0
+  retrofit_generator: ">=5.0.0 <6.0.0"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

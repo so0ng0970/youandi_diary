@@ -24,70 +24,67 @@ class DiaryModalLayout extends StatelessWidget {
     return Dialog(
       child: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(
-              'asset/image/diary/modal_bg.jpg',
-            ),
-            fit: BoxFit.cover,
-          ),
+          color: MODAL_COLOR,
         ),
         width: 350,
         height: 500,
-        child: Padding(
-          padding: const EdgeInsets.all(
-            10.0,
-          ),
-          child: Form(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: onPressed,
-                      child: Icon(
-                        icon,
-                        color: Colors.blue[800],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(
+              10.0,
+            ),
+            child: Form(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: onPressed,
+                        child: Icon(
+                          icon,
+                          color: Colors.blue[800],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                    ],
                   ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Column(
-                  children: children,
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: MODAL_BUTTON,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        20,
-                      ),
-                    ),
-                  ),
-                  onPressed: mainOnPressed,
-                  child: Text(
-                    buttonText,
+                  Text(
+                    title,
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                )
-              ],
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Column(
+                    children: children,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MODAL_BUTTON,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          20,
+                        ),
+                      ),
+                    ),
+                    onPressed: mainOnPressed,
+                    child: Text(
+                      buttonText,
+                      style: const TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

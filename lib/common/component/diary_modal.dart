@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
-
+import '../../diary/model/diary_list_model.dart';
+import '../../diary/provider/diary_provider.dart';
 import '../../user/provider/firebase_auth_provider.dart';
 import '../../user/provider/user_provider.dart';
 
@@ -19,6 +20,8 @@ class DiaryModal extends ConsumerStatefulWidget {
 }
 
 class _DiaryModalState extends ConsumerState<DiaryModal> {
+  final FocusNode titleFocus = FocusNode();
+  final TextEditingController titleFocusController = TextEditingController();
   final bool _isInitialized = false;
   List<String> diaryCoverImages = [
     'asset/image/diary/diary1.jpg',
@@ -66,6 +69,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   @override
   Widget build(BuildContext context) {
     final friendSearch = ref.watch(userProvider).searchUser;
+
     final selectedMembersProvider = StateProvider<List<UserModel>>((ref) => []);
 
     return DiaryModalLayout(
@@ -75,7 +79,22 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
       icon: Icons.close,
       title: '다이어리 만들기 ',
       buttonText: '제작하기',
-      mainOnPressed: () {},
+      mainOnPressed: () {
+        ref.watch(diaryProvider).saveDiaryToFirestore(
+              DiaryListModel(
+                title: titleFocusController.text,
+                coverImg: selectedImage,
+                member: _selectedMembers
+                    .map((user) => {
+                          'id': user.id,
+                          'userName': user.userName,
+                          'photoUrl': user.photoUrl,
+                          // 기타 필요한 정보 추가
+                        })
+                    .toList(),
+              ),
+            );
+      },
       children: [
         Container(
           decoration: const ShapeDecoration(
@@ -100,6 +119,10 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
             ),
           ),
           child: TextFormField(
+            key: const ValueKey(1),
+            controller: titleFocusController,
+            focusNode: titleFocus,
+            keyboardType: TextInputType.name,
             decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
                 borderSide: const BorderSide(color: Colors.white),
@@ -132,19 +155,15 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
         const SizedBox(
           height: 5,
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            color: WHITE_COLOR,
-            width: 430,
-            height: 115,
+        SizedBox(
+          height: 130,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 100.0,
-                  crossAxisSpacing: 8.0,
-                ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
                 itemCount: diaryCoverImages.length,
                 itemBuilder: (context, index) {
                   final imagePath = diaryCoverImages[index];
@@ -155,6 +174,9 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                       });
                     },
                     child: Container(
+                      margin: const EdgeInsets.all(6.0),
+                      width: selectedImage == imagePath ? 110 : 100,
+                      height: selectedImage == imagePath ? 130 : 100,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(
                           8.0,
@@ -178,7 +200,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
           ),
         ),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         Align(
           alignment: Alignment.centerLeft,
