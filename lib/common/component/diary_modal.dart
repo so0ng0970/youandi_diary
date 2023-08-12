@@ -5,10 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
-import '../../diary/model/diary_list_model.dart';
+import '../../diary/model/diary_model.dart';
 import '../../diary/provider/diary_provider.dart';
 import '../../user/provider/firebase_auth_provider.dart';
 import '../../user/provider/user_provider.dart';
+import '../utils/data_utils.dart';
 
 class DiaryModal extends ConsumerStatefulWidget {
   static String get routeName => 'diaryModal';
@@ -69,8 +70,8 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   @override
   Widget build(BuildContext context) {
     final friendSearch = ref.watch(userProvider).searchUser;
-
     final selectedMembersProvider = StateProvider<List<UserModel>>((ref) => []);
+    final dateTime = DateTime.now();
 
     return DiaryModalLayout(
       onPressed: () {
@@ -79,21 +80,26 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
       icon: Icons.close,
       title: '다이어리 만들기 ',
       buttonText: '제작하기',
-      mainOnPressed: () {
-        ref.watch(diaryProvider).saveDiaryToFirestore(
-              DiaryListModel(
-                title: titleFocusController.text,
-                coverImg: selectedImage,
-                member: _selectedMembers
-                    .map((user) => {
-                          'id': user.id,
-                          'userName': user.userName,
-                          'photoUrl': user.photoUrl,
-                          // 기타 필요한 정보 추가
-                        })
-                    .toList(),
-              ),
-            );
+      mainOnPressed: () async {
+        DiaryModel savedDiary =
+            await ref.watch(diaryProvider).saveDiaryToFirestore(
+                  DiaryModel(
+                    dataTime: DataUtils.getTimeFromDateTime(
+                      dateTime: dateTime,
+                    ).toString(),
+                    title: titleFocusController.text,
+                    coverImg: selectedImage,
+                    member: _selectedMembers
+                        .map((UserModel user) => UserModel(
+                              id: user.id,
+                              userName: user.userName,
+                              photoUrl: user.photoUrl,
+                            ))
+                        .toList(),
+                  ),
+                );
+        await ref.read(diaryListProvider).addDiary(savedDiary);
+        context.pop();
       },
       children: [
         Container(
@@ -328,7 +334,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                                           friend.userName,
                                         ),
                                         subtitle: Text(
-                                          friend.email,
+                                          friend.email!,
                                         ),
                                         value: friend.isChecked,
                                         onChanged: (bool? value) {
@@ -386,9 +392,9 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                                 : friend.userName,
                           ),
                           Text(
-                            friend.email.length > 7
-                                ? '${friend.email.substring(0, 7)}...'
-                                : friend.email,
+                            friend.email!.length > 7
+                                ? '${friend.email!.substring(0, 7)}...'
+                                : friend.email!,
                           ),
                         ],
                       ),
@@ -400,7 +406,6 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                             onPressed: () {
                               modalSetState(
                                   () => {selectFriend(false, friend)});
-                              (() => {selectFriend(false, friend)});
                             },
                             icon: const Icon(
                               Icons.remove_circle_rounded,
@@ -423,7 +428,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
     if (value ?? false) {
       _selectedMembers.add(friend);
     } else {
-      _selectedMembers.removeWhere((user) => user.id == friend.id);
+      _selectedMembers.remove(friend);
     }
   }
 

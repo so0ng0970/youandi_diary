@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/screen/home_screen.dart';
+import 'package:youandi_diary/diary/screen/diary_detail_screen.dart';
 import 'package:youandi_diary/user/screens/sign_screen.dart';
 
 import '../../common/screen/splash_screen.dart';
@@ -43,7 +44,11 @@ class AuthProvider extends ChangeNotifier {
               GoRoute(
                 path: 'diaryModal',
                 name: DiaryModal.routeName,
-                builder: (context, state) => DiaryModal(),
+                builder: (context, state) => const DiaryModal(),
+              ),
+              GoRoute(
+                path: 'detail/:id',
+                builder: (context, state) => const DiaryDetailScreen(),
               ),
             ])
       ];

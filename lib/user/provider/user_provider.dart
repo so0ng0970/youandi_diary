@@ -50,7 +50,7 @@ class UserProvider with ChangeNotifier {
     }
 
     for (UserModel user in users) {
-      if (user.email.toLowerCase().startsWith(query.toLowerCase())) {
+      if (user.email!.toLowerCase().startsWith(query.toLowerCase())) {
         searchUser.add(user);
       }
     }
