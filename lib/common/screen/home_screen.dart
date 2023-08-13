@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/component/main_drawer.dart';
 import 'package:youandi_diary/common/const/color.dart';
+import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/model/diary_model.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
 import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
@@ -151,11 +152,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             color: WHITE_COLOR,
                                           ),
                                         ),
-                                        Text(
-                                          diary.dataTime,
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            color: WHITE_COLOR,
+                                        const Spacer(),
+                                        Center(
+                                          child: Text(
+                                            DataUtils.getTimeFromDateTime(
+                                                    dateTime: diary.dataTime)
+                                                .toString(),
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              color: WHITE_COLOR,
+                                            ),
                                           ),
                                         ),
                                       ],

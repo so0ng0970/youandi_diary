@@ -9,7 +9,6 @@ import '../../diary/model/diary_model.dart';
 import '../../diary/provider/diary_provider.dart';
 import '../../user/provider/firebase_auth_provider.dart';
 import '../../user/provider/user_provider.dart';
-import '../utils/data_utils.dart';
 
 class DiaryModal extends ConsumerStatefulWidget {
   static String get routeName => 'diaryModal';
@@ -84,9 +83,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
         DiaryModel savedDiary =
             await ref.watch(diaryProvider).saveDiaryToFirestore(
                   DiaryModel(
-                    dataTime: DataUtils.getTimeFromDateTime(
-                      dateTime: dateTime,
-                    ).toString(),
+                    dataTime: dateTime,
                     title: titleFocusController.text,
                     coverImg: selectedImage,
                     member: _selectedMembers

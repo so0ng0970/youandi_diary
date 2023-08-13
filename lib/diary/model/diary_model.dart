@@ -8,7 +8,7 @@ class DiaryModel {
   late String? diaryId;
   late String title;
   late String coverImg;
-  late String dataTime;
+  late DateTime dataTime;
   late List<UserModel> member;
 
   DiaryModel({
