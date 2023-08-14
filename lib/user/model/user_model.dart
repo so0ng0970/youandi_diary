@@ -4,14 +4,14 @@ part 'user_model.g.dart';
 
 @JsonSerializable()
 class UserModel {
-  late String? id;
+  late String? uid;
   late String? email;
   late String photoUrl;
   late String userName;
   bool? isChecked;
 
   UserModel({
-    this.id,
+    this.uid,
     required this.photoUrl,
     this.email,
     required this.userName,

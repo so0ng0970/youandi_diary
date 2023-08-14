@@ -75,6 +75,7 @@ class LoginSignModel {
         'photoUrl': photoUrl,
         'userName': nicknameFocusController.text,
         'email': emailFocusController.text,
+        'uid': newUser.user!.uid
       };
 
       await FirebaseFirestore.instance
@@ -132,6 +133,7 @@ class LoginSignModel {
       'userName': userCredential.user?.displayName ?? '',
       'email': userCredential.user?.email ?? '',
       'photoUrl': userCredential.user?.photoURL ?? '',
+      'uid': userCredential.user?.uid ?? '',
     });
 
     return userCredential;

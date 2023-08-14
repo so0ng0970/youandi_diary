@@ -115,10 +115,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               final diary = snapshot.data![index];
                               return GestureDetector(
                                 onTap: () {
-                                  context.go(
-                                    '/detail/${diary.diaryId}',
-                                  );
-                                  print('${diary.diaryId}');
+                                  context.goNamed(diary.diaryId!);
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -156,8 +153,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         Center(
                                           child: Text(
                                             DataUtils.getTimeFromDateTime(
-                                                    dateTime: diary.dataTime)
-                                                .toString(),
+                                              dateTime: diary.dataTime!,
+                                            ).toString(),
                                             style: const TextStyle(
                                               fontSize: 15,
                                               color: WHITE_COLOR,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -14,29 +16,35 @@ class DiaryRepository {
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<DiaryModel> saveDiaryToFirestore(DiaryModel diary) async {
+    DocumentReference docRef = _firestore.collection('diary').doc();
     final userData = {
+      'diaryId': docRef.id,
       'title': diary.title,
-      'dataTime': diary.dataTime,
+      'dataTime': DateTime.now(),
       'coverImg': diary.coverImg,
       'member': diary.member.map((UserModel user) => user.toJson()).toList(),
     };
-    DocumentReference docRef = _firestore.collection('diary').doc();
-    diary.diaryId = docRef.id;
-    await docRef.set(
-      userData,
-    );
+
+    if (diary.diaryId == null) {
+      DocumentReference docRef = _firestore.collection('diary').doc();
+      diary.diaryId = docRef.id;
+      await docRef.set(userData);
+    }
+
     return diary;
   }
 
-  Future<List<DiaryModel>> getDiaryListFromFirestore() async {
-    final QuerySnapshot snapshot = await _firestore.collection('diary').get();
-    final List<DiaryModel> diaryList = [];
-
-    for (var doc in snapshot.docs) {
-      diaryList.add(DiaryModel.fromJson(doc.data() as Map<String, dynamic>));
-    }
-
-    return diaryList;
+  Stream<List<DiaryModel>> getDiaryListFromFirestore() {
+    return _firestore
+        .collection('diary')
+        .orderBy('dataTime', descending: true)
+        .snapshots()
+        .map((QuerySnapshot query) {
+      final List<DiaryModel> diaryList = query.docs
+          .map((doc) => DiaryModel.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+      return diaryList;
+    });
   }
 }
 
@@ -46,6 +54,7 @@ class DiaryListNotifier with ChangeNotifier {
   }
 
   final DiaryRepository repository;
+
   List<DiaryModel> _diaryList = [];
   bool _isLoading = false;
 
@@ -53,6 +62,9 @@ class DiaryListNotifier with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> addDiary(DiaryModel diary) async {
+    if (_diaryList.contains(diary)) {
+      return;
+    }
     _isLoading = true;
     notifyListeners();
 
@@ -63,13 +75,24 @@ class DiaryListNotifier with ChangeNotifier {
     notifyListeners();
   }
 
+  StreamSubscription<List<DiaryModel>>? _diaryListStream;
+  @override
+  void dispose() {
+    _diaryListStream?.cancel();
+    super.dispose();
+  }
+
   Future<void> loadDiaries() async {
     _isLoading = true;
     notifyListeners();
 
-    _diaryList = await repository.getDiaryListFromFirestore();
-
-    _isLoading = false;
-    notifyListeners();
+    _diaryListStream?.cancel();
+    _diaryListStream = repository
+        .getDiaryListFromFirestore()
+        .listen((List<DiaryModel> listOfDiary) {
+      _diaryList = listOfDiary;
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 }

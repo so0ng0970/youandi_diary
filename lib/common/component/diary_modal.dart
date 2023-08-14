@@ -2,6 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
@@ -48,7 +49,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
             userName: userName,
             email: userEmail,
             photoUrl: userPhotoUrl,
-            id: userId,
+            uid: userId,
           );
           myId = user.uid;
 
@@ -61,6 +62,11 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
         },
         loading: () {
           // 로딩 처리
+          Column(
+            children: const [
+              SkeletonAvatar(),
+            ],
+          );
         },
       );
     }
@@ -88,7 +94,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                     coverImg: selectedImage,
                     member: _selectedMembers
                         .map((UserModel user) => UserModel(
-                              id: user.id,
+                              uid: user.uid,
                               userName: user.userName,
                               photoUrl: user.photoUrl,
                             ))
@@ -264,7 +270,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                   for (var user in ref.read(userProvider).users) {
                     user.isChecked = false;
                   }
-                  _selectedMembers.removeWhere((e) => e.id != myId);
+                  _selectedMembers.removeWhere((e) => e.uid != myId);
                 },
               );
               setState(() {});
@@ -278,7 +284,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
               print(_selectedMembers
                   .map(
                     (e) =>
-                        'UserModel(id: ${e.id}, name: ${e.userName}, email: ${e.email},${e.id})',
+                        'UserModel(id: ${e.uid}, name: ${e.userName}, email: ${e.email},${e.uid})',
                   )
                   .toList());
 
@@ -395,7 +401,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                           ),
                         ],
                       ),
-                      if (friend.id != myId)
+                      if (friend.uid != myId)
                         Positioned(
                           top: -14,
                           left: 24,
