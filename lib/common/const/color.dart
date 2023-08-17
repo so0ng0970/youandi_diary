@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 // common
 const REMOVE_COLOR = Color(0xFFb04343);
 const WHITE_COLOR = Color(0xFFFFFFFF);
-const BACKGROUND_COLOR = Color(0xFFb8d6f2);
-const MODAL_COLOR = Color(0xFFb8d3ea);
+const BACKGROUND_COLOR = Color(0xFF608AC6);
+const MODAL_BUTTON_COLOR = Color(0xFF094A80);
+const BGUNDER_COLOR = Color(0xFFE6F4F1);
+const MODAL_COLOR = Color(0xFFE6F4F1);
 
 // login logout
 const GOOGLE_COLOR = Color(0xFFF4F4F4);
