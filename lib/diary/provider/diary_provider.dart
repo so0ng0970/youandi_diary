@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -24,7 +22,6 @@ class DiaryRepository {
       'coverImg': diary.coverImg,
       'member': diary.member.map((UserModel user) => user.toJson()).toList(),
     };
-
     if (diary.diaryId == null) {
       DocumentReference docRef = _firestore.collection('diary').doc();
       diary.diaryId = docRef.id;
@@ -34,17 +31,20 @@ class DiaryRepository {
     return diary;
   }
 
-  Stream<List<DiaryModel>> getDiaryListFromFirestore() {
-    return _firestore
+  Future<List<DiaryModel>> getDiaryListFromFirestore() async {
+    final QuerySnapshot snapshot = await _firestore
         .collection('diary')
-        .orderBy('dataTime', descending: true)
-        .snapshots()
-        .map((QuerySnapshot query) {
-      final List<DiaryModel> diaryList = query.docs
-          .map((doc) => DiaryModel.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
-      return diaryList;
-    });
+        .orderBy(
+          'dataTime',
+          descending: true,
+        )
+        .get();
+    final List<DiaryModel> diaryList = [];
+    for (var doc in snapshot.docs) {
+      diaryList.add(DiaryModel.fromJson(doc.data() as Map<String, dynamic>));
+    }
+
+    return diaryList;
   }
 }
 
@@ -54,7 +54,6 @@ class DiaryListNotifier with ChangeNotifier {
   }
 
   final DiaryRepository repository;
-
   List<DiaryModel> _diaryList = [];
   bool _isLoading = false;
 
@@ -67,30 +66,31 @@ class DiaryListNotifier with ChangeNotifier {
     }
     _isLoading = true;
     notifyListeners();
-
-    final savedDiary = await repository.saveDiaryToFirestore(diary);
-    _diaryList = [..._diaryList, savedDiary];
+  await repository.saveDiaryToFirestore(diary);
 
     _isLoading = false;
     notifyListeners();
-  }
-
-  StreamSubscription<List<DiaryModel>>? _diaryListStream;
-  @override
-  void dispose() {
-    _diaryListStream?.cancel();
-    super.dispose();
   }
 
   Future<void> loadDiaries() async {
     _isLoading = true;
     notifyListeners();
 
-    _diaryListStream?.cancel();
-    _diaryListStream = repository
-        .getDiaryListFromFirestore()
-        .listen((List<DiaryModel> listOfDiary) {
-      _diaryList = listOfDiary;
+    repository._firestore
+        .collection('diary')
+        .orderBy('dataTime', descending: true)
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+      final List<DiaryModel> newDiaryList = [];
+      for (var doc in snapshot.docs) {
+        newDiaryList.add(
+          DiaryModel.fromJson(
+            doc.data() as Map<String, dynamic>,
+          ),
+        );
+      }
+
+      _diaryList = newDiaryList;
       _isLoading = false;
       notifyListeners();
     });

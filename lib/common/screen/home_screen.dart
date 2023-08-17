@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/component/main_drawer.dart';
 import 'package:youandi_diary/common/const/color.dart';
@@ -96,7 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     future: _getDiaryListFuture(ref),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
+                        return const SkeletonAvatar();
                       } else if (snapshot.hasData) {
                         return SingleChildScrollView(
                           scrollDirection: Axis.vertical,
@@ -153,8 +154,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         Center(
                                           child: Text(
                                             DataUtils.getTimeFromDateTime(
-                                              dateTime: diary.dataTime!,
-                                            ).toString(),
+                                                    dateTime: diary.dataTime)
+                                                .toString(),
                                             style: const TextStyle(
                                               fontSize: 15,
                                               color: WHITE_COLOR,

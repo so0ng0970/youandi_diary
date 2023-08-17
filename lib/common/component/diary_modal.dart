@@ -23,7 +23,7 @@ class DiaryModal extends ConsumerStatefulWidget {
 class _DiaryModalState extends ConsumerState<DiaryModal> {
   final FocusNode titleFocus = FocusNode();
   final TextEditingController titleFocusController = TextEditingController();
-  final bool _isInitialized = false;
+  bool _isInitialized = false;
   List<String> diaryCoverImages = [
     'asset/image/diary/diary1.jpg',
     'asset/image/diary/diary2.jpg',
@@ -34,6 +34,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   String selectedImage = 'asset/image/diary/diary1.jpg'; // 기본 이미지 설정
   final List<UserModel> _selectedMembers = [];
   String myId = '';
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -69,6 +70,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
           );
         },
       );
+      _isInitialized = true;
     }
   }
 
@@ -102,6 +104,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                   ),
                 );
         await ref.read(diaryListProvider).addDiary(savedDiary);
+        print('dd');
         context.pop();
       },
       children: [
