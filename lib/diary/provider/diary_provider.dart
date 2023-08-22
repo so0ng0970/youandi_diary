@@ -41,7 +41,14 @@ class DiaryRepository {
         .get();
     final List<DiaryModel> diaryList = [];
     for (var doc in snapshot.docs) {
-      diaryList.add(DiaryModel.fromJson(doc.data() as Map<String, dynamic>));
+      DiaryModel diary =
+          DiaryModel.fromJson(doc.data() as Map<String, dynamic>);
+      List<UserModel> members = diary.member;
+      if (members.any(
+        (user) => user.uid == 'uid',
+      )) {
+        diaryList.add(diary);
+      }
     }
 
     return diaryList;
@@ -66,7 +73,7 @@ class DiaryListNotifier with ChangeNotifier {
     }
     _isLoading = true;
     notifyListeners();
-  await repository.saveDiaryToFirestore(diary);
+    await repository.saveDiaryToFirestore(diary);
 
     _isLoading = false;
     notifyListeners();
