@@ -57,6 +57,9 @@ class AuthProvider extends ChangeNotifier {
       ];
   String? redirectLogic(_, GoRouterState state) {
     final loginIn = state.location == '/login';
+
+    final splashPage = state.location == '/splash';
+    final signPage = state.location == '/sign';
     // 유저 상태
 
     User? user = _firebaseAuth.currentUser;
@@ -64,15 +67,16 @@ class AuthProvider extends ChangeNotifier {
     // 로그인 중이면 그대로 로그인 페이지에 두고
     // 만약에 로그인 중이 아니라면 로그인 페이지로 이동
     if (user == null) {
-      return null;
+      return loginIn || splashPage || signPage ? null : '/login';
     }
     return loginIn || state.location == '/splash' ? '/' : null;
 
     // 사용자 정보가 있는 상태이므로 리디렉션 필요없음
   }
 
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
+
     notifyListeners();
   }
 }

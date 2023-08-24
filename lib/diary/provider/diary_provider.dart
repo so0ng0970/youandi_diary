@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/diary/model/diary_model.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
@@ -32,6 +34,12 @@ class DiaryRepository {
   }
 
   Future<List<DiaryModel>> getDiaryListFromFirestore() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      const Center(
+        child: Text(''),
+      );
+    }
     final QuerySnapshot snapshot = await _firestore
         .collection('diary')
         .orderBy(
@@ -41,14 +49,7 @@ class DiaryRepository {
         .get();
     final List<DiaryModel> diaryList = [];
     for (var doc in snapshot.docs) {
-      DiaryModel diary =
-          DiaryModel.fromJson(doc.data() as Map<String, dynamic>);
-      List<UserModel> members = diary.member;
-      if (members.any(
-        (user) => user.uid == 'uid',
-      )) {
-        diaryList.add(diary);
-      }
+      diaryList.add(DiaryModel.fromJson(doc.data() as Map<String, dynamic>));
     }
 
     return diaryList;
@@ -82,7 +83,13 @@ class DiaryListNotifier with ChangeNotifier {
   Future<void> loadDiaries() async {
     _isLoading = true;
     notifyListeners();
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _isLoading = false;
 
+      notifyListeners();
+      return;
+    }
     repository._firestore
         .collection('diary')
         .orderBy('dataTime', descending: true)

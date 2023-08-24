@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(firebase_auth_Provider);
-
+    User? user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: BGUNDER_COLOR,
       drawer: authState.when(
@@ -96,6 +97,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const SizedBox(
                         height: 10,
                       ),
+                      if (user == null)
+                        const Text(
+                          'd',
+                        ),
                       FutureBuilder<List<DiaryModel>>(
                         future: _getDiaryListFuture(ref),
                         builder: (context, snapshot) {

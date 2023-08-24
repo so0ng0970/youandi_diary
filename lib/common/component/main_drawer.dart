@@ -53,7 +53,7 @@ class MainDrawer extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () {
-              provider.logout();
+              provider.logout(context);
             },
             child: const Text(
               '로그아웃',

@@ -222,8 +222,6 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  //  사용자 프로필 이미지 표시
-
                   selectedFriends(setState),
                   Padding(
                     padding: const EdgeInsets.only(
@@ -388,7 +386,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                         children: [
                           CircleAvatar(
                             backgroundImage: selectImage(
-                              friend.photoUrl,
+                              imageUrl: friend.photoUrl,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -435,17 +433,6 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
       _selectedMembers.add(friend);
     } else {
       _selectedMembers.remove(friend);
-    }
-  }
-
-  ImageProvider selectImage(String? imageUrl) {
-    if (imageUrl != null &&
-        (imageUrl.startsWith('http') || imageUrl.startsWith('https'))) {
-      return NetworkImage(imageUrl);
-    } else {
-      return AssetImage(
-        imageUrl.toString(),
-      );
     }
   }
 }
