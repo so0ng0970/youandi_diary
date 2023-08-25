@@ -66,14 +66,16 @@ class LoginSignModel {
         email: emailFocusController.text,
         password: passwordFocusController.text,
       );
+      String displayName = nicknameFocusController.text;
 
+      await newUser.user?.updateProfile(displayName: displayName);
       if (isProvidedByGoogle(authentication)) {
         photoUrl = authentication.currentUser!.photoURL!;
       }
 
       final userData = {
         'photoUrl': photoUrl,
-        'userName': nicknameFocusController.text,
+        'userName': displayName,
         'email': emailFocusController.text,
         'uid': newUser.user!.uid
       };

@@ -34,12 +34,6 @@ class DiaryRepository {
   }
 
   Future<List<DiaryModel>> getDiaryListFromFirestore() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      const Center(
-        child: Text(''),
-      );
-    }
     final QuerySnapshot snapshot = await _firestore
         .collection('diary')
         .orderBy(

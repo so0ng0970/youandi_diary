@@ -24,10 +24,12 @@ class UserProvider with ChangeNotifier {
   CollectionReference userReference;
   List<UserModel> users = [];
   List<UserModel> searchUser = [];
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   UserProvider(this.userReference, currentEmail) {
     fetchUser(currentEmail);
   }
+
+ 
 
   Future<void> fetchUser(String currentEmail) async {
     users = await userReference.get().then((QuerySnapshot results) {
