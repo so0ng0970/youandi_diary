@@ -9,7 +9,6 @@ import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/model/diary_model.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
-import 'package:youandi_diary/diary/screen/diary_detail_screen.dart';
 import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -127,8 +126,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     final diary = snapshot.data![index];
                                     return GestureDetector(
                                       onTap: () {
-                                        context.goNamed(
-                                          '${DiaryDetailScreen.routeName}/${diary.diaryId}',
+                                        context.go(
+                                          '/detail/${diary.diaryId}',
+                                        );
+                                        print(
+                                          '/detail/${diary.diaryId}',
                                         );
                                       },
                                       child: Container(
