@@ -5,18 +5,17 @@ import 'package:youandi_diary/user/model/social_view_model.dart';
 import 'package:youandi_diary/user/provider/auth_provider.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
 
+import '../../user/provider/firebase_auth_provider.dart';
+
 class MainDrawer extends ConsumerWidget {
-  final String profileImg;
-  final String nickName;
-  final String email;
+
   const MainDrawer(
-      {required this.profileImg,
-      required this.nickName,
-      required this.email,
+      {
       super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(firebase_auth_Provider);
     final provider = ref.watch(authProvider);
     final viewModel = LoginSignModel(
       KakaoLogin(),
@@ -28,27 +27,38 @@ class MainDrawer extends ConsumerWidget {
             data: Theme.of(context).copyWith(
               dividerColor: Colors.transparent,
             ),
-            child: UserAccountsDrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xFF9fc5e8),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(45.0),
-                  bottomRight: Radius.circular(45.0),
-                ),
-              ),
-              currentAccountPicture: CircleAvatar(
-                // 현재 계정 이미지 set
-                backgroundImage: selectImage(imageUrl: profileImg),
-              ),
-              accountName: Text(
-                nickName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              accountEmail: Text(
-                email,
-              ),
+            child: authState.when(
+              data: (user) {
+                if (user == null) {
+                  return const Text('Not authenticated');
+                } else {
+                  return UserAccountsDrawerHeader(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF9fc5e8),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(45.0),
+                        bottomRight: Radius.circular(45.0),
+                      ),
+                    ),
+                    currentAccountPicture: CircleAvatar(
+                      // 현재 계정 이미지 set
+                      backgroundImage:
+                          selectImage(imageUrl: user.photoURL ?? ''),
+                    ),
+                    accountName: Text(
+                      user.displayName ?? '',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    accountEmail: Text(
+                      user.email ?? '',
+                    ),
+                  );
+                }
+              },
+              loading: () => const CircularProgressIndicator(),
+              error: (error, stackTrace) => Text('Error: $error'),
             ),
           ),
           TextButton(

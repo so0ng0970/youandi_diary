@@ -9,7 +9,6 @@ import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/model/diary_model.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
-import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static String get routeName => 'home';
@@ -28,25 +27,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(firebase_auth_Provider);
     User? user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: BGUNDER_COLOR,
-      drawer: authState.when(
-        data: (user) {
-          if (user == null) {
-            return const Text('Not authenticated');
-          } else {
-            return MainDrawer(
-              profileImg: user.photoURL ?? '',
-              nickName: user.displayName ?? '',
-              email: user.email ?? '',
-            );
-          }
-        },
-        loading: () => const CircularProgressIndicator(),
-        error: (error, stackTrace) => Text('Error: $error'),
-      ),
+      drawer: const MainDrawer(),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
