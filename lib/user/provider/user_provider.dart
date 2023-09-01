@@ -1,4 +1,3 @@
-// UserProvider 변경
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +5,7 @@ import 'package:youandi_diary/common/const/data.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
 import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
 
-final userProvider = ChangeNotifierProvider.autoDispose<UserProvider>((ref) {
+final userProvider = ChangeNotifierProvider<UserProvider>((ref) {
   final firebaseAuth = ref.watch(firebase_auth_Provider);
   final currentEmail = firebaseAuth.maybeWhen(
     data: (user) => user?.email ?? '',
@@ -28,8 +27,6 @@ class UserProvider with ChangeNotifier {
   UserProvider(this.userReference, currentEmail) {
     fetchUser(currentEmail);
   }
-
- 
 
   Future<void> fetchUser(String currentEmail) async {
     users = await userReference.get().then((QuerySnapshot results) {
@@ -62,6 +59,13 @@ class UserProvider with ChangeNotifier {
   void clearSearch() {
     searchUser = [];
     notifyListeners();
+  }
+
+  void resetSearch() {
+    searchUser = users;
+    for (var user in users) {
+      user.isChecked = false;
+    }
   }
 }
 

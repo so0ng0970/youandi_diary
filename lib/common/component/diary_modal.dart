@@ -6,6 +6,7 @@ import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
+import 'package:youandi_diary/user/provider/select_member_provider.dart';
 import '../../diary/model/diary_model.dart';
 import '../../diary/provider/diary_provider.dart';
 import '../../user/provider/firebase_auth_provider.dart';
@@ -32,7 +33,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   ];
 
   String selectedImage = 'asset/image/diary/diary1.jpg'; // 기본 이미지 설정
-  final List<UserModel> _selectedMembers = [];
+
   String myId = '';
 
   @override
@@ -53,10 +54,10 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
             uid: userId,
           );
           myId = user.uid;
+          final selectMemberNotifier =
+              ref.read(selectedMembersProvider.notifier);
 
-          setState(() {
-            _selectedMembers.add(myInfo);
-          });
+          Future.microtask(() => selectMemberNotifier.add(myInfo));
         },
         error: (Object error, StackTrace? stackTrace) {
           // 에러 처리
@@ -75,14 +76,23 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   }
 
   @override
+  void dispose() {
+    titleFocus.dispose();
+    titleFocusController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final friendSearch = ref.watch(userProvider).searchUser;
-    final selectedMembersProvider = StateProvider<List<UserModel>>((ref) => []);
+    final selectMemberProvider = ref.watch(selectedMembersProvider.notifier);
     final dateTime = DateTime.now();
 
     return DiaryModalLayout(
       onPressed: () {
         Navigator.of(context).pop();
+        selectMemberProvider.reset();
+        ref.read(userProvider).resetSearch();
       },
       icon: Icons.close,
       title: '다이어리 만들기 ',
@@ -94,7 +104,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                     dataTime: dateTime,
                     title: titleFocusController.text,
                     coverImg: selectedImage,
-                    member: _selectedMembers
+                    member: selectMemberProvider.state
                         .map((UserModel user) => UserModel(
                               uid: user.uid,
                               userName: user.userName,
@@ -104,8 +114,10 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                   ),
                 );
         await ref.read(diaryListProvider).addDiary(savedDiary);
-        print('dd');
+
         context.pop();
+        selectMemberProvider.reset();
+        ref.read(userProvider).resetSearch();
       },
       children: [
         Container(
@@ -222,7 +234,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  selectedFriends(setState),
+                  selectedFriends(setState, selectMemberProvider),
                   Padding(
                     padding: const EdgeInsets.only(
                       left: 5,
@@ -233,9 +245,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                       strokeWidth: 1,
                       child: IconButton(
                         onPressed: () {
-                          memberModal(
-                            context,
-                          );
+                          memberModal(context, selectMemberProvider);
                         },
                         icon: Icon(
                           Icons.add,
@@ -254,7 +264,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
     );
   }
 
-  void memberModal(BuildContext context) {
+  void memberModal(BuildContext context, SelectedMembers selectMember) {
     TextEditingController searchController = TextEditingController();
 
     showDialog(
@@ -271,7 +281,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                   for (var user in ref.read(userProvider).users) {
                     user.isChecked = false;
                   }
-                  _selectedMembers.removeWhere((e) => e.uid != myId);
+                  selectMember.state.removeWhere((e) => e.uid != myId);
                 },
               );
               setState(() {});
@@ -282,12 +292,12 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
             buttonText: '친구 추가',
             mainOnPressed: () {
               setState(() {});
-              print(_selectedMembers
-                  .map(
-                    (e) =>
-                        'UserModel(id: ${e.uid}, name: ${e.userName}, email: ${e.email},${e.uid})',
-                  )
-                  .toList());
+              // print(selectMemberProvider
+              //     .map(
+              //       (e) =>
+              //           'UserModel(id: ${e.uid}, name: ${e.userName}, email: ${e.email},${e.uid})',
+              //     )
+              //     .toList());
 
               context.pop();
             },
@@ -344,9 +354,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                                         onChanged: (bool? value) {
                                           modalSetState(
                                             () => selectFriend(
-                                              value,
-                                              friend,
-                                            ),
+                                                value, friend, selectMember),
                                           );
                                         });
                                   },
@@ -354,7 +362,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                         },
                       ),
                     ),
-                    selectedFriends(modalSetState),
+                    selectedFriends(modalSetState, selectMember),
                   ],
                 ),
               ),
@@ -366,15 +374,14 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   }
 
   Widget selectedFriends(
-    StateSetter modalSetState,
-  ) {
+      StateSetter modalSetState, SelectedMembers selectMember) {
     return Align(
       alignment: Alignment.centerLeft,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: _selectedMembers
+          children: selectMember.state
               .map(
                 (friend) => Container(
                   margin: const EdgeInsets.symmetric(
@@ -408,8 +415,8 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                           left: 24,
                           child: IconButton(
                             onPressed: () {
-                              modalSetState(
-                                  () => {selectFriend(false, friend)});
+                              modalSetState(() =>
+                                  {selectFriend(false, friend, selectMember)});
                             },
                             icon: const Icon(
                               Icons.remove_circle_rounded,
@@ -427,12 +434,12 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
     );
   }
 
-  void selectFriend(bool? value, UserModel friend) {
+  void selectFriend(bool? value, UserModel friend, selectMember) {
     friend.isChecked = value ?? false;
     if (value ?? false) {
-      _selectedMembers.add(friend);
+      selectMember.add(friend); // add method from SelectedMembers class
     } else {
-      _selectedMembers.remove(friend);
+      selectMember.remove(friend); // remove method from SelectedMembers class
     }
   }
 }

@@ -8,15 +8,12 @@ import 'package:youandi_diary/user/provider/user_provider.dart';
 import '../../user/provider/firebase_auth_provider.dart';
 
 class MainDrawer extends ConsumerWidget {
-
-  const MainDrawer(
-      {
-      super.key});
+  const MainDrawer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(firebase_auth_Provider);
-    final provider = ref.watch(authProvider);
+    final provider = ref.read(authProvider);
     final viewModel = LoginSignModel(
       KakaoLogin(),
     );

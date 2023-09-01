@@ -21,14 +21,14 @@ class DiaryCard extends StatelessWidget {
     required this.member,
   }) : super(key: key);
   factory DiaryCard.fromModel({
-    required DiaryModel model,
+    required DiaryModel diaryList,
   }) {
     return DiaryCard(
-        diaryId: model.diaryId,
-        title: model.title,
-        coverImg: model.coverImg,
-        dataTime: model.dataTime,
-        member: model.member);
+        diaryId: diaryList.diaryId,
+        title: diaryList.title,
+        coverImg: diaryList.coverImg,
+        dataTime: diaryList.dataTime,
+        member: diaryList.member);
   }
   @override
   Widget build(BuildContext context) {
