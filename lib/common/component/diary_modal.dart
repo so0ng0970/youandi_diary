@@ -2,14 +2,12 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/layout/diary_modal_layout.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
 import 'package:youandi_diary/user/provider/select_member_provider.dart';
 import '../../diary/model/diary_model.dart';
 import '../../diary/provider/diary_provider.dart';
-import '../../user/provider/firebase_auth_provider.dart';
 import '../../user/provider/user_provider.dart';
 
 class DiaryModal extends ConsumerStatefulWidget {
@@ -24,7 +22,7 @@ class DiaryModal extends ConsumerStatefulWidget {
 class _DiaryModalState extends ConsumerState<DiaryModal> {
   final FocusNode titleFocus = FocusNode();
   final TextEditingController titleFocusController = TextEditingController();
-  bool _isInitialized = false;
+  final bool _isInitialized = false;
   List<String> diaryCoverImages = [
     'asset/image/diary/diary1.jpg',
     'asset/image/diary/diary2.jpg',
@@ -39,40 +37,40 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_isInitialized) {
-      final myInfo = ref.watch(firebase_auth_Provider).when(
-        data: (user) {
-          String userName = user?.displayName ?? '';
-          String userEmail = user?.email ?? '이메일 없음';
-          String userPhotoUrl = user?.photoURL ?? '';
-          String userId = user!.uid;
+    // if (!_isInitialized) {
+    //   ref.watch(firebase_auth_Provider).when(
+    //     data: (user) {
+    //       String userName = user?.displayName ?? '';
+    //       String userEmail = user?.email ?? '이메일 없음';
+    //       String userPhotoUrl = user?.photoURL ?? '';
+    //       String userId = user!.uid;
 
-          UserModel myInfo = UserModel(
-            userName: userName,
-            email: userEmail,
-            photoUrl: userPhotoUrl,
-            uid: userId,
-          );
-          myId = user.uid;
-          final selectMemberNotifier =
-              ref.read(selectedMembersProvider.notifier);
+    //       UserModel myInfo = UserModel(
+    //         userName: userName,
+    //         email: userEmail,
+    //         photoUrl: userPhotoUrl,
+    //         uid: userId,
+    //       );
+    //       myId = user.uid;
+    //       final selectMemberNotifier =
+    //           ref.read(selectedMembersProvider.notifier);
 
-          Future.microtask(() => selectMemberNotifier.add(myInfo));
-        },
-        error: (Object error, StackTrace? stackTrace) {
-          // 에러 처리
-        },
-        loading: () {
-          // 로딩 처리
-          Column(
-            children: const [
-              SkeletonAvatar(),
-            ],
-          );
-        },
-      );
-      _isInitialized = true;
-    }
+    //       Future.microtask(() => selectMemberNotifier.add(myInfo));
+    //     },
+    //     error: (Object error, StackTrace? stackTrace) {
+    //       // 에러 처리
+    //     },
+    //     loading: () {
+    //       // 로딩 처리
+    //       Column(
+    //         children: const [
+    //           SkeletonAvatar(),
+    //         ],
+    //       );
+    //     },
+    //   );
+    //   _isInitialized = true;
+    // }
   }
 
   @override
@@ -292,12 +290,6 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
             buttonText: '친구 추가',
             mainOnPressed: () {
               setState(() {});
-              // print(selectMemberProvider
-              //     .map(
-              //       (e) =>
-              //           'UserModel(id: ${e.uid}, name: ${e.userName}, email: ${e.email},${e.uid})',
-              //     )
-              //     .toList());
 
               context.pop();
             },
@@ -332,7 +324,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                       child: Consumer(
                         builder: (context, watch, child) {
                           final friendSearch =
-                              ref.read(userProvider).searchUser;
+                              ref.watch(userProvider.notifier).searchUser;
                           final textIsEmpty = searchController.text.isEmpty;
                           return textIsEmpty
                               ? Container()

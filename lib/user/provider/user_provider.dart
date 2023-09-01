@@ -20,12 +20,26 @@ final userProvider = ChangeNotifierProvider<UserProvider>((ref) {
 });
 
 class UserProvider with ChangeNotifier {
+  bool _disposed = false;
+
   CollectionReference userReference;
   List<UserModel> users = [];
   List<UserModel> searchUser = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   UserProvider(this.userReference, currentEmail) {
     fetchUser(currentEmail);
+  }
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  @override
+  notifyListeners() {
+    if (!_disposed) {
+      super.notifyListeners();
+    }
   }
 
   Future<void> fetchUser(String currentEmail) async {
