@@ -93,50 +93,49 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 50,
                   ),
                   _LoginButton(
-                    onPressed: isFirebaseUserLoggedIn
-                        ? () async {
-                            final email = _emailController.text;
-                            final password = _passwordController.text;
-                            if (email.isNotEmpty && password.isNotEmpty) {
-                              try {
-                                final credential = EmailAuthProvider.credential(
-                                  email: email,
-                                  password: password,
-                                );
-                                await FirebaseAuth.instance
-                                    .signInWithCredential(credential);
-                                context.goNamed(
-                                  HomeScreen.routeName,
-                                );
-                              } on FirebaseAuthException catch (e) {
-                                // 로그인 실패 처리
-                                print(e);
-                                if (e.code == 'user-not-found') {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('등록되지 않은 이메일입니다'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                } else if (e.code == 'wrong-password') {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('비밀번호가 틀렸습니다'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                } else {
-                                  SnackBar(
-                                    content: Text(e.code),
-                                    backgroundColor: Colors.green,
-                                  );
-                                }
-                              }
-                            } else {
-                              // 이메일과 비밀번호를 입력하라는 안내 메시지 출력
-                            }
+                    onPressed: () async {
+                      print('d');
+                      final email = _emailController.text;
+                      final password = _passwordController.text;
+                      if (email.isNotEmpty && password.isNotEmpty) {
+                        try {
+                          final credential = EmailAuthProvider.credential(
+                            email: email,
+                            password: password,
+                          );
+                          await FirebaseAuth.instance
+                              .signInWithCredential(credential);
+                          context.goNamed(
+                            HomeScreen.routeName,
+                          );
+                        } on FirebaseAuthException catch (e) {
+                          // 로그인 실패 처리
+                          print(e);
+                          if (e.code == 'user-not-found') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('등록되지 않은 이메일입니다'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else if (e.code == 'wrong-password') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('비밀번호가 틀렸습니다'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else {
+                            SnackBar(
+                              content: Text(e.code),
+                              backgroundColor: Colors.green,
+                            );
                           }
-                        : null, // Firebase 인증 정보가 없는 경우 버튼 비활성화
+                        }
+                      } else {
+                        print('이메'); // 이메일과 비밀번호를 입력하라는 안내 메시지 출력
+                      }
+                    }, // Firebase 인증 정보가 없는 경우 버튼 비활성화
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(

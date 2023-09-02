@@ -22,6 +22,7 @@ class DiaryRepository {
       'title': diary.title,
       'dataTime': DateTime.now(),
       'coverImg': diary.coverImg,
+      'memberUids': diary.member.map((UserModel user) => user.uid).toList(),
       'member': diary.member.map((UserModel user) => user.toJson()).toList(),
     };
     if (diary.diaryId == null) {
@@ -34,8 +35,11 @@ class DiaryRepository {
   }
 
   Future<List<DiaryModel>> getDiaryListFromFirestore() async {
+    final user = FirebaseAuth.instance.currentUser;
+
     final QuerySnapshot snapshot = await _firestore
         .collection('diary')
+        .where('memberUids', arrayContains: user!.uid)
         .orderBy(
           'dataTime',
           descending: true,
@@ -86,6 +90,7 @@ class DiaryListNotifier with ChangeNotifier {
     }
     repository._firestore
         .collection('diary')
+        .where('memberUids', arrayContains: user.uid)
         .orderBy('dataTime', descending: true)
         .snapshots()
         .listen((QuerySnapshot snapshot) {

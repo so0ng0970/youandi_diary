@@ -1,4 +1,5 @@
 import 'package:dotted_border/dotted_border.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,45 +34,8 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   String selectedImage = 'asset/image/diary/diary1.jpg'; // 기본 이미지 설정
 
   String myId = '';
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // if (!_isInitialized) {
-    //   ref.watch(firebase_auth_Provider).when(
-    //     data: (user) {
-    //       String userName = user?.displayName ?? '';
-    //       String userEmail = user?.email ?? '이메일 없음';
-    //       String userPhotoUrl = user?.photoURL ?? '';
-    //       String userId = user!.uid;
-
-    //       UserModel myInfo = UserModel(
-    //         userName: userName,
-    //         email: userEmail,
-    //         photoUrl: userPhotoUrl,
-    //         uid: userId,
-    //       );
-    //       myId = user.uid;
-    //       final selectMemberNotifier =
-    //           ref.read(selectedMembersProvider.notifier);
-
-    //       Future.microtask(() => selectMemberNotifier.add(myInfo));
-    //     },
-    //     error: (Object error, StackTrace? stackTrace) {
-    //       // 에러 처리
-    //     },
-    //     loading: () {
-    //       // 로딩 처리
-    //       Column(
-    //         children: const [
-    //           SkeletonAvatar(),
-    //         ],
-    //       );
-    //     },
-    //   );
-    //   _isInitialized = true;
-    // }
-  }
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  String? get currentUserId => auth.currentUser?.uid;
 
   @override
   void dispose() {
@@ -272,16 +236,15 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
             builder: (BuildContext context, StateSetter modalSetState) {
           return DiaryModalLayout(
             onPressed: () {
-              modalSetState(
-                () {
-                  ref.read(userProvider).searchUser =
-                      ref.read(userProvider).users;
-                  for (var user in ref.read(userProvider).users) {
-                    user.isChecked = false;
-                  }
-                  selectMember.state.removeWhere((e) => e.uid != myId);
-                },
-              );
+              () {
+                ref.read(userProvider).searchUser =
+                    ref.read(userProvider).users;
+                for (var user in ref.read(userProvider).users) {
+                  user.isChecked = false;
+                }
+                selectMember.state.removeWhere((e) => e.uid != currentUserId);
+              };
+
               setState(() {});
               context.pop(); // 다이얼로그 닫기
             },
@@ -401,7 +364,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                           ),
                         ],
                       ),
-                      if (friend.uid != myId)
+                      if (friend.uid != currentUserId)
                         Positioned(
                           top: -14,
                           left: 24,
