@@ -125,7 +125,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                   ),
                 ),
               ),
-              hintText: '제목',
+              hintText: '제목 ',
             ),
           ),
         ),
