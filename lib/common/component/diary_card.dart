@@ -34,9 +34,9 @@ class DiaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.go(
-          '/detail/$diaryId',
-        );
+        context.go('/detail/$diaryId', extra: {
+          'title': title,
+        });
         print(
           '/detail/$diaryId',
         );

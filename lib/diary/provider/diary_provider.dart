@@ -34,6 +34,17 @@ class DiaryRepository {
     return diary;
   }
 
+  Future<DiaryModel?> getDiaryById(String diaryId) async {
+    final DocumentSnapshot snapshot =
+        await _firestore.collection('diary').doc(diaryId).get();
+
+    if (snapshot.exists) {
+      return DiaryModel.fromJson(snapshot.data() as Map<String, dynamic>);
+    } else {
+      return null;
+    }
+  }
+
   Future<List<DiaryModel>> getDiaryListFromFirestore() async {
     final user = FirebaseAuth.instance.currentUser;
 

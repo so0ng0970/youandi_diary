@@ -79,23 +79,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       SingleChildScrollView(
                         scrollDirection: Axis.vertical,
-                        child: GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 4 / 5.3,
-                            crossAxisSpacing: 15,
-                            mainAxisSpacing: 20,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: 16.0,
                           ),
-                          itemCount: diaryList.length,
-                          itemBuilder: (context, index) {
-                            final diary = diaryList[index];
-                            return DiaryCard.fromModel(
-                              diaryList: diary,
-                            );
-                          },
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 4 / 5.3,
+                              crossAxisSpacing: 15,
+                              mainAxisSpacing: 20,
+                            ),
+                            itemCount: diaryList.length,
+                            itemBuilder: (context, index) {
+                              final diary = diaryList[index];
+                              return DiaryCard.fromModel(
+                                diaryList: diary,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ],

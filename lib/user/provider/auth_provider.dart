@@ -48,7 +48,14 @@ class AuthProvider extends ChangeNotifier {
               ),
               GoRoute(
                 path: 'detail/:rid',
-                builder: (context, state) => const DiaryDetailScreen(),
+                builder: (context, state) {
+                  final title = state.extra.toString();
+                  final diaryId = state.pathParameters['rid'];
+                  return DiaryDetailScreen(
+                    diaryId: diaryId.toString(),
+                    title: title,
+                  );
+                },
               ),
             ])
       ];
