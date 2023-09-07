@@ -22,5 +22,5 @@ const HOMESCREEN_COLOR = Color(0xFF7cacd8);
 const MODAL_BUTTON = Color(0xFF1f5586);
 
 // dirayDetailScreen
-
+const WRITE_BUTTON = Color(0xFFB8C7D9);
 const DIARY_DETAIL_COLOR = Color(0xFF002749);

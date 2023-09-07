@@ -27,23 +27,91 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
     return DefaultLayout(
       title: widget.title,
-      child: Container(
-        decoration: const BoxDecoration(
-          color: DIARY_DETAIL_COLOR,
-        ),
-        child: Container(
-            decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(
-            Radius.circular(
-              50,
+      color: DIARY_DETAIL_COLOR,
+      child: SafeArea(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 140,
+                ),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(
+                      left: -60,
+                      top: -20,
+                      child: Image.asset(
+                        'asset/image/cloud_icon.png',
+                        scale: 5,
+                      ),
+                    ),
+                    const Expanded(
+                      child: Text(
+                        '2023-09-36',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: WHITE_COLOR,
+                            letterSpacing: 2.0),
+                      ),
+                    ),
+                    Positioned(
+                      right: -45,
+                      top: -7,
+                      child: Image.asset(
+                        'asset/image/love_icon.png',
+                        scale: 4,
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                ElevatedButton(
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          side: const BorderSide(
+                            width: 2,
+                            color: WHITE_COLOR,
+                            style: BorderStyle.solid,
+                          ))),
+                      backgroundColor: MaterialStateProperty.all(WRITE_BUTTON),
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      '  글쓰기  ',
+                    )),
+              ],
             ),
-          ),
-          image: DecorationImage(
-            scale: 2.1,
-            image: AssetImage('asset/image/diary/diary4.jpg'),
-            
-          ),
-        )),
+            const SizedBox(
+              height: 10,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Container(
+                  height: MediaQuery.of(context).size.height - 150,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: WHITE_COLOR,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      150,
+                    ),
+                    image: const DecorationImage(
+                      fit: BoxFit.fill,
+                      image: AssetImage(
+                        'asset/image/diary/diary4.jpg',
+                      ),
+                    ),
+                  )),
+            ),
+          ],
+        ),
       ),
     );
   }
