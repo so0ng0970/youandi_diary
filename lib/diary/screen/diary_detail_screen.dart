@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
+import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
 
 import '../../common/const/color.dart';
 import '../../user/layout/default_layout.dart';
@@ -22,11 +24,12 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   @override
   Widget build(BuildContext context) {
+
     print(widget.diaryId);
     print(widget.title);
     final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
     return DefaultLayout(
-      title: widget.title,
+      title: widget.title.toString(),
       color: DIARY_DETAIL_COLOR,
       child: SafeArea(
         child: Column(
@@ -44,7 +47,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                       left: -60,
                       top: -20,
                       child: Image.asset(
-                        'asset/image/cloud_icon.png',
+                        'asset/image/icon/cloud_icon.png',
                         scale: 5,
                       ),
                     ),
@@ -63,7 +66,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                       right: -45,
                       top: -7,
                       child: Image.asset(
-                        'asset/image/love_icon.png',
+                        'asset/image/icon/love_icon.png',
                         scale: 4,
                       ),
                     ),
@@ -71,20 +74,25 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                 ),
                 const Spacer(),
                 ElevatedButton(
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          side: const BorderSide(
-                            width: 2,
-                            color: WHITE_COLOR,
-                            style: BorderStyle.solid,
-                          ))),
-                      backgroundColor: MaterialStateProperty.all(WRITE_BUTTON),
-                    ),
-                    onPressed: () {},
-                    child: const Text(
-                      '  글쓰기  ',
-                    )),
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: const BorderSide(
+                          width: 2,
+                          color: WHITE_COLOR,
+                          style: BorderStyle.solid,
+                        ))),
+                    backgroundColor: MaterialStateProperty.all(WRITE_BUTTON),
+                  ),
+                  onPressed: () {
+                    context.goNamed(
+                      DiaryPostScreen.routeName,
+                    );
+                  },
+                  child: const Text(
+                    '  글쓰기  ',
+                  ),
+                ),
               ],
             ),
             const SizedBox(
@@ -93,22 +101,23 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Container(
-                  height: MediaQuery.of(context).size.height - 150,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: WHITE_COLOR,
-                      width: 3,
+                height: MediaQuery.of(context).size.height - 150,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: WHITE_COLOR,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(
+                    150,
+                  ),
+                  image: const DecorationImage(
+                    fit: BoxFit.fill,
+                    image: AssetImage(
+                      'asset/image/diary/diary4.jpg',
                     ),
-                    borderRadius: BorderRadius.circular(
-                      150,
-                    ),
-                    image: const DecorationImage(
-                      fit: BoxFit.fill,
-                      image: AssetImage(
-                        'asset/image/diary/diary4.jpg',
-                      ),
-                    ),
-                  )),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

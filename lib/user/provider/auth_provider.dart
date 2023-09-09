@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/screen/home_screen.dart';
 import 'package:youandi_diary/diary/screen/diary_detail_screen.dart';
+import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
 import 'package:youandi_diary/user/screens/sign_screen.dart';
 
 import '../../common/screen/splash_screen.dart';
@@ -49,13 +50,19 @@ class AuthProvider extends ChangeNotifier {
               GoRoute(
                 path: 'detail/:rid',
                 builder: (context, state) {
-                  final title = state.extra.toString();
+                  final title =
+                      (state.extra as Map<String, dynamic>)['title'].toString();
                   final diaryId = state.pathParameters['rid'];
                   return DiaryDetailScreen(
                     diaryId: diaryId.toString(),
                     title: title,
                   );
                 },
+              ),
+              GoRoute(
+                path: 'post',
+                name: DiaryPostScreen.routeName,
+                builder: (context, state) => const DiaryPostScreen(),
               ),
             ])
       ];
