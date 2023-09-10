@@ -23,4 +23,6 @@ const MODAL_BUTTON = Color(0xFF1f5586);
 
 // dirayDetailScreen
 const WRITE_BUTTON = Color(0xFFB8C7D9);
+const ADD_BG_COLOR = Color(0xFFF0FAFF);
 const DIARY_DETAIL_COLOR = Color(0xFF002749);
+const TEXT_OUTLINE_COLOR = Color(0xFF8AA5F0);
