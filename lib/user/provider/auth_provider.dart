@@ -38,33 +38,35 @@ class AuthProvider extends ChangeNotifier {
           builder: (context, state) => const SignScreen(),
         ),
         GoRoute(
-            path: '/',
-            name: HomeScreen.routeName,
-            builder: (context, state) => const HomeScreen(),
-            routes: [
-              GoRoute(
-                path: 'diaryModal',
-                name: DiaryModal.routeName,
-                builder: (context, state) => const DiaryModal(),
-              ),
-              GoRoute(
+          path: '/',
+          name: HomeScreen.routeName,
+          builder: (context, state) => const HomeScreen(),
+          routes: [
+            GoRoute(
+              path: 'diaryModal',
+              name: DiaryModal.routeName,
+              builder: (context, state) => const DiaryModal(),
+            ),
+            GoRoute(
                 path: 'detail/:rid',
                 builder: (context, state) {
-                  final title =
-                      (state.extra as Map<String, dynamic>)['title'].toString();
+                  final title = (state.extra as Map<String, dynamic>?)?['title']
+                      ?.toString();
                   final diaryId = state.pathParameters['rid'];
                   return DiaryDetailScreen(
                     diaryId: diaryId.toString(),
                     title: title,
                   );
                 },
-              ),
-              GoRoute(
-                path: 'post',
-                name: DiaryPostScreen.routeName,
-                builder: (context, state) => const DiaryPostScreen(),
-              ),
-            ])
+                routes: [
+                  GoRoute(
+                    path: ':post',
+                    name: DiaryPostScreen.routeName,
+                    builder: (context, state) => const DiaryPostScreen(),
+                  ),
+                ]),
+          ],
+        )
       ];
   String? redirectLogic(_, GoRouterState state) {
     final loginIn = state.location == '/login';

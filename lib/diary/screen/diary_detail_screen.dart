@@ -24,7 +24,6 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   @override
   Widget build(BuildContext context) {
-
     print(widget.diaryId);
     print(widget.title);
     final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
@@ -75,22 +74,26 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                 const Spacer(),
                 ElevatedButton(
                   style: ButtonStyle(
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: const BorderSide(
                           width: 2,
                           color: WHITE_COLOR,
                           style: BorderStyle.solid,
-                        ))),
+                        ),
+                      ),
+                    ),
                     backgroundColor: MaterialStateProperty.all(WRITE_BUTTON),
                   ),
                   onPressed: () {
-                    context.goNamed(
-                      DiaryPostScreen.routeName,
-                    );
+                    context.go(
+                        '/detail/${widget.diaryId}/${DiaryPostScreen.routeName}',
+                        extra: {'title': widget.title});
                   },
                   child: const Text(
                     '  글쓰기  ',
+                    style: TextStyle(color: DIARY_DETAIL_COLOR),
                   ),
                 ),
               ],

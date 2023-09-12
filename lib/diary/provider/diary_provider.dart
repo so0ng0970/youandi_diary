@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/diary/model/diary_model.dart';
+import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
 
 final diaryProvider = Provider<DiaryRepository>((ref) => DiaryRepository());
@@ -28,10 +29,25 @@ class DiaryRepository {
     if (diary.diaryId == null) {
       DocumentReference docRef = _firestore.collection('diary').doc();
       diary.diaryId = docRef.id;
+
       await docRef.set(userData);
     }
 
     return diary;
+  }
+
+  Future<DiaryPostModel> savePostToFirestore(DiaryPostModel model) async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    DocumentReference docRef = _firestore.collection('post').doc();
+    if (currentUser != null) {
+      model.userName = currentUser.displayName ?? '';
+      model.photoUrl = currentUser.photoURL ?? '';
+    }
+    model.postId = docRef.id;
+    model.dataTime = DateTime.now();
+    await docRef.set(model.toJson());
+
+    return model;
   }
 
   Future<DiaryModel?> getDiaryById(String diaryId) async {

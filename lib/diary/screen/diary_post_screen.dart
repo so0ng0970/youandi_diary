@@ -1,15 +1,18 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youandi_diary/diary/component/custom_video_player.dart';
+import 'package:youandi_diary/diary/model/diary_post_model.dart';
+import 'package:youandi_diary/diary/provider/diary_provider.dart';
 import 'package:youandi_diary/user/layout/default_layout.dart';
 
 import '../../common/const/color.dart';
-import '../../user/provider/video_provider.dart';
 
 class DiaryPostScreen extends ConsumerStatefulWidget {
   static String get routeName => 'post';
@@ -20,16 +23,21 @@ class DiaryPostScreen extends ConsumerStatefulWidget {
 }
 
 class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
-  List<File> selectedImages = [];
-  late List<File> selectedVideo = [];
+  List<XFile> selectedImages = [];
+
+  XFile? video;
   VideoPlayerController? videoController;
   Duration currentPosition = const Duration();
   bool showControls = false;
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
 
   @override
   Widget build(
     BuildContext context,
   ) {
+    final provider = ref.watch(diaryProvider);
+
     return DefaultLayout(
       color: DIARY_DETAIL_COLOR,
       child: SafeArea(
@@ -60,12 +68,12 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          if (selectedImages.isEmpty && selectedVideo.isEmpty)
+                          if (selectedImages.isEmpty && video == null)
                             Image.asset(
                               'asset/image/icon/photo.png',
                               scale: 4,
                             ),
-                          if (selectedImages.isEmpty && selectedVideo.isEmpty)
+                          if (selectedImages.isEmpty && video == null)
                             const Text(
                               'add photo & video +',
                               style: TextStyle(
@@ -82,7 +90,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                     children: [
                                       Center(
                                         child: Image.file(
-                                          selectedImages[index],
+                                          File(selectedImages[index].path),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
@@ -106,35 +114,20 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                 },
                               ),
                             ),
-                          if (selectedVideo.isNotEmpty)
+                          if (video != null)
                             Stack(
                               children: [
-                                AspectRatio(
-                                  aspectRatio:
-                                      videoController!.value.aspectRatio,
-                                  child: VideoPlayer(
-                                    videoController!,
-                                  ),
-                                ),
-                                if (showControls)
-                                  _Controls(
-                                    onReversePressed: onReversePressed,
-                                    onPlayPressed: onPlayPressed,
-                                    isPlay: videoController!.value.isPlaying,
-                                    onForwardPressed: onForwardPressed,
-                                  ),
-                                _SliderBottom(
-                                  onSliderChanged: onSliderChanged,
-                                  currentPosition: currentPosition,
-                                  maxPosition: videoController!.value.duration,
-                                ),
+                                CustomVideoPlayer(
+                                    onNewVideoPressed: onNewVideoPressed,
+                                    video: video!),
                                 Positioned(
                                   right: 10.0,
                                   child: IconButton(
                                     onPressed: () {
                                       setState(() {
-                                        selectedVideo.clear();
-                                        videoController!.dispose();
+                                        video = null;
+
+                                        videoController?.dispose();
                                       });
                                     },
                                     icon: const Icon(
@@ -164,6 +157,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                       child: Column(
                         children: [
                           TextFormField(
+                            controller: titleController,
                             decoration: const InputDecoration(
                               hintText: '제목',
                               // border: OutlineInputBorder(
@@ -178,6 +172,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                             ),
                           ),
                           TextFormField(
+                            controller: contentController,
                             autocorrect: true,
                             maxLines: null,
                             decoration: const InputDecoration(
@@ -196,7 +191,49 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                   height: 10,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    shape: const CircleBorder(), //<-- SEE HERE
+                    padding: const EdgeInsets.all(20),
+                  ),
+                  onPressed: () async {
+                    List<String>? imageUrlList = [];
+                    String? videoUrl;
+
+                    String postTitle = titleController.text;
+                    String content = contentController.text;
+
+                    List<String> imgUrl = imageUrlList;
+
+                    for (var image in selectedImages) {
+                      try {
+                        String imageUrl =
+                            await uploadFileToFirebaseStorage(image, 'youandi');
+                        imageUrlList.add(imageUrl);
+                      } catch (error) {
+                        print('Failed to upload image: $error');
+                        // 필요한 경우 여기에서 추가적인 에러 처리 로직 구현
+                      }
+                    }
+                    if (video != null) {
+                      try {
+                        videoUrl =
+                            await uploadFileToFirebaseStorage(video!, 'videos');
+                      } catch (error) {
+                        print('Failed to upload video:$error');
+                      }
+                    }
+
+                    // 새 DiaryPostModel 생성
+                    DiaryPostModel newDiaryPost = DiaryPostModel(
+                      title: postTitle,
+                      content: content,
+                      videoUrl: videoUrl.toString(),
+                      imgUrl: imgUrl,
+                      dataTime: DateTime.now(), // 현재 시간으로 설정
+                      // 나머지 필드들은 선택적이므로 초기값(null)이 할당됩니다.
+                    );
+                    provider.savePostToFirestore(newDiaryPost);
+                  },
                   child: const Text(
                     '글작성',
                   ),
@@ -292,6 +329,33 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     );
   }
 
+  Future<String> uploadFileToFirebaseStorage(
+      XFile xfile, String directory) async {
+    String uniqueFileName = DateTime.now().microsecondsSinceEpoch.toString();
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDir = referenceRoot.child(directory);
+    Reference referenceFileToUpload = referenceDir.child(uniqueFileName);
+
+    try {
+      File file = File(xfile.path); // XFile의 path 속성을 사용하여 File 객체 생성
+      await referenceFileToUpload.putFile(file);
+      String fileUrl = await referenceFileToUpload.getDownloadURL();
+      return fileUrl;
+    } catch (error) {
+      print('Error occurred while uploading file: $error');
+      rethrow; // 에러를 다시 던져 호출자가 처리하도록 함
+    }
+  }
+
+  void onNewVideoPressed() async {
+    final video = await ImagePicker().pickVideo(
+      source: ImageSource.gallery,
+    );
+    setState(() {
+      this.video = video;
+    });
+  }
+
   void onSliderChanged(double val) {
     videoController!.seekTo(
       Duration(seconds: val.toInt()),
@@ -336,13 +400,12 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     videoController!.seekTo(position);
   }
 
-  XFile? _pickedFile;
   _getCamera() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       setState(() {
-        _pickedFile = pickedFile;
+        video = pickedFile;
       });
     } else {
       if (kDebugMode) {
@@ -359,9 +422,9 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
 
     if (xfilePick.isNotEmpty) {
       for (var i = 0; i < xfilePick.length; i++) {
-        selectedImages.add(File(xfilePick[i].path));
+        selectedImages.add(xfilePick[i]);
       }
-      selectedVideo.clear();
+      video = null;
       setState(
         () {
           context.pop();
@@ -374,146 +437,12 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
   }
 
   Future pickVideo(ImageSource source) async {
-    final XFile? file = await ImagePicker()
-        .pickVideo(source: source, maxDuration: const Duration(seconds: 10));
-    if (file != null) {
-      ref.watch(selectedVideoProvider.notifier).insertVideo(file);
-      videoController = VideoPlayerController.network(file.path)
-        ..initialize().then((_) {
-          videoController!.addListener(() {
-            setState(() {
-              ref
-                  .watch(videoStateProvider.notifier)
-                  .update((state) => videoController!.value.isPlaying);
-            });
-          });
-          selectedVideo.add(File(file.path));
-          selectedImages.clear();
-          context.pop();
-          setState(() {});
-        });
-    }
-  }
-}
-
-class _SliderBottom extends StatelessWidget {
-  const _SliderBottom({
-    Key? key,
-    required this.currentPosition,
-    required this.maxPosition,
-    required this.onSliderChanged,
-  }) : super(key: key);
-
-  final Duration currentPosition;
-  final Duration maxPosition;
-  final ValueChanged<double> onSliderChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 0,
-      right: 0,
-      left: 0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Row(
-          children: [
-            Text(
-              '${currentPosition.inMinutes}:${(currentPosition.inSeconds % 60).toString().padLeft(2, '0')}',
-              style: const TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            Expanded(
-              child: Slider(
-                  max: maxPosition.inSeconds.toDouble(),
-                  min: 0,
-                  value: currentPosition.inSeconds.toDouble(),
-                  onChanged: onSliderChanged),
-            ),
-            Text(
-              '${maxPosition.inMinutes}:${(maxPosition.inSeconds % 60).toString().padLeft(2, '0')}',
-              style: const TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
+    final video = await ImagePicker().pickVideo(
+      source: ImageSource.gallery,
     );
-  }
-}
-
-class _NewVideo extends StatelessWidget {
-  final VoidCallback onPressed;
-  const _NewVideo({
-    required this.onPressed,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // stack 쓸때 많이 씀 위치지정
-    return Positioned(
-      right: 1,
-      child: IconButton(
-        onPressed: onPressed,
-        color: Colors.white,
-        iconSize: 30.0,
-        icon: const Icon(Icons.photo_camera_back),
-      ),
-    );
-  }
-}
-
-class _Controls extends StatelessWidget {
-  final VoidCallback onPlayPressed;
-  final VoidCallback onReversePressed;
-  final VoidCallback onForwardPressed;
-  final bool isPlay;
-
-  const _Controls({
-    required this.onPlayPressed,
-    required this.onReversePressed,
-    required this.onForwardPressed,
-    required this.isPlay,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      color: Colors.black.withOpacity(0.5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          renderIconButton(
-            onPressed: onReversePressed,
-            iconData: Icons.rotate_left,
-          ),
-          renderIconButton(
-            onPressed: onPlayPressed,
-            iconData: isPlay ? Icons.pause : Icons.play_arrow,
-          ),
-          renderIconButton(
-            onPressed: onForwardPressed,
-            iconData: Icons.rotate_right,
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget renderIconButton({
-    required VoidCallback onPressed,
-    required IconData iconData,
-  }) {
-    return IconButton(
-      onPressed: onPressed,
-      iconSize: 30.0,
-      color: Colors.white,
-      icon: Icon(iconData),
-    );
+    this.video = video;
+    selectedImages.clear();
+    context.pop();
+    setState(() {});
   }
 }
