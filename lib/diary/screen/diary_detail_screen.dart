@@ -24,8 +24,6 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   @override
   Widget build(BuildContext context) {
-    print(widget.diaryId);
-    print(widget.title);
     final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
     return DefaultLayout(
       title: widget.title.toString(),
@@ -89,7 +87,10 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                   onPressed: () {
                     context.go(
                         '/detail/${widget.diaryId}/${DiaryPostScreen.routeName}',
-                        extra: {'title': widget.title});
+                        extra: {
+                          'title': widget.title,
+                          'diaryId': widget.diaryId,
+                        });
                   },
                   child: const Text(
                     '  글쓰기  ',

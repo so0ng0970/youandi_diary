@@ -60,10 +60,14 @@ class AuthProvider extends ChangeNotifier {
                 },
                 routes: [
                   GoRoute(
-                    path: ':post',
-                    name: DiaryPostScreen.routeName,
-                    builder: (context, state) => const DiaryPostScreen(),
-                  ),
+                      path: ':post',
+                      name: DiaryPostScreen.routeName,
+                      builder: (context, state) {
+                        final diaryId = state.pathParameters['rid'].toString();
+                        return DiaryPostScreen(
+                          diaryId: diaryId,
+                        );
+                      }),
                 ]),
           ],
         )

@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,16 +8,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
+
 import 'package:youandi_diary/diary/component/custom_video_player.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
-import 'package:youandi_diary/diary/provider/diary_provider.dart';
+import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/user/layout/default_layout.dart';
 
 import '../../common/const/color.dart';
 
 class DiaryPostScreen extends ConsumerStatefulWidget {
   static String get routeName => 'post';
-  const DiaryPostScreen({super.key});
+  String diaryId;
+  DiaryPostScreen({
+    super.key,
+    required this.diaryId,
+  });
 
   @override
   ConsumerState<DiaryPostScreen> createState() => _DiaryPostScreenState();
@@ -24,20 +30,21 @@ class DiaryPostScreen extends ConsumerStatefulWidget {
 
 class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
   List<XFile> selectedImages = [];
-
   XFile? video;
   VideoPlayerController? videoController;
   Duration currentPosition = const Duration();
   bool showControls = false;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
+  bool isLoading = false;
+  double uploadProgress = 0;
 
   @override
   Widget build(
     BuildContext context,
   ) {
-    final provider = ref.watch(diaryProvider);
-
+    final provider = ref.watch(diaryDetailProvider);
+    print(widget.diaryId);
     return DefaultLayout(
       color: DIARY_DETAIL_COLOR,
       child: SafeArea(
@@ -45,6 +52,13 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                if (isLoading == true)
+                  Text(
+                    'Upload : ${(uploadProgress * 100).toStringAsFixed(2)}%',
+                    style: const TextStyle(
+                      color: WHITE_COLOR,
+                    ),
+                  ),
                 GestureDetector(
                   onTap: () {
                     mediaDialog(context);
@@ -149,7 +163,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                 ),
                 Container(
                   color: ADD_BG_COLOR,
-                  height: MediaQuery.of(context).size.height / 2.2,
+                  height: MediaQuery.of(context).size.height / 2.3,
                   width: MediaQuery.of(context).size.width - 70,
                   child: Form(
                     child: Padding(
@@ -196,47 +210,14 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                     padding: const EdgeInsets.all(20),
                   ),
                   onPressed: () async {
-                    List<String>? imageUrlList = [];
-                    String? videoUrl;
-
-                    String postTitle = titleController.text;
-                    String content = contentController.text;
-
-                    List<String> imgUrl = imageUrlList;
-
-                    for (var image in selectedImages) {
-                      try {
-                        String imageUrl =
-                            await uploadFileToFirebaseStorage(image, 'youandi');
-                        imageUrlList.add(imageUrl);
-                      } catch (error) {
-                        print('Failed to upload image: $error');
-                        // 필요한 경우 여기에서 추가적인 에러 처리 로직 구현
-                      }
-                    }
-                    if (video != null) {
-                      try {
-                        videoUrl =
-                            await uploadFileToFirebaseStorage(video!, 'videos');
-                      } catch (error) {
-                        print('Failed to upload video:$error');
-                      }
-                    }
-
-                    // 새 DiaryPostModel 생성
-                    DiaryPostModel newDiaryPost = DiaryPostModel(
-                      title: postTitle,
-                      content: content,
-                      videoUrl: videoUrl.toString(),
-                      imgUrl: imgUrl,
-                      dataTime: DateTime.now(), // 현재 시간으로 설정
-                      // 나머지 필드들은 선택적이므로 초기값(null)이 할당됩니다.
-                    );
-                    provider.savePostToFirestore(newDiaryPost);
+                    uploadAndSavePost();
                   },
-                  child: const Text(
-                    '글작성',
-                  ),
+                  child: provider.isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text('글작성'),
+                ),
+                const SizedBox(
+                  height: 5,
                 )
               ],
             ),
@@ -329,22 +310,71 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     );
   }
 
-  Future<String> uploadFileToFirebaseStorage(
-      XFile xfile, String directory) async {
+  Future<String> firebaseProgress(XFile xfile, String directory) async {
     String uniqueFileName = DateTime.now().microsecondsSinceEpoch.toString();
     Reference referenceRoot = FirebaseStorage.instance.ref();
     Reference referenceDir = referenceRoot.child(directory);
     Reference referenceFileToUpload = referenceDir.child(uniqueFileName);
 
     try {
-      File file = File(xfile.path); // XFile의 path 속성을 사용하여 File 객체 생성
-      await referenceFileToUpload.putFile(file);
+      File file = File(xfile.path);
+      UploadTask uploadTask = referenceFileToUpload.putFile(file);
+
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progressPercent =
+            snapshot.bytesTransferred / snapshot.totalBytes;
+
+        setState(() {
+          uploadProgress = progressPercent;
+        });
+      });
+
+      await uploadTask;
+
       String fileUrl = await referenceFileToUpload.getDownloadURL();
+
       return fileUrl;
     } catch (error) {
       print('Error occurred while uploading file: $error');
-      rethrow; // 에러를 다시 던져 호출자가 처리하도록 함
+      rethrow;
     }
+  }
+
+  Future<void> uploadAndSavePost() async {
+    List<String>? imageUrlList = [];
+    String? videoUrl;
+    String postTitle = titleController.text;
+    String content = contentController.text;
+
+    List<String> imgUrl = imageUrlList;
+    isLoading = true;
+    for (var image in selectedImages) {
+      try {
+        String imageUrl = await firebaseProgress(image, 'images');
+        imageUrlList.add(imageUrl);
+      } catch (error) {
+        print('Failed to upload image: $error');
+      }
+    }
+    if (video != null) {
+      try {
+        videoUrl = await firebaseProgress(video!, 'videos');
+      } catch (error) {
+        print('Failed to upload video:$error');
+      }
+    }
+
+    DiaryPostModel newDiaryPost = DiaryPostModel(
+      title: postTitle,
+      content: content,
+      videoUrl: videoUrl?.toString(),
+      imgUrl: imgUrl,
+      diaryId: widget.diaryId,
+      dataTime: DateTime.now(),
+    );
+
+    ref.read(diaryDetailProvider.notifier).savePostToFirestore(newDiaryPost);
+    Navigator.pop(context);
   }
 
   void onNewVideoPressed() async {
