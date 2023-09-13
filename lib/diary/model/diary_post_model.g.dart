@@ -10,8 +10,8 @@ DiaryPostModel _$DiaryPostModelFromJson(Map<String, dynamic> json) =>
     DiaryPostModel(
       diaryId: json['diaryId'] as String?,
       postId: json['postId'] as String?,
-      title: json['title'] as String,
-      content: json['content'] as String,
+      title: json['title'] as String?,
+      content: json['content'] as String?,
       photoUrl: json['photoUrl'] as String?,
       userName: json['userName'] as String?,
       videoUrl: json['videoUrl'] as String?,

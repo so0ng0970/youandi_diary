@@ -8,8 +8,8 @@ part 'diary_post_model.g.dart';
 class DiaryPostModel {
   final String? diaryId;
   late String? postId;
-  final String title;
-  final String content;
+  final String? title;
+  final String? content;
   late String? photoUrl;
   late String? userName;
   final String? videoUrl;
@@ -20,8 +20,8 @@ class DiaryPostModel {
   DiaryPostModel({
     this.diaryId,
     this.postId,
-    required this.title,
-    required this.content,
+    this.title,
+    this.content,
     this.photoUrl,
     this.userName,
     this.videoUrl,

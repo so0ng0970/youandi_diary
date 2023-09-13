@@ -3,9 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 
-
+final getPostListProvider = FutureProvider<List<DiaryPostModel>>((ref) {
+  return ref.watch(diaryDetailProvider.notifier).getDiaryListFromFirestore();
+});
 final diaryDetailProvider =
-    StateNotifierProvider<DiartDetailProvider, PostState>((ref) => DiartDetailProvider());
+    StateNotifierProvider<DiartDetailProvider, PostState>(
+        (ref) => DiartDetailProvider());
 
 class PostState {
   final bool isLoading;
@@ -36,10 +39,23 @@ class DiartDetailProvider extends StateNotifier<PostState> {
       await docRef.set(model.toJson());
 
       state = PostState(post: model);
-      
     } catch (e) {
       state = PostState(error: e.toString());
     }
   }
-}
 
+  Future<List<DiaryPostModel>> getDiaryListFromFirestore() async {
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('diary')
+        .orderBy(
+          'dataTime',
+          descending: true,
+        )
+        .get();
+
+    return snapshot.docs
+        .map((doc) =>
+            DiaryPostModel.fromJson(doc.data() as Map<String, dynamic>))
+        .toList();
+  }
+}

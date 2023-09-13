@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:youandi_diary/diary/component/diary_detail_card.dart';
+import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
 
@@ -24,6 +26,7 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   @override
   Widget build(BuildContext context) {
+    final getPostList = ref.watch(getPostListProvider);
     final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
     return DefaultLayout(
       title: widget.title.toString(),
@@ -105,23 +108,33 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Container(
-                height: MediaQuery.of(context).size.height - 150,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: WHITE_COLOR,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(
-                    150,
-                  ),
-                  image: const DecorationImage(
-                    fit: BoxFit.fill,
-                    image: AssetImage(
-                      'asset/image/diary/diary4.jpg',
+                  height: MediaQuery.of(context).size.height - 150,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: WHITE_COLOR,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      150,
+                    ),
+                    image: const DecorationImage(
+                      fit: BoxFit.fill,
+                      image: AssetImage(
+                        'asset/image/diary/diary4.jpg',
+                      ),
                     ),
                   ),
-                ),
-              ),
+                  child: getPostList.when(
+                    data: (data) => ListView.builder(
+                      itemCount: data.length,
+                      itemBuilder: (context, index) {
+                        final diaryData = data[index];
+                        return DiaryDetailCard.fromModel(diaryData: diaryData);
+                      },
+                    ),
+                    loading: () => const CircularProgressIndicator(),
+                    error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
+                  )),
             ),
           ],
         ),
