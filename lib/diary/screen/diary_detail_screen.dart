@@ -36,10 +36,20 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
       FOURCOLOR,
       FIVECOLOR,
     ];
+    final divColors = [
+      DIVONE,
+      DIVTWO,
+      DIVTHR,
+      DIVFOUR,
+      DIVFIV,
+    ];
     final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
     return DefaultLayout(
       title: widget.title.toString(),
       color: DIARY_DETAIL_COLOR,
+      popOnPressed: () {
+        context.pop();
+      },
       child: SafeArea(
         child: Column(
           children: [
@@ -139,6 +149,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                         return DiaryDetailCard.fromModel(
                           diaryData: diaryData,
                           color: colors[index % colors.length],
+                          divColor: divColors[index % divColors.length],
                         );
                       },
                     ),

@@ -1,4 +1,7 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+
+import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/custom_video_player.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
@@ -13,10 +16,10 @@ class DiaryDetailCard extends StatelessWidget {
   final String? videoUrl;
   final List<String>? imgUrl;
   final Color color;
+  final Color divColor;
 
   late DateTime dataTime;
   DiaryDetailCard({
-    required this.color,
     Key? key,
     this.diaryId,
     this.postId,
@@ -26,10 +29,12 @@ class DiaryDetailCard extends StatelessWidget {
     this.userName,
     this.videoUrl,
     this.imgUrl,
+    required this.color,
+    required this.divColor,
     required this.dataTime,
   }) : super(key: key);
   factory DiaryDetailCard.fromModel(
-      {required DiaryPostModel diaryData, required color}) {
+      {required DiaryPostModel diaryData, required color, required divColor}) {
     return DiaryDetailCard(
       color: color,
       diaryId: diaryData.diaryId,
@@ -41,6 +46,7 @@ class DiaryDetailCard extends StatelessWidget {
       photoUrl: diaryData.photoUrl,
       dataTime: diaryData.dataTime,
       userName: diaryData.userName,
+      divColor: divColor,
     );
   }
 
@@ -49,8 +55,14 @@ class DiaryDetailCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
       child: Container(
-        height: 400,
-        color: color,
+        height: 450,
+        decoration: BoxDecoration(
+          color: color,
+          border: Border.all(
+            color: divColor,
+            width: 2,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -75,14 +87,20 @@ class DiaryDetailCard extends StatelessWidget {
                 const SizedBox(
                   width: 5,
                 ),
-                Text(
-                  userName.toString(),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    right: 5,
+                  ),
+                  child: Text(
+                    userName.toString(),
+                  ),
                 ),
               ],
             ),
+            Divider(color: divColor),
             if (imgUrl!.isNotEmpty)
               SizedBox(
-                height: 200,
+                height: 150,
                 child: PageView.builder(
                   itemCount: imgUrl?.length,
                   itemBuilder: (context, index) {
@@ -99,6 +117,9 @@ class DiaryDetailCard extends StatelessWidget {
                   },
                 ),
               ),
+            const SizedBox(
+              height: 5,
+            ),
             if (videoUrl != null) CustomVideoPlayer(videoUrl: videoUrl),
             Text(
               content,
@@ -107,14 +128,96 @@ class DiaryDetailCard extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            Text(
-              DataUtils.getTimeFromDateTime(
-                dateTime: dataTime,
+            Center(
+              child: Text(
+                DataUtils.getTimeFromDateTime(
+                  dateTime: dataTime,
+                ),
+                style: const TextStyle(
+                  fontSize: 12,
+                ),
               ),
+            ),
+            _Comment(
+              photoUrl: photoUrl.toString(),
+              divColor: divColor,
             )
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Comment extends StatelessWidget {
+  Color divColor;
+  String photoUrl;
+  _Comment({
+    Key? key,
+    required this.divColor,
+    required this.photoUrl,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+          height: 100,
+          decoration: BoxDecoration(
+            color: WHITE_COLOR,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: Colors.black,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(5, 10, 5, 5),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 25,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: divColor,
+                        ),
+                      ),
+                      child: ClipOval(
+                        child: Image.network(photoUrl),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Form(
+                      child: SizedBox(
+                        height: 25,
+                        width: MediaQuery.of(context).size.width - 148,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: divColor,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                20,
+                              ),
+                              borderSide: const BorderSide(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )),
     );
   }
 }

@@ -19,6 +19,7 @@ import '../../common/const/color.dart';
 class DiaryPostScreen extends ConsumerStatefulWidget {
   static String get routeName => 'post';
   String diaryId;
+
   DiaryPostScreen({
     super.key,
     required this.diaryId,
@@ -38,6 +39,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
   final TextEditingController contentController = TextEditingController();
   bool isLoading = false;
   double uploadProgress = 0;
+  UploadTask? uploadTask;
 
   @override
   Widget build(
@@ -46,6 +48,16 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     final provider = ref.watch(diaryDetailProvider);
     print(widget.diaryId);
     return DefaultLayout(
+      popOnPressed: () {
+        if (uploadTask != null &&
+            uploadTask?.snapshot.state == TaskState.running) {
+          uploadTask?.cancel();
+        }
+        uploadTask?.cancel();
+        video == null;
+        selectedImages.clear();
+        context.pop();
+      },
       color: DIARY_DETAIL_COLOR,
       child: SafeArea(
         child: Center(
@@ -319,16 +331,19 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     try {
       File file = File(xfile.path);
       UploadTask uploadTask = referenceFileToUpload.putFile(file);
+      uploadTask = referenceFileToUpload.putFile(file);
 
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
         double progressPercent =
             snapshot.bytesTransferred / snapshot.totalBytes;
 
-        setState(() {
-          uploadProgress = progressPercent;
-        });
+        if (mounted) {
+          setState(() {
+            uploadProgress = progressPercent;
+          });
+        }
       });
-
+      await uploadTask.whenComplete(() {});
       await uploadTask;
 
       String fileUrl = await referenceFileToUpload.getDownloadURL();
@@ -348,7 +363,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
 
     List<String> imgUrl = imageUrlList;
     isLoading = true;
-    for (var image in selectedImages) {
+    for (var image in List.from(selectedImages)) {
       try {
         String imageUrl = await firebaseProgress(image, 'images');
         imageUrlList.add(imageUrl);

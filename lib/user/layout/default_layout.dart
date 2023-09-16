@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/component/main_drawer.dart';
 import 'package:youandi_diary/common/const/color.dart';
 
@@ -8,6 +7,7 @@ class DefaultLayout extends StatelessWidget {
   final Widget child;
   final String? title;
   final VoidCallback? onPressed;
+  final VoidCallback? popOnPressed;
 
   const DefaultLayout({
     Key? key,
@@ -15,6 +15,7 @@ class DefaultLayout extends StatelessWidget {
     this.color,
     this.onPressed,
     required this.child,
+    this.popOnPressed,
   }) : super(key: key);
 
   @override
@@ -39,9 +40,7 @@ class DefaultLayout extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: () {
-              context.pop();
-            },
+            onPressed: popOnPressed,
             icon: const Icon(
               Icons.arrow_back_rounded,
               color: WHITE_COLOR,
