@@ -26,7 +26,16 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   @override
   Widget build(BuildContext context) {
-    final getPostList = ref.watch(getPostListProvider);
+    final getPostList = ref.watch(getPostListProvider(
+      widget.diaryId,
+    ));
+    final colors = [
+      ONECOLOR,
+      TWOCOLOR,
+      THREECOLOR,
+      FOURCOLOR,
+      FIVECOLOR,
+    ];
     final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
     return DefaultLayout(
       title: widget.title.toString(),
@@ -51,16 +60,14 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                         scale: 5,
                       ),
                     ),
-                    const Expanded(
-                      child: Text(
-                        '2023-09-36',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: WHITE_COLOR,
-                            letterSpacing: 2.0),
-                      ),
+                    const Text(
+                      '2023-09-36',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: WHITE_COLOR,
+                          letterSpacing: 2.0),
                     ),
                     Positioned(
                       right: -45,
@@ -129,7 +136,10 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                       itemCount: data.length,
                       itemBuilder: (context, index) {
                         final diaryData = data[index];
-                        return DiaryDetailCard.fromModel(diaryData: diaryData);
+                        return DiaryDetailCard.fromModel(
+                          diaryData: diaryData,
+                          color: colors[index % colors.length],
+                        );
                       },
                     ),
                     loading: () => const CircularProgressIndicator(),

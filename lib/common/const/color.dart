@@ -26,3 +26,11 @@ const WRITE_BUTTON = Color(0xFFB8C7D9);
 const ADD_BG_COLOR = Color(0xFFF0FAFF);
 const DIARY_DETAIL_COLOR = Color(0xFF002749);
 const TEXT_OUTLINE_COLOR = Color(0xFF8AA5F0);
+
+// postColor
+
+const ONECOLOR = Color(0xFFE58CB4);
+const TWOCOLOR = Color(0xFF8AA5F0);
+const THREECOLOR = Color(0xFF00A696);
+const FOURCOLOR = Color(0xFFE49D22);
+const FIVECOLOR = Color(0xFFEEE8A9);

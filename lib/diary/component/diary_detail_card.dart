@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:youandi_diary/common/utils/data_utils.dart';
+import 'package:youandi_diary/diary/component/custom_video_player.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 
 class DiaryDetailCard extends StatelessWidget {
@@ -10,9 +12,11 @@ class DiaryDetailCard extends StatelessWidget {
   late String? userName;
   final String? videoUrl;
   final List<String>? imgUrl;
+  final Color color;
 
   late DateTime dataTime;
   DiaryDetailCard({
+    required this.color,
     Key? key,
     this.diaryId,
     this.postId,
@@ -24,10 +28,10 @@ class DiaryDetailCard extends StatelessWidget {
     this.imgUrl,
     required this.dataTime,
   }) : super(key: key);
-  factory DiaryDetailCard.fromModel({
-    required DiaryPostModel diaryData,
-  }) {
+  factory DiaryDetailCard.fromModel(
+      {required DiaryPostModel diaryData, required color}) {
     return DiaryDetailCard(
+      color: color,
       diaryId: diaryData.diaryId,
       postId: diaryData.postId,
       title: diaryData.title.toString(),
@@ -42,8 +46,75 @@ class DiaryDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text(title),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
+      child: Container(
+        height: 400,
+        color: color,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 25,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: ClipOval(
+                    child: Image.network(
+                      photoUrl.toString(),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  userName.toString(),
+                ),
+              ],
+            ),
+            if (imgUrl!.isNotEmpty)
+              SizedBox(
+                height: 200,
+                child: PageView.builder(
+                  itemCount: imgUrl?.length,
+                  itemBuilder: (context, index) {
+                    return Stack(
+                      children: [
+                        Center(
+                          child: Image.network(
+                            imgUrl![index],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            if (videoUrl != null) CustomVideoPlayer(videoUrl: videoUrl),
+            Text(
+              content,
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              DataUtils.getTimeFromDateTime(
+                dateTime: dataTime,
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

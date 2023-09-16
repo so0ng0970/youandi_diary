@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -5,11 +6,16 @@ import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
 class CustomVideoPlayer extends StatefulWidget {
-  final XFile video;
-  final VoidCallback onNewVideoPressed;
+  final XFile? video;
+  final String? videoUrl;
+  final VoidCallback? onNewVideoPressed;
 
-  const CustomVideoPlayer(
-      {required this.onNewVideoPressed, required this.video, super.key});
+  const CustomVideoPlayer({
+    Key? key,
+    this.video,
+    this.videoUrl,
+    this.onNewVideoPressed,
+  }) : super(key: key);
 
   @override
   State<CustomVideoPlayer> createState() => _CustomVideoPlayerState();
@@ -32,18 +38,41 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   void didUpdateWidget(covariant CustomVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.video.path != widget.video.path) {
+    if (oldWidget.video?.path != widget.video?.path) {
       initializeController();
     }
   }
+@override
+void dispose() {
+  // Dispose the video player controller to free up resources.
+  videoController?.removeListener(_videoPlayerListener);
+  videoController?.dispose();
 
-// initState 는 asyn 불가능 이여서 따로 함수로 만듬
+  super.dispose();
+}
+
+void _videoPlayerListener() {
+  if (mounted) {
+    final currentPosition = videoController!.value.position;
+    setState(() {
+      this.currentPosition = currentPosition;
+    });
+  }
+}
+
   initializeController() async {
     // 새로운 영상을 받았을때 초기화 시켜줘야한다.
     currentPosition = const Duration();
-    videoController = VideoPlayerController.file(
-      File(widget.video.path),
-    );
+
+    if (widget.video != null) {
+      videoController = VideoPlayerController.file(
+        File(widget.video!.path),
+      );
+    } else if (widget.videoUrl != null) {
+      videoController = VideoPlayerController.networkUrl(
+        Uri.parse(widget.videoUrl!),
+      );
+    }
     await videoController!.initialize();
 
     videoController!.addListener(() {
@@ -82,9 +111,9 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
                   isPlay: videoController!.value.isPlaying,
                   onForwardPressed: onForwardPressed,
                 ),
-              if (showControls)
+              if (showControls && widget.video != null)
                 _NewVideo(
-                  onPressed: widget.onNewVideoPressed,
+                  onPressed: widget.onNewVideoPressed!,
                 ),
               _SliderBottom(
                 onSliderChanged: onSliderChanged,
