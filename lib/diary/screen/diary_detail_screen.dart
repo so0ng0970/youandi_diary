@@ -181,25 +181,39 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     );
   }
 
-  onDaySelected(selectedDay, focusedDay) {
-    setState(() {
-      this.selectedDay = selectedDay;
-      this.focusedDay = selectedDay;
-    });
-  }
+  // onDaySelected(
+  //   selectedDay,
+  //   focusedDay,
+  // ) {
+  //   setState(() {
+  //     this.selectedDay = selectedDay;
+  //     this.focusedDay = selectedDay;
+  //   });
+  // }
 
   void _showCalendarModal(selectedDay, focusedDay) {
     final dialogContext = context;
     showDialog(
-      context: dialogContext,
-      builder: (BuildContext context) {
-        return Calendar(
-          selectedDay: selectedDay,
-          onDaySelected: onDaySelected,
-          focusedDay: focusedDay,
-          // diaryId: widget.diaryId,
-        );
-      },
-    );
+        context: dialogContext,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              // 모달 ui setState 
+              onDaySelected(DateTime selectedDate, DateTime focusedDate) {
+                setState(() {
+                  selectedDay = selectedDate;
+                  focusedDay = selectedDate;
+                });
+              }
+
+              return Calendar(
+                selectedDay: selectedDay,
+                onDaySelected: onDaySelected,
+                focusedDay: focusedDay,
+                // diaryId: widget.diaryId,
+              );
+            },
+          );
+        });
   }
 }
