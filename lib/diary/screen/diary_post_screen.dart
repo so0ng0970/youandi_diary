@@ -45,184 +45,196 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
   ) {
     final provider = ref.watch(diaryDetailProvider);
     print(widget.diaryId);
-    return DefaultLayout(
-      popOnPressed: () {
-        context.pop();
-      },
-      icon: !isLoading ? Icons.arrow_back : null,
-      color: DIARY_DETAIL_COLOR,
-      child: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                if (isLoading == true)
-                  Text(
-                    'Upload : ${(uploadProgress * 100).toStringAsFixed(2)}%',
-                    style: const TextStyle(
-                      color: WHITE_COLOR,
-                    ),
-                  ),
-                GestureDetector(
-                  onTap: () {
-                    mediaDialog(context);
-                  },
-                  child: Container(
-                    height: MediaQuery.of(context).size.height / 3.5,
-                    width: MediaQuery.of(context).size.width - 70,
-                    decoration: BoxDecoration(
-                      border: Border.all(
+    // 뒤로가기 막기 - 안드로이드
+    return WillPopScope(
+      onWillPop: () async => !isLoading ? true : false,
+      child: DefaultLayout(
+        popOnPressed: () {
+          context.pop();
+        },
+        icon: !isLoading ? Icons.arrow_back : null,
+        color: DIARY_DETAIL_COLOR,
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  if (isLoading == true)
+                    Text(
+                      'Upload : ${(uploadProgress * 100).toStringAsFixed(2)}%',
+                      style: const TextStyle(
                         color: WHITE_COLOR,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(
-                        50,
                       ),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        50,
+                  GestureDetector(
+                    onTap: () {
+                      mediaDialog(context);
+                    },
+                    child: Container(
+                      height: MediaQuery.of(context).size.height / 3.5,
+                      width: MediaQuery.of(context).size.width - 70,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: WHITE_COLOR,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(
+                          50,
+                        ),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          if (selectedImages.isEmpty && video == null)
-                            Image.asset(
-                              'asset/image/icon/photo.png',
-                              scale: 4,
-                            ),
-                          if (selectedImages.isEmpty && video == null)
-                            const Text(
-                              'add photo & video +',
-                              style: TextStyle(
-                                color: WHITE_COLOR,
-                                fontSize: 20,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          50,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            if (selectedImages.isEmpty && video == null)
+                              Image.asset(
+                                'asset/image/icon/photo.png',
+                                scale: 4,
                               ),
-                            ),
-                          if (selectedImages.isNotEmpty)
-                            Expanded(
-                              child: PageView.builder(
-                                itemCount: selectedImages.length,
-                                itemBuilder: (context, index) {
-                                  return Stack(
-                                    children: [
-                                      Center(
-                                        child: Image.file(
-                                          File(selectedImages[index].path),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      if (!isLoading)
-                                        Positioned(
-                                          right: 10.0,
-                                          child: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                selectedImages.removeAt(index);
-                                              });
-                                            },
-                                            icon: const Icon(
-                                              Icons.remove_circle_outlined,
-                                              size: 30,
-                                              color: WHITE_COLOR,
-                                            ),
+                            if (selectedImages.isEmpty && video == null)
+                              const Text(
+                                'add photo & video +',
+                                style: TextStyle(
+                                  color: WHITE_COLOR,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            if (selectedImages.isNotEmpty)
+                              Expanded(
+                                child: PageView.builder(
+                                  itemCount: selectedImages.length,
+                                  itemBuilder: (context, index) {
+                                    return Stack(
+                                      children: [
+                                        Center(
+                                          child: Image.file(
+                                            File(selectedImages[index].path),
+                                            fit: BoxFit.cover,
                                           ),
                                         ),
-                                    ],
-                                  );
-                                },
+                                        if (!isLoading)
+                                          Positioned(
+                                            right: 10.0,
+                                            child: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  selectedImages
+                                                      .removeAt(index);
+                                                });
+                                              },
+                                              icon: const Icon(
+                                                Icons.remove_circle_outlined,
+                                                size: 30,
+                                                color: WHITE_COLOR,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
-                          if (video != null)
-                            Stack(
-                              children: [
-                                CustomVideoPlayer(
-                                    onNewVideoPressed: onNewVideoPressed,
-                                    video: video!),
-                                if (!isLoading)
-                                  Positioned(
-                                    right: 10.0,
-                                    child: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          video = null;
+                            if (video != null)
+                              Stack(
+                                children: [
+                                  CustomVideoPlayer(
+                                      onNewVideoPressed: onNewVideoPressed,
+                                      video: video!),
+                                  if (!isLoading)
+                                    Positioned(
+                                      right: 10.0,
+                                      child: IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            video = null;
 
-                                          videoController?.dispose();
-                                        });
-                                      },
-                                      icon: const Icon(
-                                        Icons.remove_circle_outlined,
-                                        size: 30,
-                                        color: WHITE_COLOR,
+                                            videoController?.dispose();
+                                          });
+                                        },
+                                        icon: const Icon(
+                                          Icons.remove_circle_outlined,
+                                          size: 30,
+                                          color: WHITE_COLOR,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                            )
-                        ],
+                                ],
+                              )
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  color: ADD_BG_COLOR,
-                  height: MediaQuery.of(context).size.height / 2.3,
-                  width: MediaQuery.of(context).size.width - 70,
-                  child: Form(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: titleController,
-                            decoration: const InputDecoration(
-                              hintText: '제목',
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: TEXT_OUTLINE_COLOR,
-                                  width: 2.0,
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Container(
+                    color: ADD_BG_COLOR,
+                    height: MediaQuery.of(context).size.height / 2.3,
+                    width: MediaQuery.of(context).size.width - 70,
+                    child: Form(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: titleController,
+                              decoration: const InputDecoration(
+                                hintText: '제목',
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: TEXT_OUTLINE_COLOR,
+                                    width: 2.0,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          TextFormField(
-                            controller: contentController,
-                            autocorrect: true,
-                            maxLines: null,
-                            decoration: const InputDecoration(
-                              hintText: '내용',
-                              border: InputBorder.none,
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide.none),
+                            TextFormField(
+                              controller: contentController,
+                              autocorrect: true,
+                              maxLines: null,
+                              decoration: const InputDecoration(
+                                hintText: '내용',
+                                border: InputBorder.none,
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide.none),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: const CircleBorder(), //<-- SEE HERE
-                    padding: const EdgeInsets.all(20),
+                  const SizedBox(
+                    height: 10,
                   ),
-                  onPressed: () async {
-                    uploadAndSavePost();
-                  },
-                  child: provider.isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('글작성'),
-                ),
-                const SizedBox(
-                  height: 5,
-                )
-              ],
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(), //<-- SEE HERE
+                      padding: const EdgeInsets.all(20),
+                      backgroundColor: POST_BUTTON,
+                      side: const BorderSide(
+                        color: WHITE_COLOR,
+                      ),
+                    ),
+                    onPressed: () async {
+                      uploadAndSavePost();
+                    },
+                    child: provider.isLoading
+                        ? const CircularProgressIndicator()
+                        : const Text(
+                            '글작성',
+                            style: TextStyle(),
+                          ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  )
+                ],
+              ),
             ),
           ),
         ),

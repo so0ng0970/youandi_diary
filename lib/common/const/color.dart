@@ -34,6 +34,8 @@ const THREECOLOR = Color(0xFF00A696);
 const FOURCOLOR = Color(0xFFE49D22);
 const FIVECOLOR = Color(0xFFEEE8A9);
 
+const POST_BUTTON = Color(0xFF9C627C);
+
 const DIVONE = Color(0xffAC587F);
 const DIVTWO = Color(0xFF5271B8);
 const DIVTHR = Color(0xFF007163);
