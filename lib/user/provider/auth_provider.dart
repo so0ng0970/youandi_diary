@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/screen/home_screen.dart';
+import 'package:youandi_diary/diary/component/calendar.dart';
 import 'package:youandi_diary/diary/screen/diary_detail_screen.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
 import 'package:youandi_diary/user/screens/sign_screen.dart';
@@ -59,6 +60,15 @@ class AuthProvider extends ChangeNotifier {
                   );
                 },
                 routes: [
+                  GoRoute(
+                      path: ':calendar',
+                      name: Calendar.routeName,
+                      builder: (context, state) {
+                        final diaryId = state.pathParameters['rid'].toString();
+                        return Calendar(
+                          diaryId: diaryId,
+                        );
+                      }),
                   GoRoute(
                       path: ':post',
                       name: DiaryPostScreen.routeName,

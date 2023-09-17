@@ -8,6 +8,7 @@ import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
 
 import '../../common/const/color.dart';
 import '../../user/layout/default_layout.dart';
+import '../component/calendar.dart';
 
 class DiaryDetailScreen extends ConsumerStatefulWidget {
   final String diaryId;
@@ -24,6 +25,13 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
+  DateTime selectedDay = DateTime.utc(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
+  DateTime focusedDay = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     final getPostList = ref.watch(getPostListProvider(
@@ -43,6 +51,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
       DIVFOUR,
       DIVFIV,
     ];
+
     final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
     return DefaultLayout(
       title: widget.title.toString(),
@@ -71,14 +80,22 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                         scale: 5,
                       ),
                     ),
-                    const Text(
-                      '2023-09-36',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: WHITE_COLOR,
-                          letterSpacing: 2.0),
+                    TextButton(
+                      onPressed: () {
+                        _showCalendarModal(
+                          selectedDay,
+                          focusedDay,
+                        );
+                      },
+                      child: const Text(
+                        '2023-09-36',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: WHITE_COLOR,
+                            letterSpacing: 2.0),
+                      ),
                     ),
                     Positioned(
                       right: -45,
@@ -161,6 +178,28 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  onDaySelected(selectedDay, focusedDay) {
+    setState(() {
+      this.selectedDay = selectedDay;
+      this.focusedDay = selectedDay;
+    });
+  }
+
+  void _showCalendarModal(selectedDay, focusedDay) {
+    final dialogContext = context;
+    showDialog(
+      context: dialogContext,
+      builder: (BuildContext context) {
+        return Calendar(
+          selectedDay: selectedDay,
+          onDaySelected: onDaySelected,
+          focusedDay: focusedDay,
+          // diaryId: widget.diaryId,
+        );
+      },
     );
   }
 }
