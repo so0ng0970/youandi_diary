@@ -38,8 +38,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 bottomRight: Radius.circular(
                   50,
                 ),
-              ), //모서리
-            ), //테두리
+              ), 
+            ), 
             backgroundColor: BACKGROUND_COLOR,
             expandedHeight: 250,
             centerTitle: true,

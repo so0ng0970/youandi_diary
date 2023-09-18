@@ -1,6 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
@@ -15,9 +18,9 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
   final String? title;
 
   const DiaryDetailScreen({
-    this.title,
-    required this.diaryId,
     Key? key,
+    required this.diaryId,
+    this.title,
   }) : super(key: key);
 
   @override
@@ -25,11 +28,7 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
-  DateTime selectedDay = DateTime.utc(
-    DateTime.now().year,
-    DateTime.now().month,
-    DateTime.now().day,
-  );
+  DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
 
   @override
@@ -87,10 +86,10 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                           focusedDay,
                         );
                       },
-                      child: const Text(
-                        '2023-09-36',
+                      child: Text(
+                        DataUtils.getTimeFromDateTime(dateTime: selectedDay),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: WHITE_COLOR,
@@ -124,15 +123,19 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                   ),
                   onPressed: () {
                     context.go(
-                        '/detail/${widget.diaryId}/${DiaryPostScreen.routeName}',
-                        extra: {
-                          'title': widget.title,
-                          'diaryId': widget.diaryId,
-                        });
+                      '/detail/${widget.diaryId}/${DiaryPostScreen.routeName}',
+                      extra: {
+                        'title': widget.title,
+                        'diaryId': widget.diaryId,
+                        'selectedDay': selectedDay,
+                      },
+                    );
                   },
                   child: const Text(
                     '  글쓰기  ',
-                    style: TextStyle(color: DIARY_DETAIL_COLOR),
+                    style: TextStyle(
+                      color: DIARY_DETAIL_COLOR,
+                    ),
                   ),
                 ),
               ],
@@ -143,42 +146,56 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Container(
-                  height: MediaQuery.of(context).size.height - 150,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: WHITE_COLOR,
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(
-                      150,
-                    ),
-                    image: const DecorationImage(
-                      fit: BoxFit.fill,
-                      image: AssetImage(
-                        'asset/image/diary/diary4.jpg',
-                      ),
+                height: MediaQuery.of(context).size.height - 150,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: WHITE_COLOR,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(
+                    150,
+                  ),
+                  image: const DecorationImage(
+                    fit: BoxFit.fill,
+                    image: AssetImage(
+                      'asset/image/diary/diary4.jpg',
                     ),
                   ),
-                  child: getPostList.when(
-                    data: (data) => ListView.builder(
-                      itemCount: data.length,
+                ),
+                child: getPostList.when(
+                  data: (data) {
+                    // 선택된 날짜에 해당하는 게시물만 필터링하기
+                    final filteredData = data
+                        .where((post) => isSameDate(post.dataTime, selectedDay))
+                        .toList();
+
+                    return ListView.builder(
+                      itemCount: filteredData.length,
                       itemBuilder: (context, index) {
-                        final diaryData = data[index];
+                        final diaryData = filteredData[index];
                         return DiaryDetailCard.fromModel(
                           diaryData: diaryData,
                           color: colors[index % colors.length],
                           divColor: divColors[index % divColors.length],
                         );
                       },
-                    ),
-                    loading: () => const CircularProgressIndicator(),
-                    error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
-                  )),
-            ),
+                    );
+                  },
+                  loading: () => const CircularProgressIndicator(),
+                  error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
+                ),
+              ),
+            )
           ],
         ),
       ),
     );
+  }
+
+  bool isSameDate(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   // onDaySelected(
@@ -191,19 +208,29 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   //   });
   // }
 
-  void _showCalendarModal(selectedDay, focusedDay) {
+  void _showCalendarModal(
+    selectedDay,
+    focusedDay,
+  ) {
     final dialogContext = context;
     showDialog(
         context: dialogContext,
         builder: (BuildContext context) {
           return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              // 모달 ui setState 
+            builder: (BuildContext context, StateSetter modalSetState) {
+              // 모달 ui setState
               onDaySelected(DateTime selectedDate, DateTime focusedDate) {
-                setState(() {
+                modalSetState(() {
                   selectedDay = selectedDate;
                   focusedDay = selectedDate;
                 });
+                setState(() {
+                  this.selectedDay = selectedDate;
+                  ref.read(selectedDateStateProvider.notifier).state =
+                      selectedDate;
+                  print(selectedDay);
+                });
+                context.pop();
               }
 
               return Calendar(

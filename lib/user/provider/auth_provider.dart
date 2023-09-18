@@ -54,27 +54,38 @@ class AuthProvider extends ChangeNotifier {
                   final title = (state.extra as Map<String, dynamic>?)?['title']
                       ?.toString();
                   final diaryId = state.pathParameters['rid'];
+
                   return DiaryDetailScreen(
+                 
                     diaryId: diaryId.toString(),
                     title: title,
                   );
                 },
                 routes: [
                   GoRoute(
-                      path: ':calendar',
-                      name: Calendar.routeName,
-                      builder: (context, state) {
-                        final diaryId = state.pathParameters['rid'].toString();
-                        return Calendar(
-                          diaryId: diaryId,
-                        );
-                      }),
+                    path: 'calendar',
+                    name: Calendar.routeName,
+                    builder: (context, state) {
+                      final diaryId = state.pathParameters['rid'].toString();
+
+                      return Calendar(
+                        diaryId: diaryId,
+                      );
+                    },
+                  ),
                   GoRoute(
                       path: ':post',
                       name: DiaryPostScreen.routeName,
                       builder: (context, state) {
+                        final selectedDayString = (state.extra
+                                as Map<String, dynamic>?)?['selectedDay']
+                            ?.toString();
+                        final selectedDay = selectedDayString != null
+                            ? DateTime.parse(selectedDayString)
+                            : DateTime.now();
                         final diaryId = state.pathParameters['rid'].toString();
                         return DiaryPostScreen(
+                             selectedDay: selectedDay,
                           diaryId: diaryId,
                         );
                       }),

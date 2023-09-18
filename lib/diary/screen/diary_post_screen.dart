@@ -18,9 +18,11 @@ import '../component/custom_video_player.dart';
 
 class DiaryPostScreen extends ConsumerStatefulWidget {
   static String get routeName => 'post';
+  DateTime selectedDay;
   String diaryId;
   DiaryPostScreen({
     super.key,
+    required this.selectedDay,
     required this.diaryId,
   });
 
@@ -213,7 +215,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(), //<-- SEE HERE
+                      shape: const CircleBorder(),
                       padding: const EdgeInsets.all(20),
                       backgroundColor: POST_BUTTON,
                       side: const BorderSide(
@@ -385,10 +387,11 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
       videoUrl: videoUrl?.toString(),
       imgUrl: imgUrl,
       diaryId: widget.diaryId,
-      dataTime: DateTime.now(),
+      dataTime: widget.selectedDay,
     );
 
     ref.read(diaryDetailProvider.notifier).savePostToFirestore(newDiaryPost);
+
     Navigator.pop(context);
   }
 

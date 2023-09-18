@@ -3,15 +3,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 
-final getPostListProvider =
-    StreamProvider.family<List<DiaryPostModel>, String>((ref, diaryId) {
+final getPostListProvider = StreamProvider.autoDispose
+    .family<List<DiaryPostModel>, String>((ref, diaryId) {
+  final selectedDate = ref.watch(selectedDateStateProvider);
+
   return ref
       .watch(diaryDetailProvider.notifier)
-      .getDiaryListFromFirestore(diaryId);
+      // getDiaryListFromFirestore 메소드 호출 시 선택된 날짜 전달하기
+      .getDiaryListFromFirestore(diaryId, selectedDate);
 });
 final diaryDetailProvider =
     StateNotifierProvider<DiartDetailProvider, PostState>(
         (ref) => DiartDetailProvider());
+final selectedDateStateProvider =
+    StateProvider<DateTime>((ref) => DateTime.now());
 
 class PostState {
   final bool isLoading;
@@ -37,7 +42,6 @@ class DiartDetailProvider extends StateNotifier<PostState> {
       }
 
       model.postId = docRef.id;
-      model.dataTime = DateTime.now();
 
       await docRef.set(model.toJson());
 
@@ -47,10 +51,18 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     }
   }
 
-  Stream<List<DiaryPostModel>> getDiaryListFromFirestore(String diaryId) {
+  Stream<List<DiaryPostModel>> getDiaryListFromFirestore(
+      String diaryId, DateTime selectedDay) {
+    final start =
+        DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+    final end =
+        DateTime(selectedDay.year, selectedDay.month, selectedDay.day + 1);
+
     return FirebaseFirestore.instance
         .collection('post')
         .where('diaryId', isEqualTo: diaryId)
+        .where('dataTime', isGreaterThanOrEqualTo: start)
+        .where('dataTime', isLessThan: end)
         .orderBy(
           'dataTime',
           descending: true,
