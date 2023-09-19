@@ -56,7 +56,7 @@ class LoginSignModel {
   ) async {
     final authentication = FirebaseAuth.instance;
 
-    String photoUrl = 'asset/image/diary/profile.jpg';
+    String photoUrl = 'assets/image/diary/profile.jpg';
 
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 

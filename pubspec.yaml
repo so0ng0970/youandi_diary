@@ -78,9 +78,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - asset/image/
-    - asset/image/diary/
-    - asset/image/icon/
+    - assets/image/
+    - assets/image/diary/
+    - assets/image/icon/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -96,7 +96,7 @@ flutter:
   fonts:
     - family: SongMyung
       fonts:
-        - asset: asset/font/SongMyung-Regular.ttf
+        - asset: assets/font/SongMyung-Regular.ttf
 
   #SongMyung-Regular.ttf
   # For details regarding fonts from package dependencies,

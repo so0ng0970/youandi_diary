@@ -30,7 +30,7 @@ class ButtonDialogLayout extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Image.asset(
-              'asset/image/icon/cloud_icon.png',
+              'assets/image/icon/cloud_icon.png',
               scale: 2.5,
             ),
             Text(text),

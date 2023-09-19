@@ -142,7 +142,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                     height: 10,
                                   ),
                                   Image.asset(
-                                    'asset/image/icon/photo.png',
+                                    'assets/image/icon/photo.png',
                                     scale: 4,
                                   ),
                                   const SizedBox(

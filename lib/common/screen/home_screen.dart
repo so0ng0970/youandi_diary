@@ -55,7 +55,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             centerTitle: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Image.asset(
-                'asset/image/cloud.gif',
+                'assets/image/cloud.gif',
                 scale: 2.0,
               ),
               title: const Text('Let\'s keep a record !'),

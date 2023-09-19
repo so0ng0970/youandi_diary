@@ -6,6 +6,7 @@ import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/custom_video_player.dart';
 import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
+import 'package:youandi_diary/user/provider/user_provider.dart';
 
 class DiaryDetailCard extends StatelessWidget {
   final String? diaryId;
@@ -127,14 +128,14 @@ class DiaryDetailCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: ClipOval(
-                    child: Image.network(
-                      photoUrl.toString(),
-                    ),
-                  ),
-                ),
+                    width: 30,
+                    height: 30,
+                    child: ClipOval(
+                      child: Image(
+                        image: selectImage(imageUrl: photoUrl),
+                        fit: BoxFit.cover,
+                      ),
+                    )),
                 const SizedBox(
                   width: 5,
                 ),

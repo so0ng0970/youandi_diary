@@ -25,13 +25,13 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   final TextEditingController titleFocusController = TextEditingController();
   final bool _isInitialized = false;
   List<String> diaryCoverImages = [
-    'asset/image/diary/diary1.jpg',
-    'asset/image/diary/diary2.jpg',
-    'asset/image/diary/diary3.jpg',
-    'asset/image/diary/diary4.jpg',
+    'assets/image/diary/diary1.jpg',
+    'assets/image/diary/diary2.jpg',
+    'assets/image/diary/diary3.jpg',
+    'assets/image/diary/diary4.jpg',
   ];
 
-  String selectedImage = 'asset/image/diary/diary1.jpg'; // 기본 이미지 설정
+  String selectedImage = 'assets/image/diary/diary1.jpg'; // 기본 이미지 설정
 
   String myId = '';
   final FirebaseAuth auth = FirebaseAuth.instance;

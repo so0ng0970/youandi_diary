@@ -29,6 +29,8 @@ class PostState {
 class DiartDetailProvider extends StateNotifier<PostState> {
   DiartDetailProvider() : super(PostState());
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // 글 저장
   Future<void> savePostToFirestore(DiaryPostModel model) async {
     state = PostState(isLoading: true);
 
@@ -37,8 +39,16 @@ class DiartDetailProvider extends StateNotifier<PostState> {
       DocumentReference docRef = _firestore.collection('post').doc();
 
       if (currentUser != null) {
-        model.userName = currentUser.displayName ?? '';
-        model.photoUrl = currentUser.photoURL ?? '';
+        DocumentSnapshot userData =
+            await _firestore.collection('user').doc(currentUser.uid).get();
+
+        if (userData.exists) {
+          model.userName = userData['userName'] ?? '';
+          model.photoUrl = userData['photoUrl'] ?? '';
+        } else {
+          model.userName = currentUser.displayName ?? '';
+          model.photoUrl = currentUser.photoURL ?? '';
+        }
       }
 
       model.postId = docRef.id;
@@ -61,12 +71,12 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     return FirebaseFirestore.instance
         .collection('post')
         .where('diaryId', isEqualTo: diaryId)
-        .where('dataTime', isGreaterThanOrEqualTo: start)
-        .where('dataTime', isLessThan: end)
         .orderBy(
           'dataTime',
           descending: true,
         )
+        .where('dataTime', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+        .where('dataTime', isLessThan: Timestamp.fromDate(end))
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => DiaryPostModel.fromJson(doc.data()))

@@ -240,7 +240,7 @@ class _GoogleButton extends StatelessWidget {
       bgColor: GOOGLE_COLOR,
       textColor: const Color.fromARGB(255, 1, 64, 119),
       onPressed: onPressed,
-      imageIcon: 'asset/image/google.png',
+      imageIcon: 'assets/image/google.png',
       buttonText: 'Google로 로그인',
     );
   }
@@ -256,7 +256,7 @@ class _KakaoButton extends StatelessWidget {
       textColor: Colors.brown[700]!,
       bgColor: KAKAOTALK_COLOR,
       onPressed: onPressed,
-      imageIcon: 'asset/image/kakao.png',
+      imageIcon: 'assets/image/kakao.png',
       buttonText: 'Kakao로 로그인',
     );
   }

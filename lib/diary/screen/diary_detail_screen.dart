@@ -75,7 +75,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                       left: -60,
                       top: -20,
                       child: Image.asset(
-                        'asset/image/icon/cloud_icon.png',
+                        'assets/image/icon/cloud_icon.png',
                         scale: 5,
                       ),
                     ),
@@ -100,7 +100,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                       right: -45,
                       top: -7,
                       child: Image.asset(
-                        'asset/image/icon/love_icon.png',
+                        'assets/image/icon/love_icon.png',
                         scale: 4,
                       ),
                     ),
@@ -158,7 +158,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                   image: const DecorationImage(
                     fit: BoxFit.fill,
                     image: AssetImage(
-                      'asset/image/diary/diary4.jpg',
+                      'assets/image/diary/diary4.jpg',
                     ),
                   ),
                 ),
