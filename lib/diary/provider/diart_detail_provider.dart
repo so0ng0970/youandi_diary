@@ -72,4 +72,26 @@ class DiartDetailProvider extends StateNotifier<PostState> {
             .map((doc) => DiaryPostModel.fromJson(doc.data()))
             .toList());
   }
+
+  // 글 삭제
+  Future<void> deletePostFromFirestore(String postId) async {
+    try {
+      await _firestore.collection('post').doc(postId).delete();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  // 글 수정
+  Future<void> updatePostInFirestore(
+      String postId, DiaryPostModel updatedModel) async {
+    try {
+      await _firestore
+          .collection('post')
+          .doc(postId)
+          .update(updatedModel.toJson());
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 }

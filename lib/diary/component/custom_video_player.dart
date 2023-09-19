@@ -9,12 +9,13 @@ class CustomVideoPlayer extends StatefulWidget {
   final XFile? video;
   final String? videoUrl;
   final VoidCallback? onNewVideoPressed;
-
-  const CustomVideoPlayer({
+  bool? edit = false;
+  CustomVideoPlayer({
     Key? key,
     this.video,
     this.videoUrl,
     this.onNewVideoPressed,
+    this.edit,
   }) : super(key: key);
 
   @override
@@ -42,23 +43,24 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
       initializeController();
     }
   }
-@override
-void dispose() {
-  // Dispose the video player controller to free up resources.
-  videoController?.removeListener(_videoPlayerListener);
-  videoController?.dispose();
 
-  super.dispose();
-}
+  @override
+  void dispose() {
+    // Dispose the video player controller to free up resources.
+    videoController?.removeListener(_videoPlayerListener);
+    videoController?.dispose();
 
-void _videoPlayerListener() {
-  if (mounted) {
-    final currentPosition = videoController!.value.position;
-    setState(() {
-      this.currentPosition = currentPosition;
-    });
+    super.dispose();
   }
-}
+
+  void _videoPlayerListener() {
+    if (mounted) {
+      final currentPosition = videoController!.value.position;
+      setState(() {
+        this.currentPosition = currentPosition;
+      });
+    }
+  }
 
   initializeController() async {
     // 새로운 영상을 받았을때 초기화 시켜줘야한다.
@@ -111,7 +113,7 @@ void _videoPlayerListener() {
                   isPlay: videoController!.value.isPlaying,
                   onForwardPressed: onForwardPressed,
                 ),
-              if (showControls && widget.video != null)
+              if (showControls && widget.edit == true)
                 _NewVideo(
                   onPressed: widget.onNewVideoPressed!,
                 ),

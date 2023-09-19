@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,22 +9,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youandi_diary/diary/component/slide_image.dart';
 
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/user/layout/default_layout.dart';
 
 import '../../common/const/color.dart';
+import '../../user/component/notification.dart';
 import '../component/custom_video_player.dart';
 
 class DiaryPostScreen extends ConsumerStatefulWidget {
   static String get routeName => 'post';
   DateTime selectedDay;
+  String diaryTitle;
   String diaryId;
+  String? postId;
+  bool edit = false;
   DiaryPostScreen({
     super.key,
     required this.selectedDay,
+    required this.diaryTitle,
     required this.diaryId,
+    this.postId,
+    required this.edit,
   });
 
   @override
@@ -40,6 +49,37 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
   final TextEditingController contentController = TextEditingController();
   bool isLoading = false;
   double uploadProgress = 0;
+  User? get currentUser => FirebaseAuth.instance.currentUser;
+  String get userName => currentUser?.displayName ?? '';
+  String? videoUrl;
+  List<String>? imageUrl = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initializePost();
+  }
+
+  Future<void> initializePost() async {
+    if (widget.edit == true && widget.postId != null) {
+      List<DiaryPostModel> existingPosts = await ref
+          .read(diaryDetailProvider.notifier)
+          .getDiaryListFromFirestore(
+              widget.diaryId.toString(), widget.selectedDay)
+          .first;
+
+      DiaryPostModel existingDiaryPost =
+          existingPosts.firstWhere((post) => post.postId == widget.postId);
+
+      // 컨트롤러에 기존 값 설정
+      titleController.text = existingDiaryPost.title.toString();
+      contentController.text = existingDiaryPost.content.toString();
+      setState(() {
+        imageUrl = existingDiaryPost.imgUrl;
+        videoUrl = existingDiaryPost.videoUrl;
+      });
+    }
+  }
 
   @override
   Widget build(
@@ -48,6 +88,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     final provider = ref.watch(diaryDetailProvider);
     print(widget.diaryId);
     // 뒤로가기 막기 - 안드로이드
+
     return WillPopScope(
       onWillPop: () async => !isLoading ? true : false,
       child: DefaultLayout(
@@ -91,58 +132,52 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            if (selectedImages.isEmpty && video == null)
-                              Image.asset(
-                                'asset/image/icon/photo.png',
-                                scale: 4,
-                              ),
-                            if (selectedImages.isEmpty && video == null)
-                              const Text(
-                                'add photo & video +',
-                                style: TextStyle(
-                                  color: WHITE_COLOR,
-                                  fontSize: 20,
-                                ),
+                            if (selectedImages.isEmpty &&
+                                video == null &&
+                                videoUrl == null &&
+                                imageUrl!.isEmpty)
+                              Column(
+                                children: [
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Image.asset(
+                                    'asset/image/icon/photo.png',
+                                    scale: 4,
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  const Text(
+                                    'add photo & video +',
+                                    style: TextStyle(
+                                      color: WHITE_COLOR,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ],
                               ),
                             if (selectedImages.isNotEmpty)
                               Expanded(
-                                child: PageView.builder(
-                                  itemCount: selectedImages.length,
-                                  itemBuilder: (context, index) {
-                                    return Stack(
-                                      children: [
-                                        Center(
-                                          child: Image.file(
-                                            File(selectedImages[index].path),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        if (!isLoading)
-                                          Positioned(
-                                            right: 10.0,
-                                            child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  selectedImages
-                                                      .removeAt(index);
-                                                });
-                                              },
-                                              icon: const Icon(
-                                                Icons.remove_circle_outlined,
-                                                size: 30,
-                                                color: WHITE_COLOR,
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    );
-                                  },
+                                child: SlideImage(
+                                  isLoading: isLoading,
+                                  selectedImages: selectedImages,
+                                  imgSetState: setState,
+                                ),
+                              ),
+                            if (selectedImages.isEmpty && imageUrl != null)
+                              Expanded(
+                                child: SlideImage(
+                                  isLoading: isLoading,
+                                  imageUrl: imageUrl,
+                                  imgSetState: setState,
                                 ),
                               ),
                             if (video != null)
                               Stack(
                                 children: [
                                   CustomVideoPlayer(
+                                      edit: true,
                                       onNewVideoPressed: onNewVideoPressed,
                                       video: video!),
                                   if (!isLoading)
@@ -152,7 +187,6 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                         onPressed: () {
                                           setState(() {
                                             video = null;
-
                                             videoController?.dispose();
                                           });
                                         },
@@ -164,7 +198,32 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                       ),
                                     ),
                                 ],
-                              )
+                              ),
+                            if (videoUrl != null && widget.edit == true)
+                              Stack(children: [
+                                CustomVideoPlayer(
+                                  edit: widget.edit,
+                                  videoUrl: videoUrl,
+                                  onNewVideoPressed: onNewVideoPressed,
+                                ),
+                                if (!isLoading)
+                                  Positioned(
+                                    right: 10.0,
+                                    child: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          videoUrl = null;
+                                          videoController?.dispose();
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.remove_circle_outlined,
+                                        size: 30,
+                                        color: WHITE_COLOR,
+                                      ),
+                                    ),
+                                  ),
+                              ]),
                           ],
                         ),
                       ),
@@ -227,9 +286,9 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                     },
                     child: provider.isLoading
                         ? const CircularProgressIndicator()
-                        : const Text(
-                            '글작성',
-                            style: TextStyle(),
+                        : Text(
+                            widget.edit == true ? '글수정' : '글쓰기 ',
+                            style: const TextStyle(),
                           ),
                   ),
                   const SizedBox(
@@ -373,7 +432,8 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
         print('Failed to upload image: $error');
       }
     }
-    if (video != null) {
+
+    if (video != null && video != null) {
       try {
         videoUrl = await firebaseProgress(video!, 'videos');
       } catch (error) {
@@ -390,7 +450,39 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
       dataTime: widget.selectedDay,
     );
 
-    ref.read(diaryDetailProvider.notifier).savePostToFirestore(newDiaryPost);
+    if (widget.edit == true && widget.postId != null) {
+      List<DiaryPostModel> existingPosts = await ref
+          .read(diaryDetailProvider.notifier)
+          .getDiaryListFromFirestore(
+              widget.diaryId.toString(), widget.selectedDay)
+          .first;
+
+      DiaryPostModel existingDiaryPost =
+          existingPosts.firstWhere((post) => post.postId == widget.postId);
+      String? updatedVideoUrl =
+          newDiaryPost.videoUrl ?? existingDiaryPost.videoUrl;
+      List<String>? updatedImgUrl = newDiaryPost.imgUrl!.isNotEmpty
+          ? newDiaryPost.imgUrl
+          : existingDiaryPost.imgUrl;
+
+      DiaryPostModel updatedDiartyPost = DiaryPostModel(
+          title: postTitle,
+          content: content,
+          videoUrl: videoUrl?.toString(),
+          imgUrl: imgUrl,
+          diaryId: widget.diaryId,
+          dataTime: widget.selectedDay,
+          userName: existingDiaryPost.userName,
+          photoUrl: existingDiaryPost.photoUrl,
+          postId: existingDiaryPost.postId);
+      ref
+          .read(diaryDetailProvider.notifier)
+          .updatePostInFirestore(widget.postId.toString(), updatedDiartyPost);
+    } else {
+      ref.read(diaryDetailProvider.notifier).savePostToFirestore(newDiaryPost);
+      FlutterLocalNotification.showNotification(
+          widget.diaryTitle, '$userName이 일기를 썼습니다');
+    }
 
     Navigator.pop(context);
   }

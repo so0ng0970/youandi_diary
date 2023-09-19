@@ -125,9 +125,9 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                     context.go(
                       '/detail/${widget.diaryId}/${DiaryPostScreen.routeName}',
                       extra: {
-                        'title': widget.title,
                         'diaryId': widget.diaryId,
                         'selectedDay': selectedDay,
+                        'title': widget.title,
                       },
                     );
                   },
@@ -174,6 +174,27 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                       itemBuilder: (context, index) {
                         final diaryData = filteredData[index];
                         return DiaryDetailCard.fromModel(
+                          editOnPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DiaryPostScreen(
+                                  postId: diaryData.postId,
+                                  diaryId: widget.diaryId,
+                                  edit: true, diaryTitle: widget.title!,
+                                  selectedDay: selectedDay, // Add this line
+                                ),
+                              ),
+                            );
+                          },
+                          deleteOnpress: () {
+                            ref
+                                .read(diaryDetailProvider.notifier)
+                                .deletePostFromFirestore(
+                                  diaryData.postId.toString(),
+                                );
+                            context.pop();
+                          },
                           diaryData: diaryData,
                           color: colors[index % colors.length],
                           divColor: divColors[index % divColors.length],
@@ -214,33 +235,34 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   ) {
     final dialogContext = context;
     showDialog(
-        context: dialogContext,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (BuildContext context, StateSetter modalSetState) {
-              // 모달 ui setState
-              onDaySelected(DateTime selectedDate, DateTime focusedDate) {
-                modalSetState(() {
-                  selectedDay = selectedDate;
-                  focusedDay = selectedDate;
-                });
-                setState(() {
-                  this.selectedDay = selectedDate;
-                  ref.read(selectedDateStateProvider.notifier).state =
-                      selectedDate;
-                  print(selectedDay);
-                });
-                context.pop();
-              }
+      context: dialogContext,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter modalSetState) {
+            // 모달 ui setState
+            onDaySelected(DateTime selectedDate, DateTime focusedDate) {
+              modalSetState(() {
+                selectedDay = selectedDate;
+                focusedDay = selectedDate;
+              });
+              setState(() {
+                this.selectedDay = selectedDate;
+                ref.read(selectedDateStateProvider.notifier).state =
+                    selectedDate;
+                print(selectedDay);
+              });
+              context.pop();
+            }
 
-              return Calendar(
-                selectedDay: selectedDay,
-                onDaySelected: onDaySelected,
-                focusedDay: focusedDay,
-                // diaryId: widget.diaryId,
-              );
-            },
-          );
-        });
+            return Calendar(
+              selectedDay: selectedDay,
+              onDaySelected: onDaySelected,
+              focusedDay: focusedDay,
+              // diaryId: widget.diaryId,
+            );
+          },
+        );
+      },
+    );
   }
 }

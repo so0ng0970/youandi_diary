@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/custom_video_player.dart';
+import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 
 class DiaryDetailCard extends StatelessWidget {
@@ -17,7 +18,8 @@ class DiaryDetailCard extends StatelessWidget {
   final List<String>? imgUrl;
   final Color color;
   final Color divColor;
-
+  final VoidCallback deleteOnpress;
+  final VoidCallback editOnPressed;
   late DateTime dataTime;
   DiaryDetailCard({
     Key? key,
@@ -31,10 +33,17 @@ class DiaryDetailCard extends StatelessWidget {
     this.imgUrl,
     required this.color,
     required this.divColor,
+    required this.deleteOnpress,
+    required this.editOnPressed,
     required this.dataTime,
   }) : super(key: key);
-  factory DiaryDetailCard.fromModel(
-      {required DiaryPostModel diaryData, required color, required divColor}) {
+  factory DiaryDetailCard.fromModel({
+    required DiaryPostModel diaryData,
+    required color,
+    required divColor,
+    required deleteOnpress,
+    required editOnPressed,
+  }) {
     return DiaryDetailCard(
       color: color,
       diaryId: diaryData.diaryId,
@@ -47,6 +56,8 @@ class DiaryDetailCard extends StatelessWidget {
       dataTime: diaryData.dataTime,
       userName: diaryData.userName,
       divColor: divColor,
+      deleteOnpress: deleteOnpress,
+      editOnPressed: editOnPressed,
     );
   }
 
@@ -66,11 +77,51 @@ class DiaryDetailCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 25,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 25,
+                  ),
+                ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: editOnPressed,
+                      child: const Icon(
+                        Icons.mode_edit_outline,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return ButtonDialogLayout(
+                              onPressed: deleteOnpress,
+                              text: '정말 삭제하시겠습니까?',
+                            );
+                          },
+                        );
+                      },
+                      child: const Icon(
+                        Icons.delete_forever_outlined,
+                        size: 20,
+                        color: DELETE_BUTTON,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                  ],
+                ),
+              ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

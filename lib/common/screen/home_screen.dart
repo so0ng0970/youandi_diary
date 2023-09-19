@@ -6,6 +6,8 @@ import 'package:youandi_diary/common/component/main_drawer.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
 
+import '../../user/component/notification.dart';
+
 class HomeScreen extends ConsumerStatefulWidget {
   static String get routeName => 'home';
 
@@ -18,6 +20,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
+    // 초기화
+    FlutterLocalNotification.init();
+
+    // 3초 후 권한 요청
+    Future.delayed(
+      const Duration(seconds: 3),
+      FlutterLocalNotification.requestNotificationPermission(),
+    );
     super.initState();
   }
 
@@ -38,8 +48,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 bottomRight: Radius.circular(
                   50,
                 ),
-              ), 
-            ), 
+              ),
+            ),
             backgroundColor: BACKGROUND_COLOR,
             expandedHeight: 250,
             centerTitle: true,
@@ -59,6 +69,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
+                      TextButton(
+                        onPressed: () =>
+                            FlutterLocalNotification.showNotification('d', 'd'),
+                        child: const Text("알림 보내기"),
+                      ),
                       const SizedBox(
                         height: 10,
                       ),

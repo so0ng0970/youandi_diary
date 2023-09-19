@@ -56,7 +56,6 @@ class AuthProvider extends ChangeNotifier {
                   final diaryId = state.pathParameters['rid'];
 
                   return DiaryDetailScreen(
-                 
                     diaryId: diaryId.toString(),
                     title: title,
                   );
@@ -84,9 +83,15 @@ class AuthProvider extends ChangeNotifier {
                             ? DateTime.parse(selectedDayString)
                             : DateTime.now();
                         final diaryId = state.pathParameters['rid'].toString();
+                        final diaryTitle =
+                            (state.extra as Map<String, dynamic>?)?['title']
+                                ?.toString();
+
                         return DiaryPostScreen(
-                             selectedDay: selectedDay,
+                          edit: false,
+                          selectedDay: selectedDay,
                           diaryId: diaryId,
+                          diaryTitle: diaryTitle.toString(),
                         );
                       }),
                 ]),

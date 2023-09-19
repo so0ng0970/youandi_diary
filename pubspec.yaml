@@ -50,6 +50,7 @@ dependencies:
   video_player: ^2.6.0
   table_calendar: ^3.0.9
   intl: ^0.18.0
+  flutter_local_notifications: ^15.1.1
 
 dev_dependencies:
   flutter_test:
