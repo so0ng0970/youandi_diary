@@ -88,8 +88,6 @@ ImageProvider selectImage({String? imageUrl}) {
   if (imageUrl != null &&
       (imageUrl.startsWith('http') || imageUrl.startsWith('https'))) {
     return NetworkImage(imageUrl);
-  } else if (imageUrl != null && imageUrl.startsWith('assets')) {
-    return AssetImage(imageUrl.substring(4));
   } else {
     return const AssetImage(
       BASIC_PROFILE_URL,

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart' as kakao;
@@ -55,8 +56,10 @@ class LoginSignModel {
     TextEditingController passwordFocusController,
   ) async {
     final authentication = FirebaseAuth.instance;
+    final firebaseStorage = FirebaseStorage.instance;
+    final ref = firebaseStorage.ref().child('user/profile.jpg');
 
-    String photoUrl = 'assets/image/diary/profile.jpg';
+    String photoUrl = await ref.getDownloadURL();
 
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 

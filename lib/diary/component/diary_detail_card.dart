@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
 import 'package:flutter/material.dart';
 
 import 'package:youandi_diary/common/const/color.dart';
@@ -8,7 +9,9 @@ import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
 
-class DiaryDetailCard extends StatelessWidget {
+import 'diary_comment_card.dart';
+
+class DiaryDetailCard extends StatefulWidget {
   final String? diaryId;
   late String? postId;
   final String title;
@@ -22,6 +25,10 @@ class DiaryDetailCard extends StatelessWidget {
   final VoidCallback deleteOnpress;
   final VoidCallback editOnPressed;
   late DateTime dataTime;
+  late FocusNode inputFieldNode;
+  final TextEditingController contentController;
+  final VoidCallback sendOnpress;
+
   DiaryDetailCard({
     Key? key,
     this.diaryId,
@@ -37,14 +44,19 @@ class DiaryDetailCard extends StatelessWidget {
     required this.deleteOnpress,
     required this.editOnPressed,
     required this.dataTime,
+    required this.inputFieldNode,
+    required this.contentController,
+    required this.sendOnpress,
   }) : super(key: key);
-  factory DiaryDetailCard.fromModel({
-    required DiaryPostModel diaryData,
-    required color,
-    required divColor,
-    required deleteOnpress,
-    required editOnPressed,
-  }) {
+  factory DiaryDetailCard.fromModel(
+      {required DiaryPostModel diaryData,
+      required color,
+      required divColor,
+      required deleteOnpress,
+      required editOnPressed,
+      required sendOnpress,
+      required inputFieldNode,
+      required contentController}) {
     return DiaryDetailCard(
       color: color,
       diaryId: diaryData.diaryId,
@@ -59,9 +71,17 @@ class DiaryDetailCard extends StatelessWidget {
       divColor: divColor,
       deleteOnpress: deleteOnpress,
       editOnPressed: editOnPressed,
+      inputFieldNode: inputFieldNode,
+      contentController: contentController,
+      sendOnpress: sendOnpress,
     );
   }
 
+  @override
+  State<DiaryDetailCard> createState() => _DiaryDetailCardState();
+}
+
+class _DiaryDetailCardState extends State<DiaryDetailCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -69,9 +89,9 @@ class DiaryDetailCard extends StatelessWidget {
       child: Container(
         height: 450,
         decoration: BoxDecoration(
-          color: color,
+          color: widget.color,
           border: Border.all(
-            color: divColor,
+            color: widget.divColor,
             width: 2,
           ),
         ),
@@ -82,7 +102,7 @@ class DiaryDetailCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  title,
+                  widget.title,
                   style: const TextStyle(
                     fontSize: 25,
                   ),
@@ -90,7 +110,7 @@ class DiaryDetailCard extends StatelessWidget {
                 Row(
                   children: [
                     GestureDetector(
-                      onTap: editOnPressed,
+                      onTap: widget.editOnPressed,
                       child: const Icon(
                         Icons.mode_edit_outline,
                         size: 20,
@@ -105,7 +125,7 @@ class DiaryDetailCard extends StatelessWidget {
                           context: context,
                           builder: (context) {
                             return ButtonDialogLayout(
-                              onPressed: deleteOnpress,
+                              onPressed: widget.deleteOnpress,
                               text: '정말 삭제하시겠습니까?',
                             );
                           },
@@ -132,7 +152,7 @@ class DiaryDetailCard extends StatelessWidget {
                     height: 30,
                     child: ClipOval(
                       child: Image(
-                        image: selectImage(imageUrl: photoUrl),
+                        image: selectImage(imageUrl: widget.photoUrl),
                         fit: BoxFit.cover,
                       ),
                     )),
@@ -144,23 +164,23 @@ class DiaryDetailCard extends StatelessWidget {
                     right: 5,
                   ),
                   child: Text(
-                    userName.toString(),
+                    widget.userName.toString(),
                   ),
                 ),
               ],
             ),
-            Divider(color: divColor),
-            if (imgUrl!.isNotEmpty)
+            Divider(color: widget.divColor),
+            if (widget.imgUrl!.isNotEmpty)
               SizedBox(
                 height: 150,
                 child: PageView.builder(
-                  itemCount: imgUrl?.length,
+                  itemCount: widget.imgUrl?.length,
                   itemBuilder: (context, index) {
                     return Stack(
                       children: [
                         Center(
                           child: Image.network(
-                            imgUrl![index],
+                            widget.imgUrl![index],
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -172,9 +192,10 @@ class DiaryDetailCard extends StatelessWidget {
             const SizedBox(
               height: 5,
             ),
-            if (videoUrl != null) CustomVideoPlayer(videoUrl: videoUrl),
+            if (widget.videoUrl != null)
+              CustomVideoPlayer(videoUrl: widget.videoUrl),
             Text(
-              content,
+              widget.content,
               style: const TextStyle(
                 fontSize: 15,
               ),
@@ -183,93 +204,24 @@ class DiaryDetailCard extends StatelessWidget {
             Center(
               child: Text(
                 DataUtils.getTimeFromDateTime(
-                  dateTime: dataTime,
+                  dateTime: widget.dataTime,
                 ),
                 style: const TextStyle(
                   fontSize: 12,
                 ),
               ),
             ),
-            _Comment(
-              photoUrl: photoUrl.toString(),
-              divColor: divColor,
+            DiaryCommentCard(
+              // diaryData: diaryData,
+              postId: widget.postId,
+              photoUrl: widget.photoUrl.toString(),
+              divColor: widget.divColor,
+              sendOnpress: widget.sendOnpress,
+              contentController: widget.contentController,
             )
           ],
         ),
       ),
-    );
-  }
-}
-
-class _Comment extends StatelessWidget {
-  Color divColor;
-  String photoUrl;
-  _Comment({
-    Key? key,
-    required this.divColor,
-    required this.photoUrl,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-          height: 100,
-          decoration: BoxDecoration(
-            color: WHITE_COLOR,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.black,
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(5, 10, 5, 5),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 25,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: divColor,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: Image.network(photoUrl),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Form(
-                      child: SizedBox(
-                        height: 25,
-                        width: MediaQuery.of(context).size.width - 148,
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: divColor,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(
-                                20,
-                              ),
-                              borderSide: const BorderSide(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          )),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 
 final getPostListProvider = StreamProvider.autoDispose
@@ -12,6 +13,14 @@ final getPostListProvider = StreamProvider.autoDispose
       // getDiaryListFromFirestore 메소드 호출 시 선택된 날짜 전달하기
       .getDiaryListFromFirestore(diaryId, selectedDate);
 });
+
+final getCommentListProvider = StreamProvider.autoDispose
+    .family<List<DiaryCommentModel>, String>((ref, postId) {
+  return ref.watch(diaryDetailProvider.notifier).getCommentListFromFirestore(
+        postId,
+      );
+});
+
 final diaryDetailProvider =
     StateNotifierProvider<DiartDetailProvider, PostState>(
         (ref) => DiartDetailProvider());
@@ -22,8 +31,9 @@ class PostState {
   final bool isLoading;
   final String? error;
   final DiaryPostModel? post;
+  final DiaryCommentModel? comment;
 
-  PostState({this.isLoading = false, this.error, this.post});
+  PostState({this.isLoading = false, this.error, this.post, this.comment});
 }
 
 class DiartDetailProvider extends StateNotifier<PostState> {
@@ -59,6 +69,58 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     } catch (e) {
       state = PostState(error: e.toString());
     }
+  }
+
+  // 댓글 저장
+  Future<void> saveCommentToFirestore(DiaryCommentModel model) async {
+    state = PostState(isLoading: true);
+
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      DocumentReference docRef = _firestore.collection('comment').doc();
+
+      if (currentUser != null) {
+        DocumentSnapshot userData =
+            await _firestore.collection('user').doc(currentUser.uid).get();
+
+        if (userData.exists) {
+          model.userName = userData['userName'] ?? '';
+          model.photoUrl = userData['photoUrl'] ?? '';
+        } else {
+          model.userName = currentUser.displayName ?? '';
+          model.photoUrl = currentUser.photoURL ?? '';
+        }
+      }
+
+      model.commentId = docRef.id;
+
+      await docRef.set(model.toJson());
+
+      state = PostState(comment: model);
+    } catch (e) {
+      state = PostState(error: e.toString());
+    }
+  }
+
+  Stream<List<DiaryCommentModel>> getCommentListFromFirestore(String postId) {
+    // final start =
+    //     DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+    // final end =
+    //     DateTime(selectedDay.year, selectedDay.month, selectedDay.day + 1);
+
+    return FirebaseFirestore.instance
+        .collection('comment')
+        .where('postId', isEqualTo: postId)
+        .orderBy(
+          'dataTime',
+          descending: true,
+        )
+        // .where('dataTime', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+        // .where('dataTime', isLessThan: Timestamp.fromDate(end))
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => DiaryCommentModel.fromJson(doc.data()))
+            .toList());
   }
 
   Stream<List<DiaryPostModel>> getDiaryListFromFirestore(
@@ -100,6 +162,15 @@ class DiartDetailProvider extends StateNotifier<PostState> {
           .collection('post')
           .doc(postId)
           .update(updatedModel.toJson());
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  // 댓글 삭제
+  Future<void> deleteCommentFromFirestore(String commentId) async {
+    try {
+      await _firestore.collection('comment').doc(commentId).delete();
     } catch (e) {
       print(e.toString());
     }

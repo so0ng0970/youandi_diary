@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
+import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
@@ -30,6 +31,19 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
+  late FocusNode inputFieldNode;
+  final TextEditingController contentController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    inputFieldNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    inputFieldNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +177,9 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                   ),
                 ),
                 child: getPostList.when(
-                  data: (data) {
+                  data: (
+                    data,
+                  ) {
                     // 선택된 날짜에 해당하는 게시물만 필터링하기
                     final filteredData = data
                         .where((post) => isSameDate(post.dataTime, selectedDay))
@@ -181,8 +197,9 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                                 builder: (context) => DiaryPostScreen(
                                   postId: diaryData.postId,
                                   diaryId: widget.diaryId,
-                                  edit: true, diaryTitle: widget.title!,
-                                  selectedDay: selectedDay, // Add this line
+                                  edit: true,
+                                  diaryTitle: widget.title!,
+                                  selectedDay: selectedDay,
                                 ),
                               ),
                             );
@@ -198,6 +215,25 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                           diaryData: diaryData,
                           color: colors[index % colors.length],
                           divColor: divColors[index % divColors.length],
+                          inputFieldNode: inputFieldNode,
+                          contentController: contentController,
+                          sendOnpress: () {
+                            setState(() {
+                              String content = contentController.text;
+                              DiaryCommentModel commentPost = DiaryCommentModel(
+                                dataTime: focusedDay,
+                                postId: diaryData.postId,
+                                content: content,
+                              );
+
+                              ref
+                                  .read(diaryDetailProvider.notifier)
+                                  .saveCommentToFirestore(
+                                    commentPost,
+                                  );
+                              contentController.clear();
+                            });
+                          },
                         );
                       },
                     );
