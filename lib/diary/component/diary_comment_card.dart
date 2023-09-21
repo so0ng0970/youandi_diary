@@ -53,6 +53,8 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
   }
 }
 
+String? editCommentId;
+
 class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
   @override
   Widget build(BuildContext context) {
@@ -72,7 +74,15 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
         color: Colors.black,
       ),
     );
-
+    TextFormField textFormField = TextFormField(
+      controller: widget.contentController,
+      // onSubmitted: sendOnpress,
+      decoration: InputDecoration(
+          filled: true,
+          fillColor: widget.divColor,
+          focusedBorder: inputDecoration,
+          enabledBorder: inputDecoration),
+    );
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -124,15 +134,7 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                     child: SizedBox(
                       height: 25,
                       width: MediaQuery.of(context).size.width - 173,
-                      child: TextFormField(
-                        controller: widget.contentController,
-                        // onSubmitted: sendOnpress,
-                        decoration: InputDecoration(
-                            filled: true,
-                            fillColor: widget.divColor,
-                            focusedBorder: inputDecoration,
-                            enabledBorder: inputDecoration),
-                      ),
+                      child: textFormField,
                     ),
                   ),
                   if (widget.contentController.text.trim().isNotEmpty)
@@ -168,13 +170,24 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                                 children: [
                                   Text(
                                       '${commentData.userName.toString()} :  '),
-                                  Text(
-                                    commentData.content.toString(),
-                                  ),
+                                  if (editCommentId != commentData.commentId)
+                                    Text(
+                                      commentData.content.toString(),
+                                    ),
+                                  if (editCommentId == commentData.commentId)
+                                    SizedBox(
+                                        height: 20,
+                                        width: 100,
+                                        child: textFormField),
                                   const Spacer(),
                                   if (DataUtils().uid == commentData.userId)
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                        setState(() {
+                                          editCommentId = commentData.commentId;
+                                          print(editCommentId);
+                                        });
+                                      },
                                       child: const Icon(
                                         Icons.mode_edit_outline,
                                         size: 15,

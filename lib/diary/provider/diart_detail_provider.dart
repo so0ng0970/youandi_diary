@@ -71,60 +71,6 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     }
   }
 
-  // 댓글 저장
-  Future<void> saveCommentToFirestore(DiaryCommentModel model) async {
-    state = PostState(isLoading: true);
-
-    try {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      DocumentReference docRef = _firestore.collection('comment').doc();
-
-      if (currentUser != null) {
-        model.userId = currentUser.uid;
-
-        DocumentSnapshot userData =
-            await _firestore.collection('user').doc(currentUser.uid).get();
-
-        if (userData.exists) {
-          model.userName = userData['userName'] ?? '';
-          model.photoUrl = userData['photoUrl'] ?? '';
-        } else {
-          model.userName = currentUser.displayName ?? '';
-          model.photoUrl = currentUser.photoURL ?? '';
-        }
-      }
-
-      model.commentId = docRef.id;
-
-      await docRef.set(model.toJson());
-
-      state = PostState(comment: model);
-    } catch (e) {
-      state = PostState(error: e.toString());
-    }
-  }
-
-  Stream<List<DiaryCommentModel>> getCommentListFromFirestore(String postId) {
-    // final start =
-    //     DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
-    // final end =
-    //     DateTime(selectedDay.year, selectedDay.month, selectedDay.day + 1);
-
-    return FirebaseFirestore.instance
-        .collection('comment')
-        .where('postId', isEqualTo: postId)
-        .orderBy(
-          'dataTime',
-          descending: true,
-        )
-        // .where('dataTime', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
-        // .where('dataTime', isLessThan: Timestamp.fromDate(end))
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => DiaryCommentModel.fromJson(doc.data()))
-            .toList());
-  }
-
   Stream<List<DiaryPostModel>> getDiaryListFromFirestore(
       String diaryId, DateTime selectedDay) {
     final start =
@@ -169,10 +115,70 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     }
   }
 
+  // 댓글 저장
+  Future<void> saveCommentToFirestore(DiaryCommentModel model) async {
+    state = PostState(isLoading: true);
+
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      DocumentReference docRef = _firestore.collection('comment').doc();
+
+      if (currentUser != null) {
+        model.userId = currentUser.uid;
+
+        DocumentSnapshot userData =
+            await _firestore.collection('user').doc(currentUser.uid).get();
+
+        if (userData.exists) {
+          model.userName = userData['userName'] ?? '';
+          model.photoUrl = userData['photoUrl'] ?? '';
+        } else {
+          model.userName = currentUser.displayName ?? '';
+          model.photoUrl = currentUser.photoURL ?? '';
+        }
+      }
+
+      model.commentId = docRef.id;
+
+      await docRef.set(model.toJson());
+
+      state = PostState(comment: model);
+    } catch (e) {
+      state = PostState(error: e.toString());
+    }
+  }
+
   // 댓글 삭제
   Future<void> deleteCommentFromFirestore(String commentId) async {
     try {
       await _firestore.collection('comment').doc(commentId).delete();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Stream<List<DiaryCommentModel>> getCommentListFromFirestore(String postId) {
+    return FirebaseFirestore.instance
+        .collection('comment')
+        .where('postId', isEqualTo: postId)
+        .orderBy(
+          'dataTime',
+          descending: true,
+        )
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => DiaryCommentModel.fromJson(doc.data()))
+            .toList());
+  }
+
+  // 댓글 수정
+  Future<void> updateCommentInFirestore(
+      String commentId, DiaryCommentModel updatedModel) async {
+    try {
+      await _firestore
+          .collection('comment')
+          .doc(commentId)
+          .update(updatedModel.toJson());
     } catch (e) {
       print(e.toString());
     }
