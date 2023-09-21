@@ -6,6 +6,7 @@ part 'diary_comment_model.g.dart';
 
 @JsonSerializable()
 class DiaryCommentModel {
+  late String? userId;
   final String? diaryId;
   late String? postId;
   late String? commentId;
@@ -16,6 +17,7 @@ class DiaryCommentModel {
   late DateTime dataTime;
 
   DiaryCommentModel({
+    this.userId,
     this.diaryId,
     this.postId,
     this.commentId,

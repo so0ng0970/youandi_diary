@@ -9,6 +9,7 @@ part of 'diary_post_model.dart';
 DiaryPostModel _$DiaryPostModelFromJson(Map<String, dynamic> json) =>
     DiaryPostModel(
       diaryId: json['diaryId'] as String?,
+      userId: json['userId'] as String?,
       postId: json['postId'] as String?,
       title: json['title'] as String?,
       content: json['content'] as String?,
@@ -24,6 +25,7 @@ DiaryPostModel _$DiaryPostModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DiaryPostModelToJson(DiaryPostModel instance) =>
     <String, dynamic>{
       'diaryId': instance.diaryId,
+      'userId': instance.userId,
       'postId': instance.postId,
       'title': instance.title,
       'content': instance.content,

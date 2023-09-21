@@ -273,15 +273,12 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                         suffixIcon: IconButton(
                           onPressed: () {
                             searchController.clear();
-                            ref
-                                .read(userProvider)
-                                .clearSearch(); // searchUser 목록 초기화
+                            ref.read(userProvider).clearSearch();
                           },
                           icon: const Icon(Icons.clear),
                         ),
                       ),
                     ),
-                    // 검색된 친구 목록 (searchUser)을 표시하는 위젯 추가
                     SizedBox(
                       height: 200,
                       child: Consumer(

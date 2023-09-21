@@ -1,9 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/common/const/data.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
 import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
+
+final userDataProvider = FutureProvider<UserModel?>((ref) async {
+  return ref.read(userProvider).getUser();
+});
 
 final userProvider = ChangeNotifierProvider<UserProvider>((ref) {
   final firebaseAuth = ref.watch(firebase_auth_Provider);
@@ -26,6 +31,7 @@ class UserProvider with ChangeNotifier {
   List<UserModel> users = [];
   List<UserModel> searchUser = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   UserProvider(this.userReference, currentEmail) {
     fetchUser(currentEmail);
   }
@@ -53,6 +59,23 @@ class UserProvider with ChangeNotifier {
     });
     searchUser = users;
     notifyListeners();
+  }
+
+  Future<UserModel?> getUser() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return null;
+    }
+    QuerySnapshot querySnapshot =
+        await userReference.where('uid', isEqualTo: currentUser.uid).get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot doc = querySnapshot.docs.first;
+      UserModel user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
+      return user;
+    } else {
+      return null;
+    }
   }
 
   void search(String query) {

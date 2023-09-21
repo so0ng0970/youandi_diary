@@ -51,7 +51,7 @@ class DiartDetailProvider extends StateNotifier<PostState> {
       if (currentUser != null) {
         DocumentSnapshot userData =
             await _firestore.collection('user').doc(currentUser.uid).get();
-
+        model.userId = currentUser.uid;
         if (userData.exists) {
           model.userName = userData['userName'] ?? '';
           model.photoUrl = userData['photoUrl'] ?? '';
@@ -80,6 +80,8 @@ class DiartDetailProvider extends StateNotifier<PostState> {
       DocumentReference docRef = _firestore.collection('comment').doc();
 
       if (currentUser != null) {
+        model.userId = currentUser.uid;
+
         DocumentSnapshot userData =
             await _firestore.collection('user').doc(currentUser.uid).get();
 

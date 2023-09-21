@@ -2,13 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:youandi_diary/common/utils/data_utils.dart';
 
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
+import 'package:youandi_diary/user/provider/user_provider.dart';
 
 import '../../common/const/color.dart';
 import '../layout/button_dialog_layout.dart';
 
 class DiaryCommentCard extends ConsumerStatefulWidget {
+  String userId;
   Color divColor;
   String photoUrl;
   TextEditingController contentController;
@@ -17,6 +20,7 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
   String? postId;
   DiaryCommentCard({
     Key? key,
+    required this.userId,
     required this.divColor,
     required this.photoUrl,
     required this.contentController,
@@ -27,6 +31,26 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<DiaryCommentCard> createState() => _DiaryCommentCardState();
+
+  DiaryCommentCard copyWith({
+    String? userId,
+    Color? divColor,
+    String? photoUrl,
+    TextEditingController? contentController,
+    VoidCallback? sendOnpress,
+    String? comment,
+    String? postId,
+  }) {
+    return DiaryCommentCard(
+      userId: userId ?? this.userId,
+      divColor: divColor ?? this.divColor,
+      photoUrl: photoUrl ?? this.photoUrl,
+      contentController: contentController ?? this.contentController,
+      sendOnpress: sendOnpress ?? this.sendOnpress,
+      comment: comment ?? this.comment,
+      postId: postId ?? this.postId,
+    );
+  }
 }
 
 class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
@@ -38,7 +62,8 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
       ),
     );
     final commentProvider = ref.watch(diaryDetailProvider.notifier);
-
+    final userData = ref.watch(userDataProvider);
+    print(widget.userId);
     OutlineInputBorder inputDecoration = OutlineInputBorder(
       borderRadius: BorderRadius.circular(
         20,
@@ -75,8 +100,21 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                         color: widget.divColor,
                       ),
                     ),
-                    child: ClipOval(
-                      child: Image.network(widget.photoUrl),
+                    child: userData.when(
+                      data: (data) {
+                        if (data != null) {
+                          return ClipOval(
+                            child: Image.network(
+                              data.photoUrl.toString(),
+                            ),
+                          );
+                        } else {
+                          const CircularProgressIndicator();
+                        }
+                        return null;
+                      },
+                      loading: () => const CircularProgressIndicator(),
+                      error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
                     ),
                   ),
                   const SizedBox(
@@ -134,38 +172,40 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                                     commentData.content.toString(),
                                   ),
                                   const Spacer(),
-                                  GestureDetector(
-                                    onTap: () {},
-                                    child: const Icon(
-                                      Icons.mode_edit_outline,
-                                      size: 15,
+                                  if (DataUtils().uid == commentData.userId)
+                                    GestureDetector(
+                                      onTap: () {},
+                                      child: const Icon(
+                                        Icons.mode_edit_outline,
+                                        size: 15,
+                                      ),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return ButtonDialogLayout(
-                                            onPressed: () {
-                                              commentProvider
-                                                  .deleteCommentFromFirestore(
-                                                commentData.commentId
-                                                    .toString(),
-                                              );
-                                              context.pop();
-                                            },
-                                            text: '정말 삭제하시겠습니까?',
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: const Icon(
-                                      Icons.delete_forever_outlined,
-                                      size: 15,
-                                      color: DELETE_BUTTON,
+                                  if (DataUtils().uid == commentData.userId)
+                                    GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return ButtonDialogLayout(
+                                              onPressed: () {
+                                                commentProvider
+                                                    .deleteCommentFromFirestore(
+                                                  commentData.commentId
+                                                      .toString(),
+                                                );
+                                                context.pop();
+                                              },
+                                              text: '정말 삭제하시겠습니까?',
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: const Icon(
+                                        Icons.delete_forever_outlined,
+                                        size: 15,
+                                        color: DELETE_BUTTON,
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),

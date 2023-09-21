@@ -12,6 +12,7 @@ import 'package:youandi_diary/user/provider/user_provider.dart';
 import 'diary_comment_card.dart';
 
 class DiaryDetailCard extends StatefulWidget {
+  final String? userId;
   final String? diaryId;
   late String? postId;
   final String title;
@@ -47,6 +48,7 @@ class DiaryDetailCard extends StatefulWidget {
     required this.inputFieldNode,
     required this.contentController,
     required this.sendOnpress,
+    this.userId,
   }) : super(key: key);
   factory DiaryDetailCard.fromModel(
       {required DiaryPostModel diaryData,
@@ -58,6 +60,7 @@ class DiaryDetailCard extends StatefulWidget {
       required inputFieldNode,
       required contentController}) {
     return DiaryDetailCard(
+      userId: diaryData.userId,
       color: color,
       diaryId: diaryData.diaryId,
       postId: diaryData.postId,
@@ -109,34 +112,36 @@ class _DiaryDetailCardState extends State<DiaryDetailCard> {
                 ),
                 Row(
                   children: [
-                    GestureDetector(
-                      onTap: widget.editOnPressed,
-                      child: const Icon(
-                        Icons.mode_edit_outline,
-                        size: 20,
+                    if (DataUtils().uid == widget.userId)
+                      GestureDetector(
+                        onTap: widget.editOnPressed,
+                        child: const Icon(
+                          Icons.mode_edit_outline,
+                          size: 20,
+                        ),
                       ),
-                    ),
                     const SizedBox(
                       width: 5,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return ButtonDialogLayout(
-                              onPressed: widget.deleteOnpress,
-                              text: '정말 삭제하시겠습니까?',
-                            );
-                          },
-                        );
-                      },
-                      child: const Icon(
-                        Icons.delete_forever_outlined,
-                        size: 20,
-                        color: DELETE_BUTTON,
+                    if (DataUtils().uid == widget.userId)
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return ButtonDialogLayout(
+                                onPressed: widget.deleteOnpress,
+                                text: '정말 삭제하시겠습니까?',
+                              );
+                            },
+                          );
+                        },
+                        child: const Icon(
+                          Icons.delete_forever_outlined,
+                          size: 20,
+                          color: DELETE_BUTTON,
+                        ),
                       ),
-                    ),
                     const SizedBox(
                       width: 5,
                     ),
@@ -213,6 +218,7 @@ class _DiaryDetailCardState extends State<DiaryDetailCard> {
             ),
             DiaryCommentCard(
               // diaryData: diaryData,
+              userId: widget.userId.toString(),
               postId: widget.postId,
               photoUrl: widget.photoUrl.toString(),
               divColor: widget.divColor,
