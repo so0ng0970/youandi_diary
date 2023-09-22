@@ -16,7 +16,6 @@ import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/user/layout/default_layout.dart';
 
 import '../../common/const/color.dart';
-import '../../user/component/notification.dart';
 import '../component/custom_video_player.dart';
 
 class DiaryPostScreen extends ConsumerStatefulWidget {
@@ -26,6 +25,7 @@ class DiaryPostScreen extends ConsumerStatefulWidget {
   String diaryId;
   String? postId;
   bool edit = false;
+  bool? removeEdit = false;
   DiaryPostScreen({
     super.key,
     required this.selectedDay,
@@ -168,6 +168,11 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                             if (selectedImages.isEmpty && imageUrl != null)
                               Expanded(
                                 child: SlideImage(
+                                  removeEdit: (bool value) {
+                                    setState(() {
+                                      widget.removeEdit = value;
+                                    });
+                                  },
                                   isLoading: isLoading,
                                   imageUrl: imageUrl,
                                   imgSetState: setState,
@@ -187,6 +192,8 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                         onPressed: () {
                                           setState(() {
                                             video = null;
+                                            videoUrl = null;
+
                                             videoController?.dispose();
                                           });
                                         },
@@ -212,7 +219,10 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                     child: IconButton(
                                       onPressed: () {
                                         setState(() {
+                                          widget.removeEdit = true;
                                           videoUrl = null;
+                                          imageUrl!.isEmpty;
+
                                           videoController?.dispose();
                                         });
                                       },
@@ -449,41 +459,48 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
       diaryId: widget.diaryId,
       dataTime: widget.selectedDay,
     );
+    if (widget.edit == true && widget.removeEdit == true) {
+      String? updatedVideoUrl = newDiaryPost.videoUrl;
+      List<String>? updatedImgUrl = newDiaryPost.imgUrl;
 
-    if (widget.edit == true && widget.postId != null) {
+      ref.read(diaryDetailProvider.notifier).updatePostInFirestore(
+          widget.postId.toString(),
+          updatedImgUrl,
+          content,
+          postTitle,
+          updatedVideoUrl);
+    } else if (widget.edit == true && widget.removeEdit == false) {
       List<DiaryPostModel> existingPosts = await ref
           .read(diaryDetailProvider.notifier)
           .getDiaryListFromFirestore(
               widget.diaryId.toString(), widget.selectedDay)
           .first;
 
-      DiaryPostModel existingDiaryPost =
-          existingPosts.firstWhere((post) => post.postId == widget.postId);
+      DiaryPostModel? existingDiaryPost;
+
+      try {
+        existingDiaryPost =
+            existingPosts.firstWhere((post) => post.postId == widget.postId);
+      } catch (e) {
+        print('No matching post found');
+      }
+
       String? updatedVideoUrl =
-          newDiaryPost.videoUrl ?? existingDiaryPost.videoUrl;
+          newDiaryPost.videoUrl ?? existingDiaryPost?.videoUrl;
       List<String>? updatedImgUrl = newDiaryPost.imgUrl!.isNotEmpty
           ? newDiaryPost.imgUrl
-          : existingDiaryPost.imgUrl;
+          : existingDiaryPost?.imgUrl;
 
-      DiaryPostModel updatedDiartyPost = DiaryPostModel(
-          title: postTitle,
-          content: content,
-          videoUrl: videoUrl?.toString(),
-          imgUrl: imgUrl,
-          diaryId: widget.diaryId,
-          dataTime: widget.selectedDay,
-          userName: existingDiaryPost.userName,
-          photoUrl: existingDiaryPost.photoUrl,
-          postId: existingDiaryPost.postId);
-      ref
-          .read(diaryDetailProvider.notifier)
-          .updatePostInFirestore(widget.postId.toString(), updatedDiartyPost);
+      ref.read(diaryDetailProvider.notifier).updatePostInFirestore(
+          widget.postId.toString(),
+          updatedImgUrl ?? [],
+          content,
+          postTitle,
+          updatedVideoUrl);
     } else {
       ref.read(diaryDetailProvider.notifier).savePostToFirestore(newDiaryPost);
-      FlutterLocalNotification.showNotification(
-          widget.diaryTitle, '$userName이 일기를 썼습니다');
     }
-
+    print(widget.removeEdit);
     Navigator.pop(context);
   }
 

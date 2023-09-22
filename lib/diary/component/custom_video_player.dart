@@ -75,9 +75,9 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         Uri.parse(widget.videoUrl!),
       );
     }
-    await videoController!.initialize();
+    await videoController?.initialize();
 
-    videoController!.addListener(() {
+    videoController?.addListener(() {
       final currentPosition = videoController!.value.position;
       setState(() {
         this.currentPosition = currentPosition;

@@ -11,12 +11,14 @@ class SlideImage extends StatefulWidget {
   final List<XFile>? selectedImages;
   final List<String>? imageUrl;
   StateSetter? imgSetState;
+  late final Function(bool)? removeEdit;
   SlideImage({
     Key? key,
     this.isLoading,
     this.selectedImages,
     this.imageUrl,
     this.imgSetState,
+    this.removeEdit,
   }) : super(key: key);
 
   @override
@@ -58,7 +60,9 @@ class _SlideImageState extends State<SlideImage> {
                         widget.selectedImages?.removeAt(index);
                       } else if (widget.imageUrl != null) {
                         widget.imageUrl?.removeAt(index);
+                        widget.removeEdit!(true);
                       }
+                      print(widget.removeEdit);
                     });
                   },
                   icon: const Icon(

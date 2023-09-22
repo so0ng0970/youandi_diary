@@ -56,6 +56,7 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
 String? editCommentId;
 
 class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
+  TextEditingController editingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final getCommentList = ref.watch(
@@ -74,15 +75,17 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
         color: Colors.black,
       ),
     );
-    TextFormField textFormField = TextFormField(
-      controller: widget.contentController,
-      // onSubmitted: sendOnpress,
-      decoration: InputDecoration(
-          filled: true,
-          fillColor: widget.divColor,
-          focusedBorder: inputDecoration,
-          enabledBorder: inputDecoration),
-    );
+    TextFormField textFormField(TextEditingController controller) {
+      return TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+            filled: true,
+            fillColor: widget.divColor,
+            focusedBorder: inputDecoration,
+            enabledBorder: inputDecoration),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -134,7 +137,7 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                     child: SizedBox(
                       height: 25,
                       width: MediaQuery.of(context).size.width - 173,
-                      child: textFormField,
+                      child: textFormField(widget.contentController),
                     ),
                   ),
                   if (widget.contentController.text.trim().isNotEmpty)
@@ -178,7 +181,8 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                                     SizedBox(
                                         height: 20,
                                         width: 100,
-                                        child: textFormField),
+                                        child:
+                                            textFormField(editingController)),
                                   const Spacer(),
                                   if (DataUtils().uid == commentData.userId)
                                     GestureDetector(

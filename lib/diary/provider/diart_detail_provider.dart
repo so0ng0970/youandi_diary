@@ -104,12 +104,19 @@ class DiartDetailProvider extends StateNotifier<PostState> {
 
   // 글 수정
   Future<void> updatePostInFirestore(
-      String postId, DiaryPostModel updatedModel) async {
+    String postId,
+    List<String>? imgUrl,
+    String content,
+    String title,
+    String? videoUrl,
+  ) async {
     try {
-      await _firestore
-          .collection('post')
-          .doc(postId)
-          .update(updatedModel.toJson());
+      await _firestore.collection('post').doc(postId).update({
+        'imgUrl': imgUrl,
+        'content': content,
+        'title': title,
+        'videoUrl': videoUrl
+      });
     } catch (e) {
       print(e.toString());
     }
@@ -173,12 +180,15 @@ class DiartDetailProvider extends StateNotifier<PostState> {
 
   // 댓글 수정
   Future<void> updateCommentInFirestore(
-      String commentId, DiaryCommentModel updatedModel) async {
+    String commentId,
+    String comment,
+  ) async {
     try {
-      await _firestore
-          .collection('comment')
-          .doc(commentId)
-          .update(updatedModel.toJson());
+      await _firestore.collection('comment').doc(commentId).update(
+        {
+          'comment': comment,
+        },
+      );
     } catch (e) {
       print(e.toString());
     }
