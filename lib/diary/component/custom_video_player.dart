@@ -31,6 +31,7 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     initializeController();
   }
 
@@ -39,7 +40,7 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   void didUpdateWidget(covariant CustomVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.video?.path != widget.video?.path) {
+    if (oldWidget.videoUrl != widget.videoUrl) {
       initializeController();
     }
   }
