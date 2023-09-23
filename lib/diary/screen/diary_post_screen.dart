@@ -111,7 +111,9 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                     ),
                   GestureDetector(
                     onTap: () {
-                      mediaDialog(context);
+                      if (imageUrl!.isEmpty) {
+                        mediaDialog(context);
+                      }
                     },
                     child: Container(
                       height: MediaQuery.of(context).size.height / 3.5,
@@ -461,11 +463,10 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     );
     if (widget.edit == true && widget.removeEdit == true) {
       String? updatedVideoUrl = newDiaryPost.videoUrl;
-      List<String>? updatedImgUrl = newDiaryPost.imgUrl;
 
       ref.read(diaryDetailProvider.notifier).updatePostInFirestore(
           widget.postId.toString(),
-          updatedImgUrl,
+          imgUrl,
           content,
           postTitle,
           updatedVideoUrl);
