@@ -42,3 +42,13 @@ const DIVTWO = Color(0xFF5271B8);
 const DIVTHR = Color(0xFF007163);
 const DIVFOUR = Color(0xFF927145);
 const DIVFIV = Color(0xFF949600);
+
+// userProfile
+
+const PRFBG = Color(0xFF8DA5EB);
+const PRFPHOTOEDIT = Color(0xFF2FC2FF);
+const PRFOUTLINE = Color(0xFF5671B3);
+const PRFCHECK = Color(0xFFEB8B98);
+const POSTLIST = Color(0xFF00A696);
+const COMMENTLIST = Color(0xFFF9858B);
+const LEAVEBT = Color(0xFF7CACD8);

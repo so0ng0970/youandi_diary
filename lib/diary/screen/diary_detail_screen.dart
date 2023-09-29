@@ -72,7 +72,6 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
       popOnPressed: () {
         context.pop();
       },
-      icon: Icons.arrow_back,
       child: SafeArea(
         child: Column(
           children: [

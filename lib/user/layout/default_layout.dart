@@ -2,13 +2,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:youandi_diary/common/component/main_drawer.dart';
-import 'package:youandi_diary/common/const/color.dart';
+
+import '../../common/const/color.dart';
 
 class DefaultLayout extends StatelessWidget {
   final Color? color;
   final Widget child;
   final String? title;
-  final IconData? icon;
+  final Widget? icon;
   final VoidCallback? onPressed;
   final VoidCallback? popOnPressed;
 
@@ -43,7 +44,11 @@ class DefaultLayout extends StatelessWidget {
               color: WHITE_COLOR,
             ),
           ),
-          IconButton(onPressed: popOnPressed, icon: Icon(icon))
+          if (icon == null)
+            IconButton(
+              onPressed: popOnPressed,
+              icon: const Icon(Icons.arrow_back),
+            )
         ],
       ),
       drawer: const MainDrawer(),

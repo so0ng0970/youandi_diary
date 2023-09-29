@@ -36,28 +36,45 @@ class MainDrawer extends ConsumerWidget {
                 if (user == null) {
                   return const Text('Not authenticated');
                 } else {
-                  return UserAccountsDrawerHeader(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF9fc5e8),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(45.0),
-                        bottomRight: Radius.circular(45.0),
+                  return Stack(
+                    children: [
+                      UserAccountsDrawerHeader(
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF9fc5e8),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(45.0),
+                            bottomRight: Radius.circular(45.0),
+                          ),
+                        ),
+                        currentAccountPicture: CircleAvatar(
+                          // 현재 계정 이미지 set
+                          backgroundImage:
+                              selectImage(imageUrl: user.photoURL ?? ''),
+                        ),
+                        accountName: Text(
+                          user.displayName ?? '',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        accountEmail: Text(
+                          user.email ?? '',
+                        ),
                       ),
-                    ),
-                    currentAccountPicture: CircleAvatar(
-                      // 현재 계정 이미지 set
-                      backgroundImage:
-                          selectImage(imageUrl: user.photoURL ?? ''),
-                    ),
-                    accountName: Text(
-                      user.displayName ?? '',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    accountEmail: Text(
-                      user.email ?? '',
-                    ),
+                      Positioned(
+                        left: 55,
+                        child: IconButton(
+                          onPressed: () {
+                            context.pushNamed(UserProfileScreen.routeName);
+                          },
+                          icon: const Icon(
+                            Icons.settings,
+                            size: 25,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      )
+                    ],
                   );
                 }
               },

@@ -95,7 +95,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
         popOnPressed: () {
           context.pop();
         },
-        icon: !isLoading ? Icons.arrow_back : null,
+        icon: isLoading ? const Icon(Icons.arrow_back) : null,
         color: DIARY_DETAIL_COLOR,
         child: SafeArea(
           child: Center(

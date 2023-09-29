@@ -1,5 +1,8 @@
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:youandi_diary/user/layout/default_layout.dart';
+
+import '../../common/const/color.dart';
 
 class UserProfileScreen extends StatelessWidget {
   static String get routeName => '/profile';
@@ -7,6 +10,12 @@ class UserProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return DefaultLayout(
+      popOnPressed: () {
+        context.pop();
+      },
+      color: PRFBG,
+      child: Column(),
+    );
   }
 }
