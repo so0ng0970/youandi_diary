@@ -11,6 +11,7 @@ import 'package:youandi_diary/user/screens/sign_screen.dart';
 
 import '../../common/screen/splash_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/user_profile_screen.dart';
 
 final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
   return AuthProvider(ref: ref);
@@ -37,6 +38,11 @@ class AuthProvider extends ChangeNotifier {
           path: '/sign',
           name: SignScreen.routeName,
           builder: (context, state) => const SignScreen(),
+        ),
+        GoRoute(
+          path: '/profile',
+          name: UserProfileScreen.routeName,
+          builder: (context, state) => const UserProfileScreen(),
         ),
         GoRoute(
           path: '/',

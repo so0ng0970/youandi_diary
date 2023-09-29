@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 import 'package:youandi_diary/user/provider/auth_provider.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
+import 'package:youandi_diary/user/screens/user_profile_screen.dart';
 
 import '../../user/provider/firebase_auth_provider.dart';
 
@@ -17,6 +19,11 @@ class MainDrawer extends ConsumerWidget {
     final viewModel = LoginSignModel(
       KakaoLogin(),
     );
+
+    TextButton textButton(VoidCallback onpressed, Text text) {
+      return TextButton(onPressed: onpressed, child: text);
+    }
+
     return Drawer(
       child: ListView(
         children: [
@@ -58,12 +65,20 @@ class MainDrawer extends ConsumerWidget {
               error: (error, stackTrace) => Text('Error: $error'),
             ),
           ),
-          TextButton(
-            onPressed: () {
+          textButton(
+            () {
               provider.logout(context);
             },
-            child: const Text(
+            const Text(
               '로그아웃',
+            ),
+          ),
+          textButton(
+            () {
+              context.goNamed(UserProfileScreen.routeName);
+            },
+            const Text(
+              '프로필 수정',
             ),
           )
         ],

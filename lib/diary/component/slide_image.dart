@@ -44,7 +44,7 @@ class _SlideImageState extends State<SlideImage> {
             fit: BoxFit.cover,
           );
         } else {
-          imageWidget = Container(); // Fallback in case both are null.
+          imageWidget = Container();
         }
 
         return Stack(
