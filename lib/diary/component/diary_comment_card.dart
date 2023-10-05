@@ -70,7 +70,7 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
     if (edit == true && editCommentId != null) {
       List<DiaryCommentModel> existingComments = await ref
           .read(diaryDetailProvider.notifier)
-          .getCommentListFromFirestore(editCommentId.toString())
+          .getCommentListFromFirestore(widget.postId.toString())
           .first;
       DiaryCommentModel existingDiaryComment = existingComments
           .firstWhere((comment) => comment.commentId == editCommentId);
@@ -208,13 +208,14 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                                   const Spacer(),
                                   if (DataUtils().uid == commentData.userId)
                                     GestureDetector(
-                                      onTap: () {
+                                      onTap: () async {
                                         setState(() {
                                           edit = true;
                                           editCommentId = commentData.commentId;
 
                                           print(editCommentId);
                                         });
+                                        await initializeComment();
                                       },
                                       child: const Icon(
                                         Icons.mode_edit_outline,
