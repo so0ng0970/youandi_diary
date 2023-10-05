@@ -1,8 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/utils/data_utils.dart';
+import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
@@ -56,7 +58,27 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
 String? editCommentId;
 
 class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
+  @override
+  void initState() {
+    super.initState();
+    initializeComment();
+  }
+
+  bool edit = false;
   TextEditingController editingController = TextEditingController();
+  Future<void> initializeComment() async {
+    if (edit == true && editCommentId != null) {
+      List<DiaryCommentModel> existingComments = await ref
+          .read(diaryDetailProvider.notifier)
+          .getCommentListFromFirestore(editCommentId.toString())
+          .first;
+      DiaryCommentModel existingDiaryComment = existingComments
+          .firstWhere((comment) => comment.commentId == editCommentId);
+      print('$editCommentId d, $existingComments');
+      editingController.text = existingDiaryComment.content.toString();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final getCommentList = ref.watch(
@@ -66,7 +88,7 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
     );
     final commentProvider = ref.watch(diaryDetailProvider.notifier);
     final userData = ref.watch(userDataProvider);
-    print(widget.userId);
+
     OutlineInputBorder inputDecoration = OutlineInputBorder(
       borderRadius: BorderRadius.circular(
         20,
@@ -188,7 +210,9 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
+                                          edit = true;
                                           editCommentId = commentData.commentId;
+
                                           print(editCommentId);
                                         });
                                       },
