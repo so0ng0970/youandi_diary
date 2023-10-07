@@ -186,7 +186,7 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     try {
       await _firestore.collection('comment').doc(commentId).update(
         {
-          'comment': comment,
+          'content': comment,
         },
       );
     } catch (e) {

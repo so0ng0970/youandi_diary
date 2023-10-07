@@ -2,15 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:youandi_diary/common/utils/data_utils.dart';
-import 'package:youandi_diary/diary/model/diary_comment_model.dart';
+import 'package:youandi_diary/diary/component/diary_comment_list.dart';
 
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
 
 import '../../common/const/color.dart';
-import '../layout/button_dialog_layout.dart';
 
 class DiaryCommentCard extends ConsumerStatefulWidget {
   String userId;
@@ -59,26 +56,6 @@ String? editCommentId;
 
 class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
   @override
-  void initState() {
-    super.initState();
-    initializeComment();
-  }
-
-  bool edit = false;
-  TextEditingController editingController = TextEditingController();
-  Future<void> initializeComment() async {
-    if (edit == true && editCommentId != null) {
-      List<DiaryCommentModel> existingComments = await ref
-          .read(diaryDetailProvider.notifier)
-          .getCommentListFromFirestore(widget.postId.toString())
-          .first;
-      DiaryCommentModel existingDiaryComment = existingComments
-          .firstWhere((comment) => comment.commentId == editCommentId);
-      print('$editCommentId d, $existingComments');
-      editingController.text = existingDiaryComment.content.toString();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final getCommentList = ref.watch(
@@ -86,7 +63,7 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
         widget.postId.toString(),
       ),
     );
-    final commentProvider = ref.watch(diaryDetailProvider.notifier);
+
     final userData = ref.watch(userDataProvider);
 
     OutlineInputBorder inputDecoration = OutlineInputBorder(
@@ -186,71 +163,13 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                         itemCount: data.length,
                         itemBuilder: (context, index) {
                           final commentData = data[index];
-                          return SizedBox(
-                            height: 25,
-                            width: 50,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
-                              child: Row(
-                                children: [
-                                  Text(
-                                      '${commentData.userName.toString()} :  '),
-                                  if (editCommentId != commentData.commentId)
-                                    Text(
-                                      commentData.content.toString(),
-                                    ),
-                                  if (editCommentId == commentData.commentId)
-                                    SizedBox(
-                                        height: 20,
-                                        width: 100,
-                                        child:
-                                            textFormField(editingController)),
-                                  const Spacer(),
-                                  if (DataUtils().uid == commentData.userId)
-                                    GestureDetector(
-                                      onTap: () async {
-                                        setState(() {
-                                          edit = true;
-                                          editCommentId = commentData.commentId;
 
-                                          print(editCommentId);
-                                        });
-                                        await initializeComment();
-                                      },
-                                      child: const Icon(
-                                        Icons.mode_edit_outline,
-                                        size: 15,
-                                      ),
-                                    ),
-                                  if (DataUtils().uid == commentData.userId)
-                                    GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return ButtonDialogLayout(
-                                              onPressed: () {
-                                                commentProvider
-                                                    .deleteCommentFromFirestore(
-                                                  commentData.commentId
-                                                      .toString(),
-                                                );
-                                                context.pop();
-                                              },
-                                              text: '정말 삭제하시겠습니까?',
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: const Icon(
-                                        Icons.delete_forever_outlined,
-                                        size: 15,
-                                        color: DELETE_BUTTON,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
+                          return DiaryCommentList(
+                            commentData: commentData,
+                            editCommentId: editCommentId.toString(),
+                            postId: widget.postId.toString(),
+                            contentController: widget.contentController,
+                            textFormField: textFormField,
                           );
                         });
                   },
