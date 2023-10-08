@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:youandi_diary/user/component/profile_component.dart';
-import 'package:youandi_diary/user/layout/default_layout.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
 
 import '../../common/const/color.dart';
@@ -60,135 +59,148 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   );
   @override
   Widget build(BuildContext context) {
-    return DefaultLayout(
-      popOnPressed: () {
-        context.pop();
-      },
-      color: PRFBG,
-      child: ref.watch(userDataProvider).when(
+    return Scaffold(
+      backgroundColor: PRFBG,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      
+      body: ref.watch(userDataProvider).when(
             data: (data) {
               return SafeArea(
-                child: Container(
-                  color: Colors.amber,
-                  height: MediaQuery.of(context).size.width,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            if (edit)
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    basicImage = false;
-                                    imageEdit = false;
-                                    selectImage = null;
-                                    edit = false;
-                                  });
-                                },
-                                child: const Text(
-                                  '취소',
-                                ),
-                              ),
-                            const Spacer(),
-                            OutlinedButton(
+                child: Center(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          if (edit)
+                            TextButton(
                               onPressed: () {
                                 setState(() {
-                                  edit = !edit;
-                                  if (edit) {
-                                    imageEdit = true;
-                                    userNameController.text = data!.userName;
-                                  } else {
-                                    imageEdit = false;
-                                  }
+                                  basicImage = false;
+                                  imageEdit = false;
+                                  selectImage = null;
+                                  edit = false;
                                 });
                               },
-                              child: Text(
-                                edit ? '수정완료' : '수정하기',
+                              child: const Text(
+                                '취소',
+                                style: TextStyle(
+                                  color: REMOVE_COLOR,
+                                  fontSize: 20,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                        Stack(
-                          children: [
-                            clipOval(
-                              imgUrl: data!.photoUrl,
-                            ),
-                            if (edit && !basicImage)
-                              GestureDetector(
-                                onTap: () {
-                                  mediaDialog(context);
-                                },
-                                child: selectImage != null
-                                    ? ClipOval(
-                                        child: Image.file(
-                                          File(
-                                            selectImage!.path,
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
-                                    : clipOval(
-                                        imgUrl: data.photoUrl,
-                                      ),
-                              ),
-                            if (basicImage)
-                              GestureDetector(
-                                onTap: () {
-                                  mediaDialog(context);
-                                },
-                                child: ClipOval(
-                                  child: Image.asset(
-                                    'assets/image/diary/profile.jpg',
-                                    width: 200,
-                                    height: 200,
-                                    fit: BoxFit.cover,
+                          const Spacer(),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                edit = !edit;
+                                if (edit) {
+                                  imageEdit = true;
+                                  userNameController.text = data!.userName;
+                                } else {
+                                  imageEdit = false;
+                                }
+                              });
+                            },
+                            child: edit
+                                ? const Text(
+                                    '수정완료',
+                                    style: TextStyle(
+                                      color: DIARY_DETAIL_COLOR,
+                                      fontSize: 20,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.settings,
+                                    color: EDITBUTTON,
+                                    size: 30,
                                   ),
+                          ),
+                        ],
+                      ),
+                      Stack(
+                        children: [
+                          clipOval(
+                            imgUrl: data!.photoUrl,
+                          ),
+                          if (edit && !basicImage)
+                            GestureDetector(
+                              onTap: () {
+                                mediaDialog(context);
+                              },
+                              child: selectImage != null
+                                  ? ClipOval(
+                                      child: Image.file(
+                                        File(
+                                          selectImage!.path,
+                                        ),
+                                        width: 200,
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : clipOval(
+                                      imgUrl: data.photoUrl,
+                                    ),
+                            ),
+                          if (basicImage)
+                            GestureDetector(
+                              onTap: () {
+                                mediaDialog(context);
+                              },
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/image/diary/profile.jpg',
+                                  width: 200,
+                                  height: 200,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                            if (imageEdit)
-                              const Positioned(
-                                bottom: 10,
-                                right: 20,
-                                child: Icon(
-                                  Icons.photo_camera_back_rounded,
-                                  size: 35,
-                                ),
-                              )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        if (!edit)
-                          Text(
-                            data.userName,
-                            style: const TextStyle(
-                              fontSize: 20,
                             ),
-                          ),
-                        if (edit)
-                          TextFormField(
-                            controller: userNameController,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.amber,
-                              focusedBorder: inputDecoration,
-                              enabledBorder: inputDecoration,
-                              contentPadding: const EdgeInsets.all(5.0),
-                            ),
-                          ),
-                        const SizedBox(
-                          height: 5,
-                        ),
+                          if (imageEdit)
+                            const Positioned(
+                              bottom: 10,
+                              right: 20,
+                              child: Icon(
+                                Icons.photo_camera_back_rounded,
+                                color: CAMERABUTTON,
+                                size: 35,
+                              ),
+                            )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      if (!edit)
                         Text(
-                          data.email.toString(),
-                        )
-                      ],
-                    ),
+                          data.userName,
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                      if (edit)
+                        TextFormField(
+                          controller: userNameController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            focusedBorder: inputDecoration,
+                            enabledBorder: inputDecoration,
+                            contentPadding: const EdgeInsets.all(5.0),
+                          ),
+                        ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        data.email.toString(),
+                      )
+                    ],
                   ),
                 ),
               );

@@ -45,6 +45,8 @@ const DIVFIV = Color(0xFF949600);
 
 // userProfile
 
+const CAMERABUTTON = Color(0xFF16407B);
+const EDITBUTTON = Color(0xFF424656);
 const PRFBG = Color(0xFF8DA5EB);
 const PRFPHOTOEDIT = Color(0xFF2FC2FF);
 const PRFOUTLINE = Color(0xFF5671B3);
