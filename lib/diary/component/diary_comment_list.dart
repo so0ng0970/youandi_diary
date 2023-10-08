@@ -33,31 +33,6 @@ class _DiaryCommentListState extends ConsumerState<DiaryCommentList> {
   bool edit = false;
 
   TextEditingController editingController = TextEditingController();
-  @override
-  void initState() {
-    super.initState();
-    initializeComment();
-  }
-
-  Future<void> initializeComment() async {
-    List<DiaryCommentModel> existingComments = await ref
-        .read(diaryDetailProvider.notifier)
-        .getCommentListFromFirestore(widget.postId.toString())
-        .first;
-
-    List<DiaryCommentModel> existingDiaryComment = existingComments
-        .where(
-          (comment) => comment.commentId == widget.editCommentId,
-        )
-        .toList();
-
-    if (existingDiaryComment.isNotEmpty) {
-      DiaryCommentModel existingDiaryCommentList = existingDiaryComment[0];
-      editingController.text = existingDiaryCommentList.content.toString();
-    } else {
-      print('dd');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +65,11 @@ class _DiaryCommentListState extends ConsumerState<DiaryCommentList> {
                         setState(() {
                           widget.editCommentId =
                               widget.commentData.commentId.toString();
+                          editingController.text =
+                              widget.commentData.content.toString();
                           edit = true;
                         });
-                        await initializeComment();
+                        // await initializeComment();
                       },
                       child: const Icon(
                         Icons.mode_edit_outline,

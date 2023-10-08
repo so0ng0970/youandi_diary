@@ -92,7 +92,7 @@ class MainDrawer extends ConsumerWidget {
           ),
           textButton(
             () {
-              context.goNamed(UserProfileScreen.routeName);
+              context.pushNamed(UserProfileScreen.routeName);
             },
             const Text(
               '프로필 수정',

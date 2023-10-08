@@ -7,7 +7,7 @@ import 'package:youandi_diary/user/model/user_model.dart';
 import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
 
 final userDataProvider = FutureProvider<UserModel?>((ref) async {
-  return ref.read(userProvider).getUser();
+  return ref.watch(userProvider).getUser();
 });
 
 final userProvider = ChangeNotifierProvider<UserProvider>((ref) {

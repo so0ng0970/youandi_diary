@@ -7,7 +7,6 @@ import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
 import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
-import 'package:youandi_diary/diary/provider/diary_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
 
 import '../../common/const/color.dart';
@@ -65,7 +64,6 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
       DIVFIV,
     ];
 
-    final diary = ref.read(diaryProvider).getDiaryById(widget.diaryId);
     return DefaultLayout(
       title: widget.title.toString(),
       color: DIARY_DETAIL_COLOR,
@@ -205,7 +203,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                           },
                           deleteOnpress: () {
                             ref
-                                .read(diaryDetailProvider.notifier)
+                                .watch(diaryDetailProvider.notifier)
                                 .deletePostFromFirestore(
                                   diaryData.postId.toString(),
                                 );
@@ -226,7 +224,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                               );
 
                               ref
-                                  .read(diaryDetailProvider.notifier)
+                                  .watch(diaryDetailProvider.notifier)
                                   .saveCommentToFirestore(
                                     commentPost,
                                   );
@@ -282,9 +280,8 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
               });
               setState(() {
                 this.selectedDay = selectedDate;
-                ref.read(selectedDateStateProvider.notifier).state =
+                ref.watch(selectedDateStateProvider.notifier).state =
                     selectedDate;
-                print(selectedDay);
               });
               context.pop();
             }

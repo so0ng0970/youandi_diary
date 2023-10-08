@@ -7,6 +7,7 @@ import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/custom_video_player.dart';
 import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
+import 'package:youandi_diary/user/component/profile_component.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
 
 import 'diary_comment_card.dart';
@@ -184,9 +185,8 @@ class _DiaryDetailCardState extends State<DiaryDetailCard> {
                     return Stack(
                       children: [
                         Center(
-                          child: Image.network(
-                            widget.imgUrl![index],
-                            fit: BoxFit.cover,
+                          child: ProfileComponent(
+                            imgUrl: widget.imgUrl![index],
                           ),
                         ),
                       ],

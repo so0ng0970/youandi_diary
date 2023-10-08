@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/diary/component/diary_comment_list.dart';
 
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
+import 'package:youandi_diary/user/component/profile_component.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
 
 import '../../common/const/color.dart';
@@ -116,8 +117,8 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                       data: (data) {
                         if (data != null) {
                           return ClipOval(
-                            child: Image.network(
-                              data.photoUrl.toString(),
+                            child: ProfileComponent(
+                              imgUrl: data.photoUrl.toString(),
                             ),
                           );
                         } else {
