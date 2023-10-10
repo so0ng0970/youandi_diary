@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
+import 'package:youandi_diary/user/provider/profile_user_provider.dart';
 
 final firebaseAuthProvider =
     Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
@@ -35,23 +36,27 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
   }
 
   Future<void> _loadInitialData() async {
-    final user = ref.read(firebaseAuthProvider).currentUser;
-    if (user != null) {
-      String userName = user.displayName ?? '';
-      String userEmail = user.email ?? '이메일 없음';
-      String userPhotoUrl = user.photoURL ?? '';
-      String userId = user.uid;
+    // ignore: deprecated_member_use
+    final userStream = ref.read(userGetProvider.stream);
 
-      currentUser = UserModel(
-        userName: userName,
-        email: userEmail,
-        photoUrl: userPhotoUrl,
-        uid: userId,
-      );
+    userStream.listen((user) {
+      if (user != null) {
+        String userName = user.userName;
+        String userEmail = user.email ?? '이메일 없음';
+        String userPhotoUrl = user.photoUrl;
+        String userId = user.uid.toString();
 
-      if (currentUser != null) {
-        state.add(currentUser!);
+        currentUser = UserModel(
+          userName: userName,
+          email: userEmail,
+          photoUrl: userPhotoUrl,
+          uid: userId,
+        );
+
+        if (!state.contains(currentUser!)) {
+          state.add(currentUser!);
+        }
       }
-    }
+    });
   }
 }

@@ -8,12 +8,14 @@ import 'package:youandi_diary/user/provider/user_provider.dart';
 import 'package:youandi_diary/user/screens/user_profile_screen.dart';
 
 import '../../user/provider/firebase_auth_provider.dart';
+import '../../user/provider/profile_user_provider.dart';
 
 class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userData = ref.watch(userGetProvider);
     final authState = ref.watch(firebase_auth_Provider);
     final provider = ref.read(authProvider);
     final viewModel = LoginSignModel(
@@ -31,7 +33,7 @@ class MainDrawer extends ConsumerWidget {
             data: Theme.of(context).copyWith(
               dividerColor: Colors.transparent,
             ),
-            child: authState.when(
+            child: userData.when(
               data: (user) {
                 if (user == null) {
                   return const Text('Not authenticated');
@@ -48,11 +50,10 @@ class MainDrawer extends ConsumerWidget {
                         ),
                         currentAccountPicture: CircleAvatar(
                           // 현재 계정 이미지 set
-                          backgroundImage:
-                              selectImage(imageUrl: user.photoURL ?? ''),
+                          backgroundImage: selectImage(imageUrl: user.photoUrl),
                         ),
                         accountName: Text(
-                          user.displayName ?? '',
+                          user.userName,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),

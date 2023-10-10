@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:youandi_diary/user/component/profile_component.dart';
-import 'package:youandi_diary/user/provider/user_provider.dart';
+import 'package:skeletons/skeletons.dart';
+import 'package:youandi_diary/user/model/user_model.dart';
+import 'package:youandi_diary/user/provider/profile_user_provider.dart';
 
 import '../../common/const/color.dart';
 
@@ -21,8 +23,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   bool edit = false;
   bool imageEdit = false;
   bool basicImage = false;
+  bool isLoading = false;
   XFile? selectImage;
   TextEditingController userNameController = TextEditingController();
+  final firebaseStorage = FirebaseStorage.instance;
 
   Positioned positioned(
       {required VoidCallback onPressed, required IconData icons}) {
@@ -40,11 +44,28 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   }
 
   ClipOval clipOval({required String imgUrl}) {
+    final image = NetworkImage(imgUrl);
     return ClipOval(
-      child: ProfileComponent(
-        imgUrl: imgUrl,
+      child: Image(
+        image: image,
         width: 200,
         height: 200,
+        fit: BoxFit.cover,
+        loadingBuilder: (BuildContext context, Widget child,
+            ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          }
+          return const Center(
+            child: SkeletonAvatar(
+              style: SkeletonAvatarStyle(
+                shape: BoxShape.circle,
+                width: 200,
+                height: 200,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -67,8 +88,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      
-      body: ref.watch(userDataProvider).when(
+      body: ref.watch(userGetProvider).when(
             data: (data) {
               return SafeArea(
                 child: Center(
@@ -96,16 +116,16 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                             ),
                           const Spacer(),
                           TextButton(
-                            onPressed: () {
-                              setState(() {
-                                edit = !edit;
-                                if (edit) {
+                            onPressed: () async {
+                              if (edit) {
+                                await performUpdate(data);
+                              } else {
+                                setState(() {
+                                  edit = true;
                                   imageEdit = true;
                                   userNameController.text = data!.userName;
-                                } else {
-                                  imageEdit = false;
-                                }
-                              });
+                                });
+                              }
                             },
                             child: edit
                                 ? const Text(
@@ -125,9 +145,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                       ),
                       Stack(
                         children: [
-                          clipOval(
-                            imgUrl: data!.photoUrl,
-                          ),
+                          clipOval(imgUrl: data!.photoUrl),
                           if (edit && !basicImage)
                             GestureDetector(
                               onTap: () {
@@ -205,7 +223,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 ),
               );
             },
-            loading: () => const CircularProgressIndicator(),
+            loading: () => const Center(
+              child: CircularProgressIndicator(
+                color: Colors.amber,
+              ),
+            ),
             error: (error, stackTrace) => const Text(
               '데이터를 불러오지 못했습니다',
             ),
@@ -221,6 +243,38 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
 
     setState(() {
       selectImage = XFile(pickedFile!.path);
+    });
+  }
+
+  Future<void> performUpdate(UserModel? data) async {
+    setState(() {
+      isLoading = true;
+    });
+    if (selectImage != null) {
+      final ref =
+          firebaseStorage.ref().child('user').child(data!.uid.toString());
+      await ref.putFile(File(selectImage!.path));
+      data.photoUrl = await ref.getDownloadURL();
+    } else if (selectImage == null && basicImage) {
+      final ref = firebaseStorage.ref().child('user/profile.jpg');
+      data!.photoUrl = await ref.getDownloadURL();
+    }
+
+    final Map<String, dynamic> userData = {
+      'uid': data!.uid,
+      'userName': userNameController.text,
+      'photoUrl': data.photoUrl,
+    };
+
+    ref.watch(userUpdateProvider(userData));
+
+    setState(() {
+      edit = false;
+      if (edit) {
+        userNameController.text = data.userName;
+      }
+      imageEdit = false;
+      isLoading = false;
     });
   }
 
@@ -253,6 +307,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   TextButton(
                     onPressed: () async {
                       setState(() {
+                        selectImage = null;
                         basicImage = true;
                         context.pop();
                       });

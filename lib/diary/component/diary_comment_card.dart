@@ -2,16 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:youandi_diary/diary/component/diary_comment_list.dart';
+import 'package:tuple/tuple.dart';
 
+import 'package:youandi_diary/diary/component/diary_comment_list.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/user/component/profile_component.dart';
-import 'package:youandi_diary/user/provider/user_provider.dart';
 
 import '../../common/const/color.dart';
+import '../../user/provider/profile_user_provider.dart';
 
 class DiaryCommentCard extends ConsumerStatefulWidget {
   String userId;
+  String diaryId;
   Color divColor;
   String photoUrl;
   TextEditingController contentController;
@@ -21,6 +23,7 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
   DiaryCommentCard({
     Key? key,
     required this.userId,
+    required this.diaryId,
     required this.divColor,
     required this.photoUrl,
     required this.contentController,
@@ -34,6 +37,7 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
 
   DiaryCommentCard copyWith({
     String? userId,
+    String? diaryId,
     Color? divColor,
     String? photoUrl,
     TextEditingController? contentController,
@@ -49,6 +53,7 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
       sendOnpress: sendOnpress ?? this.sendOnpress,
       comment: comment ?? this.comment,
       postId: postId ?? this.postId,
+      diaryId: diaryId ?? this.diaryId,
     );
   }
 }
@@ -60,12 +65,10 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
   @override
   Widget build(BuildContext context) {
     final getCommentList = ref.watch(
-      getCommentListProvider(
-        widget.postId.toString(),
-      ),
+      getCommentListProvider(Tuple2(widget.diaryId, widget.postId.toString())),
     );
 
-    final userData = ref.watch(userDataProvider);
+    final userData = ref.watch(userGetProvider);
 
     OutlineInputBorder inputDecoration = OutlineInputBorder(
       borderRadius: BorderRadius.circular(
@@ -119,6 +122,7 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                           return ClipOval(
                             child: ProfileComponent(
                               imgUrl: data.photoUrl.toString(),
+                              width: 20,
                             ),
                           );
                         } else {

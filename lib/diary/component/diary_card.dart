@@ -37,9 +37,6 @@ class DiaryCard extends StatelessWidget {
         context.go('/detail/$diaryId', extra: {
           'title': title,
         });
-        print(
-          '/detail/$diaryId',
-        );
       },
       child: Container(
         decoration: BoxDecoration(

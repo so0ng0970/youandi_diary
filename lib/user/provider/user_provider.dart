@@ -6,9 +6,7 @@ import 'package:youandi_diary/common/const/data.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
 import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
 
-final userDataProvider = FutureProvider<UserModel?>((ref) async {
-  return ref.watch(userProvider).getUser();
-});
+
 
 final userProvider = ChangeNotifierProvider<UserProvider>((ref) {
   final firebaseAuth = ref.watch(firebase_auth_Provider);
@@ -61,22 +59,7 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<UserModel?> getUser() async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      return null;
-    }
-    QuerySnapshot querySnapshot =
-        await userReference.where('uid', isEqualTo: currentUser.uid).get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot doc = querySnapshot.docs.first;
-      UserModel user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
-      return user;
-    } else {
-      return null;
-    }
-  }
 
   void search(String query) {
     searchUser = [];

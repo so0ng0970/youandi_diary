@@ -465,11 +465,11 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
       String? updatedVideoUrl = newDiaryPost.videoUrl;
 
       ref.read(diaryDetailProvider.notifier).updatePostInFirestore(
-          widget.postId.toString(),
-          imgUrl,
-          content,
-          postTitle,
-          updatedVideoUrl);
+          content: content,
+          diaryId: widget.diaryId,
+          postId: widget.postId.toString(),
+          videoUrl: updatedVideoUrl,
+          title: postTitle);
     } else if (widget.edit == true && widget.removeEdit == false) {
       List<DiaryPostModel> existingPosts = await ref
           .read(diaryDetailProvider.notifier)
@@ -493,11 +493,13 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
           : existingDiaryPost?.imgUrl;
 
       ref.read(diaryDetailProvider.notifier).updatePostInFirestore(
-          widget.postId.toString(),
-          updatedImgUrl ?? [],
-          content,
-          postTitle,
-          updatedVideoUrl);
+            content: content,
+            diaryId: widget.diaryId,
+            postId: widget.postId.toString(),
+            imgUrl: updatedImgUrl ?? [],
+            title: postTitle,
+            videoUrl: updatedVideoUrl,
+          );
     } else {
       ref.read(diaryDetailProvider.notifier).savePostToFirestore(newDiaryPost);
     }

@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/common/utils/data_utils.dart';
@@ -10,9 +11,10 @@ import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/user/component/profile_component.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
 
+import '../../user/provider/profile_user_provider.dart';
 import 'diary_comment_card.dart';
 
-class DiaryDetailCard extends StatefulWidget {
+class DiaryDetailCard extends ConsumerStatefulWidget {
   final String? userId;
   final String? diaryId;
   late String? postId;
@@ -82,10 +84,10 @@ class DiaryDetailCard extends StatefulWidget {
   }
 
   @override
-  State<DiaryDetailCard> createState() => _DiaryDetailCardState();
+  ConsumerState<DiaryDetailCard> createState() => _DiaryDetailCardState();
 }
 
-class _DiaryDetailCardState extends State<DiaryDetailCard> {
+class _DiaryDetailCardState extends ConsumerState<DiaryDetailCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -150,33 +152,41 @@ class _DiaryDetailCardState extends State<DiaryDetailCard> {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: ClipOval(
-                      child: Image(
-                        image: selectImage(imageUrl: widget.photoUrl),
-                        fit: BoxFit.cover,
-                      ),
-                    )),
-                const SizedBox(
-                  width: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    right: 5,
+            ref.watch(userGetProvider).when(
+                  data: (data) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                            width: 30,
+                            height: 30,
+                            child: ClipOval(
+                              child: Image(
+                                image: selectImage(imageUrl: data!.photoUrl),
+                                fit: BoxFit.cover,
+                              ),
+                            )),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            right: 5,
+                          ),
+                          child: Text(
+                            data.userName.toString(),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                  loading: () => const CircularProgressIndicator(),
+                  error: (error, stackTrace) => Text(
+                    '$error',
                   ),
-                  child: Text(
-                    widget.userName.toString(),
-                  ),
                 ),
-              ],
-            ),
             Divider(color: widget.divColor),
-            if (widget.imgUrl!.isNotEmpty)
+            if (widget.imgUrl != null && widget.imgUrl!.isNotEmpty)
               SizedBox(
                 height: 150,
                 child: PageView.builder(
@@ -217,7 +227,7 @@ class _DiaryDetailCardState extends State<DiaryDetailCard> {
               ),
             ),
             DiaryCommentCard(
-              // diaryData: diaryData,
+              diaryId: widget.diaryId.toString(),
               userId: widget.userId.toString(),
               postId: widget.postId,
               photoUrl: widget.photoUrl.toString(),

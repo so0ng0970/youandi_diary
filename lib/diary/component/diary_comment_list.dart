@@ -12,6 +12,7 @@ import '../provider/diart_detail_provider.dart';
 
 class DiaryCommentList extends ConsumerStatefulWidget {
   DiaryCommentModel commentData;
+
   String editCommentId;
   String postId;
   TextEditingController contentController;
@@ -83,8 +84,12 @@ class _DiaryCommentListState extends ConsumerState<DiaryCommentList> {
                           ref
                               .watch(diaryDetailProvider.notifier)
                               .updateCommentInFirestore(
-                                  widget.commentData.commentId.toString(),
-                                  editingController.text);
+                                comment: editingController.text,
+                                commentId:
+                                    widget.commentData.commentId.toString(),
+                                diaryId: widget.commentData.diaryId.toString(),
+                                postId: widget.commentData.postId.toString(),
+                              );
                           edit = false;
                         });
                       },
@@ -103,7 +108,12 @@ class _DiaryCommentListState extends ConsumerState<DiaryCommentList> {
                               ref
                                   .watch(diaryDetailProvider.notifier)
                                   .deleteCommentFromFirestore(
-                                    widget.commentData.commentId.toString(),
+                                    postId:
+                                        widget.commentData.postId.toString(),
+                                    diaryId:
+                                        widget.commentData.diaryId.toString(),
+                                    commentId:
+                                        widget.commentData.commentId.toString(),
                                   );
                               context.pop();
                             },

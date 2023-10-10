@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tuple/tuple.dart';
 import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 
@@ -15,10 +16,12 @@ final getPostListProvider = StreamProvider.autoDispose
 });
 
 final getCommentListProvider = StreamProvider.autoDispose
-    .family<List<DiaryCommentModel>, String>((ref, postId) {
-  return ref.watch(diaryDetailProvider.notifier).getCommentListFromFirestore(
-        postId,
-      );
+    .family<List<DiaryCommentModel>, Tuple2<String, String>>((ref, ids) {
+  final diaryId = ids.item1;
+  final postId = ids.item2;
+  return ref
+      .watch(diaryDetailProvider.notifier)
+      .getCommentListFromFirestore(postId: postId, diaryId: diaryId);
 });
 
 final diaryDetailProvider =
@@ -36,6 +39,8 @@ class PostState {
   PostState({this.isLoading = false, this.error, this.post, this.comment});
 }
 
+User? currentUser = FirebaseAuth.instance.currentUser;
+
 class DiartDetailProvider extends StateNotifier<PostState> {
   DiartDetailProvider() : super(PostState());
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -45,19 +50,24 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     state = PostState(isLoading: true);
 
     try {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      DocumentReference docRef = _firestore.collection('post').doc();
+      DocumentReference docRef = _firestore
+          .collection('user')
+          .doc(currentUser?.uid)
+          .collection('diary')
+          .doc(model.diaryId)
+          .collection('post')
+          .doc();
 
       if (currentUser != null) {
         DocumentSnapshot userData =
-            await _firestore.collection('user').doc(currentUser.uid).get();
-        model.userId = currentUser.uid;
+            await _firestore.collection('user').doc(currentUser!.uid).get();
+        model.userId = currentUser!.uid;
         if (userData.exists) {
           model.userName = userData['userName'] ?? '';
           model.photoUrl = userData['photoUrl'] ?? '';
         } else {
-          model.userName = currentUser.displayName ?? '';
-          model.photoUrl = currentUser.photoURL ?? '';
+          model.userName = currentUser?.displayName ?? '';
+          model.photoUrl = currentUser?.photoURL ?? '';
         }
       }
 
@@ -79,6 +89,10 @@ class DiartDetailProvider extends StateNotifier<PostState> {
         DateTime(selectedDay.year, selectedDay.month, selectedDay.day + 1);
 
     return FirebaseFirestore.instance
+        .collection('user')
+        .doc(currentUser?.uid)
+        .collection('diary')
+        .doc(diaryId)
         .collection('post')
         .where('diaryId', isEqualTo: diaryId)
         .orderBy(
@@ -94,24 +108,44 @@ class DiartDetailProvider extends StateNotifier<PostState> {
   }
 
   // 글 삭제
-  Future<void> deletePostFromFirestore(String postId) async {
+  Future<void> deletePostFromFirestore({
+    required String postId,
+    required String diaryId,
+  }) async {
     try {
-      await _firestore.collection('post').doc(postId).delete();
+      await _firestore
+          .collection('user')
+          .doc(currentUser?.uid)
+          .collection('diary')
+          .doc(diaryId)
+          .collection('post')
+          .doc(postId)
+          .delete();
     } catch (e) {
       print(e.toString());
     }
   }
 
   // 글 수정
-  Future<void> updatePostInFirestore(
-    String postId,
+  Future<void> updatePostInFirestore({
+    required String postId,
     List<String>? imgUrl,
-    String content,
-    String title,
+    required String content,
+    required String title,
     String? videoUrl,
-  ) async {
+    required String diaryId,
+  }) async {
     try {
-      await _firestore.collection('post').doc(postId).update({
+      await _firestore
+          .collection('user')
+          .doc(currentUser?.uid)
+          .collection('diary')
+          .doc(
+            diaryId,
+          )
+          .collection('post')
+          .doc(postId)
+          .update({
         'imgUrl': imgUrl,
         'content': content,
         'title': title,
@@ -123,12 +157,24 @@ class DiartDetailProvider extends StateNotifier<PostState> {
   }
 
   // 댓글 저장
-  Future<void> saveCommentToFirestore(DiaryCommentModel model) async {
+  Future<void> saveCommentToFirestore({
+    required DiaryCommentModel model,
+    required String diaryId,
+    required String postId,
+  }) async {
     state = PostState(isLoading: true);
 
     try {
       User? currentUser = FirebaseAuth.instance.currentUser;
-      DocumentReference docRef = _firestore.collection('comment').doc();
+      DocumentReference docRef = _firestore
+          .collection('user')
+          .doc(currentUser?.uid)
+          .collection('diary')
+          .doc(diaryId)
+          .collection('post')
+          .doc(postId)
+          .collection('comment')
+          .doc();
 
       if (currentUser != null) {
         model.userId = currentUser.uid;
@@ -156,16 +202,37 @@ class DiartDetailProvider extends StateNotifier<PostState> {
   }
 
   // 댓글 삭제
-  Future<void> deleteCommentFromFirestore(String commentId) async {
+  Future<void> deleteCommentFromFirestore({
+    required String commentId,
+    required String diaryId,
+    required String postId,
+  }) async {
     try {
-      await _firestore.collection('comment').doc(commentId).delete();
+      await _firestore
+          .collection('user')
+          .doc(currentUser?.uid)
+          .collection('diary')
+          .doc(diaryId)
+          .collection('post')
+          .doc(postId)
+          .collection('comment')
+          .doc(commentId)
+          .delete();
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Stream<List<DiaryCommentModel>> getCommentListFromFirestore(String postId) {
+  // 댓글 불러오기
+  Stream<List<DiaryCommentModel>> getCommentListFromFirestore(
+      {String? diaryId, required String postId}) {
     return FirebaseFirestore.instance
+        .collection('user')
+        .doc(currentUser?.uid)
+        .collection('diary')
+        .doc(diaryId)
+        .collection('post')
+        .doc(postId)
         .collection('comment')
         .where('postId', isEqualTo: postId)
         .orderBy(
@@ -179,12 +246,23 @@ class DiartDetailProvider extends StateNotifier<PostState> {
   }
 
   // 댓글 수정
-  Future<void> updateCommentInFirestore(
-    String commentId,
-    String comment,
-  ) async {
+  Future<void> updateCommentInFirestore({
+    required String diaryId,
+    required String postId,
+    required String commentId,
+    required String comment,
+  }) async {
     try {
-      await _firestore.collection('comment').doc(commentId).update(
+      await _firestore
+          .collection('user')
+          .doc(currentUser?.uid)
+          .collection('diary')
+          .doc(diaryId)
+          .collection('post')
+          .doc(postId)
+          .collection('comment')
+          .doc(commentId)
+          .update(
         {
           'content': comment,
         },

@@ -205,7 +205,8 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                             ref
                                 .watch(diaryDetailProvider.notifier)
                                 .deletePostFromFirestore(
-                                  diaryData.postId.toString(),
+                                  diaryId: diaryData.diaryId.toString(),
+                                  postId: diaryData.postId.toString(),
                                 );
                             context.pop();
                           },
@@ -218,6 +219,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                             setState(() {
                               String content = contentController.text;
                               DiaryCommentModel commentPost = DiaryCommentModel(
+                                diaryId: widget.diaryId,
                                 dataTime: focusedDay,
                                 postId: diaryData.postId,
                                 content: content,
@@ -226,7 +228,9 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                               ref
                                   .watch(diaryDetailProvider.notifier)
                                   .saveCommentToFirestore(
-                                    commentPost,
+                                    diaryId: widget.diaryId.toString(),
+                                    model: commentPost,
+                                    postId: commentPost.postId.toString(),
                                   );
                               contentController.clear();
                             });

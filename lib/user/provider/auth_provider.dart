@@ -60,6 +60,7 @@ class AuthProvider extends ChangeNotifier {
                   final title = (state.extra as Map<String, dynamic>?)?['title']
                       ?.toString();
                   final diaryId = state.pathParameters['rid'];
+                  
 
                   return DiaryDetailScreen(
                     diaryId: diaryId.toString(),
