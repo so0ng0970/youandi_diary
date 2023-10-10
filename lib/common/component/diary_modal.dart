@@ -237,9 +237,9 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
           return DiaryModalLayout(
             onPressed: () {
               () {
-                ref.read(userProvider).searchUser =
-                    ref.read(userProvider).users;
-                for (var user in ref.read(userProvider).users) {
+                ref.watch(userProvider).searchUser =
+                    ref.watch(userProvider).users;
+                for (var user in ref.watch(userProvider).users) {
                   user.isChecked = false;
                 }
                 selectMember.state.removeWhere((e) => e.uid != currentUserId);

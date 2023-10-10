@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
-import 'package:youandi_diary/user/provider/profile_user_provider.dart';
 
 final firebaseAuthProvider =
     Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
@@ -36,26 +36,37 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
   }
 
   Future<void> _loadInitialData() async {
-    // ignore: deprecated_member_use
-    final userStream = ref.read(userGetProvider.stream);
+    Stream<UserModel?> userStream = getUserStream();
 
-    userStream.listen((user) {
-      if (user != null) {
-        String userName = user.userName;
-        String userEmail = user.email ?? '이메일 없음';
-        String userPhotoUrl = user.photoUrl;
-        String userId = user.uid.toString();
-
-        currentUser = UserModel(
-          userName: userName,
-          email: userEmail,
-          photoUrl: userPhotoUrl,
-          uid: userId,
-        );
+    // Listen to the stream and update the current user when a new value is received.
+    await for (UserModel? userModel in userStream) {
+      if (userModel != null) {
+        currentUser = userModel;
 
         if (!state.contains(currentUser!)) {
-          state.add(currentUser!);
+          add(currentUser!);
         }
+      }
+    }
+  }
+
+  Stream<UserModel?> getUserStream() {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return Stream.value(null);
+    }
+
+    return FirebaseFirestore.instance
+        .collection('user')
+        .doc(currentUser.uid)
+        .snapshots()
+        .map((snapshot) {
+      Map<String, dynamic>? dataMap = snapshot.data();
+
+      if (dataMap == null) {
+        return null;
+      } else {
+        return UserModel.fromJson(dataMap);
       }
     });
   }
