@@ -7,7 +7,7 @@ final firebaseAuthProvider =
     Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
 
 final selectedMembersProvider =
-    StateNotifierProvider<SelectedMembers, List<UserModel>>(
+    StateNotifierProvider<SelectedMembers, List<UserModel?>>(
         (ref) => SelectedMembers(ref.container));
 
 class SelectedMembers extends StateNotifier<List<UserModel>> {
@@ -27,7 +27,6 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
   }
 
   void reset() {
-    // new method
     if (currentUser != null) {
       state = [currentUser!];
     } else {
@@ -38,7 +37,6 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
   Future<void> _loadInitialData() async {
     Stream<UserModel?> userStream = getUserStream();
 
-    // Listen to the stream and update the current user when a new value is received.
     await for (UserModel? userModel in userStream) {
       if (userModel != null) {
         currentUser = userModel;

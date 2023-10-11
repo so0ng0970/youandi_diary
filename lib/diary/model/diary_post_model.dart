@@ -33,6 +33,8 @@ class DiaryPostModel {
 
   factory DiaryPostModel.fromJson(Map<String, dynamic> json) =>
       _$DiaryPostModelFromJson(json);
+
+  get data => null;
   Map<String, dynamic> toJson() => _$DiaryPostModelToJson(this);
 
   static DateTime _fromJsonTimestamp(Timestamp timestamp) => timestamp.toDate();

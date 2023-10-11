@@ -8,7 +8,7 @@ import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 
 import '../../common/const/color.dart';
 import '../../common/utils/data_utils.dart';
-import '../provider/diart_detail_provider.dart';
+import '../provider/diary_comment_provider.dart';
 
 class DiaryCommentList extends ConsumerStatefulWidget {
   DiaryCommentModel commentData;
@@ -82,7 +82,7 @@ class _DiaryCommentListState extends ConsumerState<DiaryCommentList> {
                       onTap: () async {
                         setState(() {
                           ref
-                              .watch(diaryDetailProvider.notifier)
+                              .watch(diaryCommentProvider.notifier)
                               .updateCommentInFirestore(
                                 comment: editingController.text,
                                 commentId:
@@ -106,7 +106,7 @@ class _DiaryCommentListState extends ConsumerState<DiaryCommentList> {
                           return ButtonDialogLayout(
                             onPressed: () {
                               ref
-                                  .watch(diaryDetailProvider.notifier)
+                                  .watch(diaryCommentProvider.notifier)
                                   .deleteCommentFromFirestore(
                                     postId:
                                         widget.commentData.postId.toString(),

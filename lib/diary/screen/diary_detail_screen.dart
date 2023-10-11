@@ -1,17 +1,21 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
 import 'package:youandi_diary/diary/model/diary_comment_model.dart';
+import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
 
 import '../../common/const/color.dart';
 import '../../user/layout/default_layout.dart';
 import '../component/calendar.dart';
+import '../provider/diary_comment_provider.dart';
 
 class DiaryDetailScreen extends ConsumerStatefulWidget {
   final String diaryId;
@@ -30,18 +34,62 @@ class DiaryDetailScreen extends ConsumerStatefulWidget {
 class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
+
   late FocusNode inputFieldNode;
   final TextEditingController contentController = TextEditingController();
+
+  static const pageSize = 6;
+  final PagingController<DocumentSnapshot?, DiaryPostModel> pagingController =
+      PagingController(firstPageKey: null);
+
   @override
   void initState() {
     super.initState();
     inputFieldNode = FocusNode();
+    pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+    super.initState();
   }
 
   @override
   void dispose() {
     inputFieldNode.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchPage(DocumentSnapshot? pageKey) async {
+    try {
+      print('Fetching new page...');
+      final newSnapshots = await ref
+          .watch(diaryDetailProvider.notifier)
+          .getDiaryListScrollFromFirestore(
+            widget.diaryId,
+            selectedDay,
+            pageKey,
+            pageSize,
+          )
+          .firstWhere((event) => event != null);
+
+      final newItems = newSnapshots
+          .map((snapshot) =>
+              DiaryPostModel.fromJson(snapshot.data() as Map<String, dynamic>))
+          .toList();
+
+      final isLastPage = newItems.length < pageSize;
+      if (isLastPage) {
+        pagingController.appendLastPage(newItems);
+        print('Fetched last page with ${newItems.length} items.');
+      } else {
+        final nextPageKey = newSnapshots
+            .last; // Use the last DocumentSnapshot as the next page key.
+        pagingController.appendPage(newItems, nextPageKey);
+        print('Fetched new page with ${newItems.length} items.');
+      }
+    } catch (error) {
+      print('Error fetching page: $error');
+      pagingController.error = error;
+    }
   }
 
   @override
@@ -173,19 +221,15 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                     ),
                   ),
                 ),
-                child: getPostList.when(
-                  data: (
-                    data,
-                  ) {
-                    // 선택된 날짜에 해당하는 게시물만 필터링하기
-                    final filteredData = data
-                        .where((post) => isSameDate(post.dataTime, selectedDay))
-                        .toList();
-
-                    return ListView.builder(
-                      itemCount: filteredData.length,
-                      itemBuilder: (context, index) {
-                        final diaryData = filteredData[index];
+                child: RefreshIndicator(
+                  onRefresh: () => Future.sync(
+                    () => pagingController.refresh(),
+                  ),
+                  child: PagedListView<DocumentSnapshot?, DiaryPostModel>(
+                    pagingController: pagingController,
+                    builderDelegate: PagedChildBuilderDelegate<DiaryPostModel>(
+                      itemBuilder: (context, diaryData, index) {
+                        final diaryData = pagingController.itemList![index];
                         return DiaryDetailCard.fromModel(
                           editOnPressed: () {
                             Navigator.push(
@@ -226,7 +270,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                               );
 
                               ref
-                                  .watch(diaryDetailProvider.notifier)
+                                  .watch(diaryCommentProvider.notifier)
                                   .saveCommentToFirestore(
                                     diaryId: widget.diaryId.toString(),
                                     model: commentPost,
@@ -237,13 +281,28 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                           },
                         );
                       },
-                    );
-                  },
-                  loading: () => const CircularProgressIndicator(),
-                  error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
+                      noItemsFoundIndicatorBuilder: (context) => const Center(
+                        child: Text(
+                          '글을 작성해 주세요',
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      firstPageErrorIndicatorBuilder: (context) =>
+                          const Text('데이터 정보를 불러오지 못했습니다 '),
+                      newPageErrorIndicatorBuilder: (context) =>
+                          const Text('새 페이지 데이터 정보를 불러오지 못했습니다'),
+                      firstPageProgressIndicatorBuilder: (context) =>
+                          const CircularProgressIndicator(),
+                      newPageProgressIndicatorBuilder: (context) =>
+                          const CircularProgressIndicator(),
+                    ),
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

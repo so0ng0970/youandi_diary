@@ -5,11 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tuple/tuple.dart';
 
 import 'package:youandi_diary/diary/component/diary_comment_list.dart';
-import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/user/component/profile_component.dart';
 
 import '../../common/const/color.dart';
 import '../../user/provider/profile_user_provider.dart';
+import '../provider/diary_comment_provider.dart';
 
 class DiaryCommentCard extends ConsumerStatefulWidget {
   String userId;
