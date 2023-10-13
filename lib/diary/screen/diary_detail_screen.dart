@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-
+import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
+import 'package:youandi_diary/diary/component/skeleton.dart';
 import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
-
 import '../../common/const/color.dart';
 import '../../user/layout/default_layout.dart';
 import '../component/calendar.dart';
@@ -47,9 +47,8 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     super.initState();
     inputFieldNode = FocusNode();
     pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
+      fetchPage(pageKey);
     });
-    super.initState();
   }
 
   @override
@@ -58,7 +57,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchPage(DocumentSnapshot? pageKey) async {
+  Future<void> fetchPage(DocumentSnapshot? pageKey) async {
     try {
       print('Fetching new page...');
       final newSnapshots = await ref
@@ -81,8 +80,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
         pagingController.appendLastPage(newItems);
         print('Fetched last page with ${newItems.length} items.');
       } else {
-        final nextPageKey = newSnapshots
-            .last; // Use the last DocumentSnapshot as the next page key.
+        final nextPageKey = newSnapshots.last;
         pagingController.appendPage(newItems, nextPageKey);
         print('Fetched new page with ${newItems.length} items.');
       }
@@ -94,9 +92,6 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final getPostList = ref.watch(getPostListProvider(
-      widget.diaryId,
-    ));
     final colors = [
       ONECOLOR,
       TWOCOLOR,
@@ -252,6 +247,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                                   diaryId: diaryData.diaryId.toString(),
                                   postId: diaryData.postId.toString(),
                                 );
+                            pagingController.refresh();
                             context.pop();
                           },
                           diaryData: diaryData,
@@ -294,10 +290,12 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                           const Text('데이터 정보를 불러오지 못했습니다 '),
                       newPageErrorIndicatorBuilder: (context) =>
                           const Text('새 페이지 데이터 정보를 불러오지 못했습니다'),
-                      firstPageProgressIndicatorBuilder: (context) =>
-                          const CircularProgressIndicator(),
-                      newPageProgressIndicatorBuilder: (context) =>
-                          const CircularProgressIndicator(),
+                      firstPageProgressIndicatorBuilder: (context) {
+                        return const SkeletonComponent();
+                      },
+                      newPageProgressIndicatorBuilder: (context) {
+                        return const SkeletonComponent();
+                      },
                     ),
                   ),
                 ),
@@ -309,6 +307,69 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     );
   }
 
+  final skeleton = SizedBox(
+    height: 500,
+    child: ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 5,
+      itemBuilder: (context, index) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: const BoxDecoration(color: Colors.white),
+          child: SkeletonItem(
+              child: Column(
+            children: [
+              Row(
+                children: [
+                  const SkeletonAvatar(
+                    style: SkeletonAvatarStyle(
+                        shape: BoxShape.circle, width: 50, height: 50),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: SkeletonParagraph(
+                      style: SkeletonParagraphStyle(
+                        lines: 3,
+                        spacing: 6,
+                        lineStyle: SkeletonLineStyle(
+                          randomLength: true,
+                          height: 10,
+                          borderRadius: BorderRadius.circular(8),
+                          minLength: MediaQuery.of(context).size.width / 6,
+                          maxLength: MediaQuery.of(context).size.width / 3,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(height: 12),
+              SkeletonParagraph(
+                style: SkeletonParagraphStyle(
+                    lines: 3,
+                    spacing: 6,
+                    lineStyle: SkeletonLineStyle(
+                      randomLength: true,
+                      height: 10,
+                      borderRadius: BorderRadius.circular(8),
+                      minLength: MediaQuery.of(context).size.width / 2,
+                    )),
+              ),
+              const SizedBox(height: 12),
+              SkeletonAvatar(
+                style: SkeletonAvatarStyle(
+                  width: double.infinity,
+                  minHeight: MediaQuery.of(context).size.height / 8,
+                  maxHeight: MediaQuery.of(context).size.height / 3,
+                ),
+              ),
+            ],
+          )),
+        ),
+      ),
+    ),
+  );
   bool isSameDate(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
@@ -345,6 +406,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                 this.selectedDay = selectedDate;
                 ref.watch(selectedDateStateProvider.notifier).state =
                     selectedDate;
+                pagingController.refresh();
               });
               context.pop();
             }

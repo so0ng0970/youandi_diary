@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,8 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import 'package:youandi_diary/diary/component/slide_image.dart';
 
+import 'package:youandi_diary/diary/component/slide_image.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/user/layout/default_layout.dart';
@@ -26,6 +26,7 @@ class DiaryPostScreen extends ConsumerStatefulWidget {
   String? postId;
   bool edit = false;
   bool? removeEdit = false;
+
   DiaryPostScreen({
     super.key,
     required this.selectedDay,
@@ -33,6 +34,7 @@ class DiaryPostScreen extends ConsumerStatefulWidget {
     required this.diaryId,
     this.postId,
     required this.edit,
+    this.removeEdit,
   });
 
   @override
@@ -503,7 +505,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     } else {
       ref.read(diaryDetailProvider.notifier).savePostToFirestore(newDiaryPost);
     }
-    print(widget.removeEdit);
+
     Navigator.pop(context);
   }
 
