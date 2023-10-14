@@ -10,6 +10,7 @@ class DiaryCommentModel {
   final String? diaryId;
   late String? postId;
   late String? commentId;
+  final String? diaryTittle;
   final String? content;
   late String? userName;
   late String? photoUrl;
@@ -21,6 +22,7 @@ class DiaryCommentModel {
     this.diaryId,
     this.postId,
     this.commentId,
+    this.diaryTittle,
     this.content,
     this.userName,
     this.photoUrl,

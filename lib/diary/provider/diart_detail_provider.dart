@@ -100,6 +100,24 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     return firebase.snapshots().map((snapshot) => snapshot.docs);
   }
 
+// 전체 글 불러오기
+  Stream<List<DocumentSnapshot>> getAllPosts(
+      DocumentSnapshot? pageKey, int pageSize, String diaryId) {
+    Query firebase = FirebaseFirestore.instance
+        .collectionGroup('post')
+        .where('userId', isEqualTo: currentUser?.uid)
+        .orderBy(
+          'dataTime',
+          descending: true,
+        )
+        .limit(pageSize);
+
+    if (pageKey != null) {
+      firebase = firebase.startAfterDocument(pageKey);
+    }
+    return firebase.snapshots().map((snapshot) => snapshot.docs);
+  }
+
   // 글 불러오기 GET
   Stream<List<DiaryPostModel>> getDiaryListFromFirestore(
       String diaryId, DateTime selectedDay) {

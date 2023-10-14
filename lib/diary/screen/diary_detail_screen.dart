@@ -54,6 +54,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   @override
   void dispose() {
     inputFieldNode.dispose();
+
     super.dispose();
   }
 

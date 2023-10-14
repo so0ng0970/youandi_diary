@@ -11,7 +11,7 @@ import 'package:youandi_diary/user/screens/sign_screen.dart';
 
 import '../../common/screen/splash_screen.dart';
 import '../screens/login_screen.dart';
-import '../screens/user_profile_screen.dart';
+import '../screens/root_tab_screen.dart';
 
 final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
   return AuthProvider(ref: ref);
@@ -40,9 +40,9 @@ class AuthProvider extends ChangeNotifier {
           builder: (context, state) => const SignScreen(),
         ),
         GoRoute(
-          path: '/profile',
-          name: UserProfileScreen.routeName,
-          builder: (context, state) => const UserProfileScreen(),
+          path: '/root',
+          name: RootTabScreen.routeName,
+          builder: (context, state) => const RootTabScreen(),
         ),
         GoRoute(
           path: '/',
@@ -60,8 +60,10 @@ class AuthProvider extends ChangeNotifier {
                   final title = (state.extra as Map<String, dynamic>?)?['title']
                       ?.toString();
                   final diaryId = state.pathParameters['rid'];
-                  
-
+                  final shouldRefresh =
+                      (state.extra as Map<String, dynamic>?)?['shouldRefresh']
+                              as bool? ??
+                          false;
                   return DiaryDetailScreen(
                     diaryId: diaryId.toString(),
                     title: title,

@@ -3,15 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:youandi_diary/common/const/color.dart';
-import 'package:youandi_diary/common/utils/data_utils.dart';
-import 'package:youandi_diary/diary/component/custom_video_player.dart';
-import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
-import 'package:youandi_diary/user/component/profile_component.dart';
-import 'package:youandi_diary/user/provider/user_provider.dart';
 
+import '../../common/const/color.dart';
+import '../../common/utils/data_utils.dart';
+import '../../user/component/profile_component.dart';
 import '../../user/provider/profile_user_provider.dart';
+import '../../user/provider/user_provider.dart';
+import '../layout/button_dialog_layout.dart';
+import 'custom_video_player.dart';
 import 'diary_comment_card.dart';
 
 class DiaryDetailCard extends ConsumerStatefulWidget {
@@ -32,6 +32,7 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
   late FocusNode inputFieldNode;
   final TextEditingController contentController;
   final VoidCallback sendOnpress;
+  bool? postListbool;
 
   DiaryDetailCard({
     Key? key,
@@ -43,6 +44,7 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
     this.userName,
     this.videoUrl,
     this.imgUrl,
+    this.postListbool,
     required this.color,
     required this.divColor,
     required this.deleteOnpress,
@@ -53,15 +55,17 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
     required this.sendOnpress,
     this.userId,
   }) : super(key: key);
-  factory DiaryDetailCard.fromModel(
-      {required DiaryPostModel diaryData,
-      required color,
-      required divColor,
-      required deleteOnpress,
-      required editOnPressed,
-      required sendOnpress,
-      required inputFieldNode,
-      required contentController}) {
+  factory DiaryDetailCard.fromModel({
+    required DiaryPostModel diaryData,
+    required color,
+    required divColor,
+    required deleteOnpress,
+    required editOnPressed,
+    required sendOnpress,
+    required inputFieldNode,
+    required contentController,
+    postListbool,
+  }) {
     return DiaryDetailCard(
       userId: diaryData.userId,
       color: color,
@@ -80,6 +84,7 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
       inputFieldNode: inputFieldNode,
       contentController: contentController,
       sendOnpress: sendOnpress,
+      postListbool: postListbool,
     );
   }
 
@@ -93,7 +98,9 @@ class _DiaryDetailCardState extends ConsumerState<DiaryDetailCard> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
       child: Container(
-        height: 450,
+        height: widget.postListbool == true
+            ? MediaQuery.of(context).size.height
+            : 450,
         decoration: BoxDecoration(
           color: widget.color,
           border: Border.all(

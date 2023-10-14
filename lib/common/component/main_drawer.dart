@@ -5,10 +5,10 @@ import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 import 'package:youandi_diary/user/provider/auth_provider.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
-import 'package:youandi_diary/user/screens/user_profile_screen.dart';
 
 import '../../user/provider/firebase_auth_provider.dart';
 import '../../user/provider/profile_user_provider.dart';
+import '../../user/screens/root_tab_screen.dart';
 
 class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
@@ -66,7 +66,7 @@ class MainDrawer extends ConsumerWidget {
                         left: 55,
                         child: IconButton(
                           onPressed: () {
-                            context.pushNamed(UserProfileScreen.routeName);
+                            context.pushNamed(RootTabScreen.routeName);
                           },
                           icon: const Icon(
                             Icons.settings,
@@ -93,7 +93,7 @@ class MainDrawer extends ConsumerWidget {
           ),
           textButton(
             () {
-              context.pushNamed(UserProfileScreen.routeName);
+              context.pushNamed(RootTabScreen.routeName);
             },
             const Text(
               '프로필 수정',

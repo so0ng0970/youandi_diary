@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:youandi_diary/diary/component/slide_image.dart';
@@ -55,6 +57,9 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
   String get userName => currentUser?.displayName ?? '';
   String? videoUrl;
   List<String>? imageUrl = [];
+  final pagingControllerProvider =
+      Provider<PagingController<DocumentSnapshot?, DiaryPostModel>>(
+          (ref) => PagingController(firstPageKey: null));
 
   @override
   void initState() {
@@ -113,7 +118,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                     ),
                   GestureDetector(
                     onTap: () {
-                      if (imageUrl!.isEmpty) {
+                      if (imageUrl!.isEmpty && !widget.edit) {
                         mediaDialog(context);
                       }
                     },
@@ -152,14 +157,18 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                   const SizedBox(
                                     height: 5,
                                   ),
-                                  const Text(
-                                    'add photo & video +',
-                                    style: TextStyle(
-                                      color: WHITE_COLOR,
-                                      fontSize: 20,
-                                    ),
-                                  ),
                                 ],
+                              ),
+                            if (selectedImages.isEmpty &&
+                                video == null &&
+                                videoUrl == null &&
+                                !widget.edit)
+                              const Text(
+                                'add photo & video +',
+                                style: TextStyle(
+                                  color: WHITE_COLOR,
+                                  fontSize: 20,
+                                ),
                               ),
                             if (selectedImages.isNotEmpty)
                               Expanded(
@@ -296,7 +305,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                       ),
                     ),
                     onPressed: () async {
-                      uploadAndSavePost();
+                      await uploadAndSavePost();
                     },
                     child: provider.isLoading
                         ? const CircularProgressIndicator()
@@ -456,6 +465,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     }
 
     DiaryPostModel newDiaryPost = DiaryPostModel(
+      diaryTittle: widget.diaryTitle,
       title: postTitle,
       content: content,
       videoUrl: videoUrl?.toString(),
@@ -463,18 +473,19 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
       diaryId: widget.diaryId,
       dataTime: widget.selectedDay,
     );
-    if (widget.edit == true && widget.removeEdit == true) {
+    if (widget.edit == true || widget.removeEdit == true) {
       String? updatedVideoUrl = newDiaryPost.videoUrl;
 
-      ref.read(diaryDetailProvider.notifier).updatePostInFirestore(
+      await ref.read(diaryDetailProvider.notifier).updatePostInFirestore(
           content: content,
           diaryId: widget.diaryId,
           postId: widget.postId.toString(),
           videoUrl: updatedVideoUrl,
+          imgUrl: imageUrl,
           title: postTitle);
-    } else if (widget.edit == true && widget.removeEdit == false) {
+    } else if (widget.edit == true || widget.removeEdit == false) {
       List<DiaryPostModel> existingPosts = await ref
-          .read(diaryDetailProvider.notifier)
+          .watch(diaryDetailProvider.notifier)
           .getDiaryListFromFirestore(
               widget.diaryId.toString(), widget.selectedDay)
           .first;
@@ -494,7 +505,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
           ? newDiaryPost.imgUrl
           : existingDiaryPost?.imgUrl;
 
-      ref.read(diaryDetailProvider.notifier).updatePostInFirestore(
+      await ref.watch(diaryDetailProvider.notifier).updatePostInFirestore(
             content: content,
             diaryId: widget.diaryId,
             postId: widget.postId.toString(),
@@ -503,10 +514,12 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
             videoUrl: updatedVideoUrl,
           );
     } else {
-      ref.read(diaryDetailProvider.notifier).savePostToFirestore(newDiaryPost);
+      await ref
+          .watch(diaryDetailProvider.notifier)
+          .savePostToFirestore(newDiaryPost);
+      setState(() {});
     }
-
-    Navigator.pop(context);
+    context.pop();
   }
 
   void onNewVideoPressed() async {

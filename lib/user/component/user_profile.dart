@@ -11,15 +11,15 @@ import 'package:youandi_diary/user/provider/profile_user_provider.dart';
 
 import '../../common/const/color.dart';
 
-class UserProfileScreen extends ConsumerStatefulWidget {
+class UserProfile extends ConsumerStatefulWidget {
   static String get routeName => '/profile';
-  const UserProfileScreen({Key? key}) : super(key: key);
+  const UserProfile({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<UserProfileScreen> createState() => _UserProfileScreenState();
+  ConsumerState<UserProfile> createState() => _UserProfileState();
 }
 
-class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
+class _UserProfileState extends ConsumerState<UserProfile> {
   bool edit = false;
   bool imageEdit = false;
   bool basicImage = false;
@@ -27,7 +27,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   XFile? selectImage;
   TextEditingController userNameController = TextEditingController();
   final firebaseStorage = FirebaseStorage.instance;
-
+  int index = 0;
   Positioned positioned(
       {required VoidCallback onPressed, required IconData icons}) {
     return Positioned(
@@ -80,159 +80,150 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   );
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: PRFBG,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: ref.watch(userGetProvider).when(
-            data: (data) {
-              return SafeArea(
-                child: Center(
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          if (edit)
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  basicImage = false;
-                                  imageEdit = false;
-                                  selectImage = null;
-                                  edit = false;
-                                });
-                              },
-                              child: const Text(
-                                '취소',
-                                style: TextStyle(
-                                  color: REMOVE_COLOR,
-                                  fontSize: 20,
-                                ),
+    return ref.watch(userGetProvider).when(
+          data: (data) {
+            return SafeArea(
+              child: Center(
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        if (edit)
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                basicImage = false;
+                                imageEdit = false;
+                                selectImage = null;
+                                edit = false;
+                              });
+                            },
+                            child: const Text(
+                              '취소',
+                              style: TextStyle(
+                                color: REMOVE_COLOR,
+                                fontSize: 20,
                               ),
                             ),
-                          const Spacer(),
-                          TextButton(
-                            onPressed: () async {
-                              if (edit) {
-                                await performUpdate(data);
-                              } else {
-                                setState(() {
-                                  edit = true;
-                                  imageEdit = true;
-                                  userNameController.text = data!.userName;
-                                });
-                              }
+                          ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () async {
+                            if (edit) {
+                              await performUpdate(data);
+                            } else {
+                              setState(() {
+                                edit = true;
+                                imageEdit = true;
+                                userNameController.text = data!.userName;
+                              });
+                            }
+                          },
+                          child: edit
+                              ? const Text(
+                                  '수정완료',
+                                  style: TextStyle(
+                                    color: DIARY_DETAIL_COLOR,
+                                    fontSize: 20,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.settings,
+                                  color: EDITBUTTON,
+                                  size: 30,
+                                ),
+                        ),
+                      ],
+                    ),
+                    Stack(
+                      children: [
+                        clipOval(imgUrl: data!.photoUrl),
+                        if (edit && !basicImage)
+                          GestureDetector(
+                            onTap: () {
+                              mediaDialog(context);
                             },
-                            child: edit
-                                ? const Text(
-                                    '수정완료',
-                                    style: TextStyle(
-                                      color: DIARY_DETAIL_COLOR,
-                                      fontSize: 20,
+                            child: selectImage != null
+                                ? ClipOval(
+                                    child: Image.file(
+                                      File(
+                                        selectImage!.path,
+                                      ),
+                                      width: 200,
+                                      height: 200,
+                                      fit: BoxFit.cover,
                                     ),
                                   )
-                                : const Icon(
-                                    Icons.settings,
-                                    color: EDITBUTTON,
-                                    size: 30,
+                                : clipOval(
+                                    imgUrl: data.photoUrl,
                                   ),
                           ),
-                        ],
-                      ),
-                      Stack(
-                        children: [
-                          clipOval(imgUrl: data!.photoUrl),
-                          if (edit && !basicImage)
-                            GestureDetector(
-                              onTap: () {
-                                mediaDialog(context);
-                              },
-                              child: selectImage != null
-                                  ? ClipOval(
-                                      child: Image.file(
-                                        File(
-                                          selectImage!.path,
-                                        ),
-                                        width: 200,
-                                        height: 200,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  : clipOval(
-                                      imgUrl: data.photoUrl,
-                                    ),
-                            ),
-                          if (basicImage)
-                            GestureDetector(
-                              onTap: () {
-                                mediaDialog(context);
-                              },
-                              child: ClipOval(
-                                child: Image.asset(
-                                  'assets/image/diary/profile.jpg',
-                                  width: 200,
-                                  height: 200,
-                                  fit: BoxFit.cover,
-                                ),
+                        if (basicImage)
+                          GestureDetector(
+                            onTap: () {
+                              mediaDialog(context);
+                            },
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/image/diary/profile.jpg',
+                                width: 200,
+                                height: 200,
+                                fit: BoxFit.cover,
                               ),
                             ),
-                          if (imageEdit)
-                            const Positioned(
-                              bottom: 10,
-                              right: 20,
-                              child: Icon(
-                                Icons.photo_camera_back_rounded,
-                                color: CAMERABUTTON,
-                                size: 35,
-                              ),
-                            )
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      if (!edit)
-                        Text(
-                          data.userName,
-                          style: const TextStyle(
-                            fontSize: 20,
                           ),
-                        ),
-                      if (edit)
-                        TextFormField(
-                          controller: userNameController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            focusedBorder: inputDecoration,
-                            enabledBorder: inputDecoration,
-                            contentPadding: const EdgeInsets.all(5.0),
-                          ),
-                        ),
-                      const SizedBox(
-                        height: 5,
-                      ),
+                        if (imageEdit)
+                          const Positioned(
+                            bottom: 10,
+                            right: 20,
+                            child: Icon(
+                              Icons.photo_camera_back_rounded,
+                              color: CAMERABUTTON,
+                              size: 35,
+                            ),
+                          )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    if (!edit)
                       Text(
-                        data.email.toString(),
-                      )
-                    ],
-                  ),
+                        data.userName,
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    if (edit)
+                      TextFormField(
+                        controller: userNameController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          focusedBorder: inputDecoration,
+                          enabledBorder: inputDecoration,
+                          contentPadding: const EdgeInsets.all(5.0),
+                        ),
+                      ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      data.email.toString(),
+                    )
+                  ],
                 ),
-              );
-            },
-            loading: () => const Center(
-              child: CircularProgressIndicator(
-                color: Colors.amber,
               ),
-            ),
-            error: (error, stackTrace) => const Text(
-              '데이터를 불러오지 못했습니다',
+            );
+          },
+          loading: () => const Center(
+            child: CircularProgressIndicator(
+              color: Colors.amber,
             ),
           ),
-    );
+          error: (error, stackTrace) => const Text(
+            '데이터를 불러오지 못했습니다',
+          ),
+        );
   }
 
   final picker = ImagePicker();
