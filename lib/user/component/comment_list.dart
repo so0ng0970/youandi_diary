@@ -83,6 +83,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                 },
                 icon: const Icon(
                   Icons.delete_outline,
+                  color: DELETE_BUTTON,
                 ),
               ),
             if (deleted)
@@ -93,17 +94,22 @@ class _CommentListState extends ConsumerState<CommentList> {
                         checkboxStates.keys.toList();
                     for (String commentId in selectedCommentIds) {
                       String? postId = postIds[commentId];
-                      if (postId != null) {
+                      String? diaryId = diaryIds[commentId];
+                      if (postId != null && diaryId != null) {
                         ref
                             .watch(diaryCommentProvider.notifier)
                             .deleteSelectedCommentsFromFirestore(
                           commentIds: [commentId],
-                          diaryId: diaryId.toString(),
+                          diaryId: diaryId,
                           postId: postId,
                         );
                       }
-                      deleted = false;
                     }
+                    checkboxStates.clear();
+                    diaryIds.clear();
+                    postIds.clear();
+                    pagingController.refresh();
+                    deleted = false;
                   });
                 },
                 icon: const Icon(
@@ -121,13 +127,35 @@ class _CommentListState extends ConsumerState<CommentList> {
                     return Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          setState(() {
+                            if (deleted) {
+                              checkboxStates[data.commentId.toString()] =
+                                  !(checkboxStates[data.commentId.toString()] ??
+                                      false);
+
+                              if (checkboxStates[data.commentId.toString()]!) {
+                                diaryIds[data.commentId.toString()] =
+                                    data.diaryId.toString();
+                                postIds[data.commentId.toString()] =
+                                    data.postId.toString();
+                              } else {
+                                diaryIds.remove(
+                                  data.diaryId.toString(),
+                                );
+                                postIds.remove(
+                                  data.postId.toString(),
+                                );
+                              }
+                            }
+                          });
+                        },
                         child: Container(
-                          height: 100,
+                          height: deleted ? 85 : 60,
                           decoration: const BoxDecoration(
-                            color: ADD_BG_COLOR,
+                            color: CMLIST,
                             borderRadius: BorderRadius.all(
-                              Radius.circular(8),
+                              Radius.circular(4),
                             ),
                           ),
                           child: Padding(
@@ -163,10 +191,15 @@ class _CommentListState extends ConsumerState<CommentList> {
                                                   data.commentId.toString()]!) {
                                                 postIds[data.commentId
                                                         .toString()] =
+                                                    data.postId.toString();
+                                                diaryIds[data.commentId
+                                                        .toString()] =
                                                     data.diaryId.toString();
                                               } else {
                                                 postIds.remove(
-                                                    data.commentId.toString());
+                                                    data.postId.toString());
+                                                diaryIds.remove(
+                                                    data.diaryId.toString());
                                               }
                                             });
                                           })

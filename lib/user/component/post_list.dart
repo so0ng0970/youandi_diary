@@ -101,6 +101,7 @@ class _PostListState extends ConsumerState<PostList> {
                 },
                 icon: const Icon(
                   Icons.delete_outline,
+                  color: DELETE_BUTTON,
                 ),
               ),
             if (deleted)
@@ -120,14 +121,14 @@ class _PostListState extends ConsumerState<PostList> {
                         );
                       }
                     }
-                    checkboxStates.clear(); // 체크상태 초기화
-                    diaryIds.clear(); // 다이어리
+                    checkboxStates.clear();
+                    diaryIds.clear();
                     pagingController.refresh();
                     deleted = false;
                   });
                 },
-                icon: Icon(
-                  !deleted ? Icons.delete_outline : Icons.check,
+                icon: const Icon(
+                  Icons.check,
                 ),
               ),
             SizedBox(
@@ -253,7 +254,7 @@ class _PostListState extends ConsumerState<PostList> {
                           }
                         },
                         child: Container(
-                          height: 100,
+                          height: deleted ? 120 : 100,
                           decoration: const BoxDecoration(
                             color: ADD_BG_COLOR,
                             borderRadius: BorderRadius.all(

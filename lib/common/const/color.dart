@@ -54,3 +54,5 @@ const PRFCHECK = Color(0xFFEB8B98);
 const POSTLIST = Color(0xFF00A696);
 const COMMENTLIST = Color(0xFFF9858B);
 const LEAVEBT = Color(0xFF7CACD8);
+
+const CMLIST = Color(0xFFFFECCC);

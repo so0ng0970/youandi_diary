@@ -85,4 +85,6 @@ class DiaryCard extends StatelessWidget {
       ),
     );
   }
+
+ 
 }

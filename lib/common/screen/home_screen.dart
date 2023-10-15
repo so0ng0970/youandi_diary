@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:youandi_diary/diary/component/diary_card.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/const/color.dart';
@@ -107,8 +108,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             itemCount: diaryList.length,
                             itemBuilder: (context, index) {
                               final diary = diaryList[index];
-                              return DiaryCard.fromModel(
-                                diaryList: diary,
+
+                              return Slidable(
+                                key: const ValueKey(0),
+                                endActionPane: ActionPane(
+                                    motion: const ScrollMotion(),
+                                    children: [
+                                      SlidableAction(
+                                        onPressed: (d) {},
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        icon: Icons.delete,
+                                        label: '삭제',
+                                      ),
+                                    ]),
+                                child: DiaryCard.fromModel(
+                                  diaryList: diary,
+                                ),
                               );
                             },
                           ),
@@ -121,6 +137,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget SlideLeftBackground() {
+    return Container(
+      color: Colors.red,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: const <Widget>[
+            Icon(
+              Icons.delete,
+              color: Colors.white,
+            ),
+            Text(
+              " 삭제",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.right,
+            ),
+            SizedBox(
+              width: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
