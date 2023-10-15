@@ -234,14 +234,14 @@ class _DiaryDetailCardState extends ConsumerState<DiaryDetailCard> {
               ),
             ),
             DiaryCommentCard(
-              diaryId: widget.diaryId.toString(),
-              userId: widget.userId.toString(),
-              postId: widget.postId,
-              photoUrl: widget.photoUrl.toString(),
-              divColor: widget.divColor,
-              sendOnpress: widget.sendOnpress,
-              contentController: widget.contentController,
-            )
+                diaryId: widget.diaryId.toString(),
+                userId: widget.userId.toString(),
+                postId: widget.postId,
+                photoUrl: widget.photoUrl.toString(),
+                divColor: widget.divColor,
+                sendOnpress: widget.sendOnpress,
+                contentController: widget.contentController,
+                postListbool: widget.postListbool)
           ],
         ),
       ),

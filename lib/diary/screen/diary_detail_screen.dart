@@ -54,7 +54,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   @override
   void dispose() {
     inputFieldNode.dispose();
-
+    pagingController.dispose();
     super.dispose();
   }
 
@@ -109,6 +109,8 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     ];
 
     return DefaultLayout(
+      drawerBool: false,
+      backBool: false,
       title: widget.title.toString(),
       color: DIARY_DETAIL_COLOR,
       popOnPressed: () {
@@ -177,13 +179,17 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                     backgroundColor: MaterialStateProperty.all(WRITE_BUTTON),
                   ),
                   onPressed: () {
-                    context.go(
-                      '/detail/${widget.diaryId}/${DiaryPostScreen.routeName}',
-                      extra: {
-                        'diaryId': widget.diaryId,
-                        'selectedDay': selectedDay,
-                        'title': widget.title,
-                      },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DiaryPostScreen(
+                          selectedDay: selectedDay,
+                          diaryTitle: widget.title.toString(),
+                          diaryId: widget.diaryId,
+                          edit: false,
+                          pagingController: pagingController,
+                        ),
+                      ),
                     );
                   },
                   child: const Text(
@@ -237,6 +243,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                                   edit: true,
                                   diaryTitle: widget.title!,
                                   selectedDay: selectedDay,
+                                  pagingController: pagingController,
                                 ),
                               ),
                             );
@@ -260,11 +267,12 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                             setState(() {
                               String content = contentController.text;
                               DiaryCommentModel commentPost = DiaryCommentModel(
-                                diaryId: widget.diaryId,
-                                dataTime: focusedDay,
-                                postId: diaryData.postId,
-                                content: content,
-                              );
+                                  diaryId: widget.diaryId,
+                                  dataTime: focusedDay,
+                                  postId: diaryData.postId,
+                                  content: content,
+                                  postTittle: diaryData.title,
+                                  diaryTittle: widget.title);
 
                               ref
                                   .watch(diaryCommentProvider.notifier)

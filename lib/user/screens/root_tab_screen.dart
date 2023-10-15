@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:youandi_diary/common/const/color.dart';
-import 'package:youandi_diary/user/component/comment_list.dart';
 import 'package:youandi_diary/user/component/post_list.dart';
 import 'package:youandi_diary/user/component/user_profile.dart';
+
+import '../component/comment_list.dart';
 
 class RootTabScreen extends StatefulWidget {
   static String get routeName => '/root';

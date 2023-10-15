@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/diary/component/diary_card.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
-import 'package:youandi_diary/common/component/main_drawer.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
 
 import '../../user/component/notification.dart';
+import '../../user/layout/default_layout.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static String get routeName => 'home';
@@ -34,10 +34,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final diaryList = ref.watch(diaryListProvider).diaryList;
-    return Scaffold(
-      backgroundColor: BGUNDER_COLOR,
-      drawer: const MainDrawer(),
-      body: CustomScrollView(
+    return DefaultLayout(
+      color: BGUNDER_COLOR,
+      homeScreen: true,
+      backBool: false,
+      child: CustomScrollView(
         slivers: [
           SliverAppBar(
             shape: const RoundedRectangleBorder(
@@ -51,8 +52,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             backgroundColor: BACKGROUND_COLOR,
-            expandedHeight: 250,
+            expandedHeight: 220,
             centerTitle: true,
+            automaticallyImplyLeading: false,
             flexibleSpace: FlexibleSpaceBar(
               background: Image.asset(
                 'assets/image/cloud.gif',
@@ -74,9 +76,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             FlutterLocalNotification.showNotification('d', 'd'),
                         child: const Text("알림 보내기"),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
                       SizedBox(
                         width: 150,
                         child: ElevatedButton(
@@ -89,14 +88,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
                       SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: Padding(
                           padding: const EdgeInsets.only(
-                            bottom: 16.0,
+                            bottom: 20.0,
                           ),
                           child: GridView.builder(
                             shrinkWrap: true,

@@ -12,16 +12,21 @@ class DefaultLayout extends StatelessWidget {
   final Widget? icon;
   final VoidCallback? onPressed;
   final VoidCallback? popOnPressed;
-
-  const DefaultLayout({
-    Key? key,
-    this.color,
-    required this.child,
-    this.title,
-    this.icon,
-    this.onPressed,
-    this.popOnPressed,
-  }) : super(key: key);
+  bool? drawerBool;
+  bool? homeScreen;
+  bool? backBool;
+  DefaultLayout(
+      {Key? key,
+      this.color,
+      required this.child,
+      this.title,
+      this.icon,
+      this.onPressed,
+      this.popOnPressed,
+      this.drawerBool = true,
+      this.homeScreen = false,
+      this.backBool = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,18 +49,19 @@ class DefaultLayout extends StatelessWidget {
               color: WHITE_COLOR,
             ),
           ),
-          if (icon == null)
+          if (icon == null && backBool == true)
             IconButton(
               onPressed: popOnPressed,
               icon: const Icon(Icons.arrow_back),
             )
         ],
       ),
-      drawer: const MainDrawer(),
+
+      drawer: drawerBool == true ? const MainDrawer() : null,
 
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
+        padding: EdgeInsets.symmetric(
+          horizontal: homeScreen == true ? 0 : 16.0,
         ),
         child: child,
       ),

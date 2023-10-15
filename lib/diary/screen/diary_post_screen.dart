@@ -28,6 +28,7 @@ class DiaryPostScreen extends ConsumerStatefulWidget {
   String? postId;
   bool edit = false;
   bool? removeEdit = false;
+  final PagingController<DocumentSnapshot?, DiaryPostModel>? pagingController;
 
   DiaryPostScreen({
     super.key,
@@ -37,6 +38,7 @@ class DiaryPostScreen extends ConsumerStatefulWidget {
     this.postId,
     required this.edit,
     this.removeEdit,
+    this.pagingController,
   });
 
   @override
@@ -57,13 +59,11 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
   String get userName => currentUser?.displayName ?? '';
   String? videoUrl;
   List<String>? imageUrl = [];
-  final pagingControllerProvider =
-      Provider<PagingController<DocumentSnapshot?, DiaryPostModel>>(
-          (ref) => PagingController(firstPageKey: null));
-
+  PagingController<DocumentSnapshot?, DiaryPostModel>? _pagingController;
   @override
   void initState() {
     super.initState();
+    _pagingController = widget.pagingController;
     initializePost();
   }
 
@@ -519,6 +519,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
           .savePostToFirestore(newDiaryPost);
       setState(() {});
     }
+    _pagingController?.refresh();
     context.pop();
   }
 

@@ -118,6 +118,32 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     return firebase.snapshots().map((snapshot) => snapshot.docs);
   }
 
+// 선택된 포스트 삭제
+  Future<void> deleteSelectedPostsFromFirestore({
+    required List<String> postIds,
+    required String diaryId,
+  }) async {
+    try {
+      WriteBatch batch = _firestore.batch();
+
+      for (String postId in postIds) {
+        DocumentReference postRef = _firestore
+            .collection('user')
+            .doc(currentUser?.uid)
+            .collection('diary')
+            .doc(diaryId)
+            .collection('post')
+            .doc(postId);
+
+        batch.delete(postRef);
+      }
+
+      await batch.commit();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   // 글 불러오기 GET
   Stream<List<DiaryPostModel>> getDiaryListFromFirestore(
       String diaryId, DateTime selectedDay) {

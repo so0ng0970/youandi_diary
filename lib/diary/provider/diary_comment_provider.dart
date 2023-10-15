@@ -148,4 +148,51 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
       print(e.toString());
     }
   }
+
+  // 전체 댓글 불러오기
+  Stream<List<DocumentSnapshot>> getAllComments(
+      DocumentSnapshot? pageKey, int pageSize, String diaryId) {
+    Query firebase = FirebaseFirestore.instance
+        .collectionGroup('comment')
+        .where('userId', isEqualTo: currentUser?.uid)
+        .orderBy(
+          'dataTime',
+          descending: true,
+        )
+        .limit(pageSize);
+
+    if (pageKey != null) {
+      firebase = firebase.startAfterDocument(pageKey);
+    }
+    return firebase.snapshots().map((snapshot) => snapshot.docs);
+  }
+
+// 선택된 댓글 삭제
+  Future<void> deleteSelectedCommentsFromFirestore({
+    required List<String> commentIds,
+    required String diaryId,
+    required String postId,
+  }) async {
+    try {
+      WriteBatch batch = _firestore.batch();
+
+      for (String commentId in commentIds) {
+        DocumentReference postRef = _firestore
+            .collection('user')
+            .doc(currentUser?.uid)
+            .collection('diary')
+            .doc(diaryId)
+            .collection('post')
+            .doc(postId)
+            .collection('comment')
+            .doc(commentId);
+
+        batch.delete(postRef);
+      }
+
+      await batch.commit();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 }

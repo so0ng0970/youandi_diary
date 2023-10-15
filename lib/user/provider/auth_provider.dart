@@ -60,10 +60,7 @@ class AuthProvider extends ChangeNotifier {
                   final title = (state.extra as Map<String, dynamic>?)?['title']
                       ?.toString();
                   final diaryId = state.pathParameters['rid'];
-                  final shouldRefresh =
-                      (state.extra as Map<String, dynamic>?)?['shouldRefresh']
-                              as bool? ??
-                          false;
+
                   return DiaryDetailScreen(
                     diaryId: diaryId.toString(),
                     title: title,

@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:skeletons/skeletons.dart';
-import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
 
 import '../../common/const/color.dart';
+import '../../common/utils/data_utils.dart';
 import '../../diary/model/diary_comment_model.dart';
 import '../../diary/model/diary_post_model.dart';
 import '../../diary/provider/diart_detail_provider.dart';
@@ -24,14 +24,16 @@ class PostList extends ConsumerStatefulWidget {
 class _PostListState extends ConsumerState<PostList> {
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
-
   late FocusNode inputFieldNode;
   final TextEditingController contentController = TextEditingController();
-
   static const pageSize = 12;
   final PagingController<DocumentSnapshot?, DiaryPostModel> pagingController =
       PagingController(firstPageKey: null);
   String? diaryId;
+  bool deleted = false;
+  Map<String, bool> checkboxStates = {};
+  Map<String, String> diaryIds = {};
+
   @override
   void initState() {
     super.initState();
@@ -82,170 +84,282 @@ class _PostListState extends ConsumerState<PostList> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => pagingController.refresh(),
-      ),
-      child: PagedListView<DocumentSnapshot?, DiaryPostModel>(
-        pagingController: pagingController,
-        builderDelegate: PagedChildBuilderDelegate(
-          itemBuilder: ((context, item, index) {
-            final data = pagingController.itemList![index];
-            diaryId = pagingController.itemList![index].diaryId;
-            return Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: GestureDetector(
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return Scaffold(
-                          backgroundColor: TWOCOLOR,
-                          extendBodyBehindAppBar: true,
-                          // 앱바 투명하게 가능
-                          appBar: AppBar(
-                            centerTitle: true,
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            title: Text(
-                              data.diaryTittle ?? '',
-                            ),
-                          ),
-                          body: SafeArea(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 15),
-                              child: DiaryDetailCard.fromModel(
-                                postListbool: true,
-                                editOnPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DiaryPostScreen(
-                                        postId: data.postId,
-                                        diaryId: data.diaryId.toString(),
-                                        edit: true,
-                                        diaryTitle: data.title!,
-                                        selectedDay: selectedDay,
+    return SafeArea(
+      child: RefreshIndicator(
+        onRefresh: () => Future.sync(
+          () => pagingController.refresh(),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (!deleted)
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    deleted = true;
+                  });
+                },
+                icon: const Icon(
+                  Icons.delete_outline,
+                ),
+              ),
+            if (deleted)
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    List<String> selectedPostIds = checkboxStates.keys.toList();
+                    for (String postId in selectedPostIds) {
+                      String? diaryId = diaryIds[postId];
+                      print(diaryIds);
+                      if (diaryId != null) {
+                        ref
+                            .watch(diaryDetailProvider.notifier)
+                            .deleteSelectedPostsFromFirestore(
+                          postIds: [postId],
+                          diaryId: diaryId,
+                        );
+                      }
+                    }
+                    checkboxStates.clear(); // 체크상태 초기화
+                    diaryIds.clear(); // 다이어리
+                    pagingController.refresh();
+                    deleted = false;
+                  });
+                },
+                icon: Icon(
+                  !deleted ? Icons.delete_outline : Icons.check,
+                ),
+              ),
+            SizedBox(
+              height: 490,
+              child: PagedListView<DocumentSnapshot?, DiaryPostModel>(
+                pagingController: pagingController,
+                builderDelegate: PagedChildBuilderDelegate(
+                  itemBuilder: ((context, item, index) {
+                    final data = pagingController.itemList![index];
+                    diaryId = pagingController.itemList![index].diaryId;
+                    return Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (!deleted) {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return Scaffold(
+                                    backgroundColor: TWOCOLOR,
+                                    extendBodyBehindAppBar: true,
+                                    // 앱바 투명하게 가능
+                                    appBar: AppBar(
+                                      centerTitle: true,
+                                      backgroundColor: Colors.transparent,
+                                      elevation: 0,
+                                      title: Text(
+                                        data.diaryTittle ?? '',
+                                      ),
+                                    ),
+                                    body: SafeArea(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8, 0, 8, 15),
+                                        child: DiaryDetailCard.fromModel(
+                                          postListbool: true,
+                                          editOnPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    DiaryPostScreen(
+                                                  postId: data.postId,
+                                                  diaryId:
+                                                      data.diaryId.toString(),
+                                                  edit: true,
+                                                  diaryTitle: data.title!,
+                                                  selectedDay: selectedDay,
+                                                  pagingController:
+                                                      pagingController,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          deleteOnpress: () {
+                                            setState(() {
+                                              ref
+                                                  .watch(diaryDetailProvider
+                                                      .notifier)
+                                                  .deletePostFromFirestore(
+                                                    diaryId:
+                                                        data.diaryId.toString(),
+                                                    postId:
+                                                        data.postId.toString(),
+                                                  );
+                                              pagingController.refresh();
+                                              context.pop();
+                                            });
+                                            context.pop();
+                                          },
+                                          diaryData: data,
+                                          color: ONECOLOR,
+                                          divColor: DIVONE,
+                                          inputFieldNode: inputFieldNode,
+                                          contentController: contentController,
+                                          sendOnpress: () {
+                                            setState(() {
+                                              String content =
+                                                  contentController.text;
+                                              DiaryCommentModel commentPost =
+                                                  DiaryCommentModel(
+                                                diaryId: data.diaryId,
+                                                dataTime: focusedDay,
+                                                postId: data.postId,
+                                                content: content,
+                                                postTittle: data.title,
+                                                diaryTittle: data.diaryTittle,
+                                              );
+
+                                              ref
+                                                  .watch(diaryCommentProvider
+                                                      .notifier)
+                                                  .saveCommentToFirestore(
+                                                    diaryId:
+                                                        data.diaryId.toString(),
+                                                    model: commentPost,
+                                                    postId: commentPost.postId
+                                                        .toString(),
+                                                  );
+                                              contentController.clear();
+                                            });
+                                          },
+                                        ),
                                       ),
                                     ),
                                   );
                                 },
-                                deleteOnpress: () {
-                                  ref
-                                      .watch(diaryDetailProvider.notifier)
-                                      .deletePostFromFirestore(
-                                        diaryId: data.diaryId.toString(),
-                                        postId: data.postId.toString(),
-                                      );
-                                  pagingController.refresh();
-                                  context.pop();
-                                },
-                                diaryData: data,
-                                color: ONECOLOR,
-                                divColor: DIVONE,
-                                inputFieldNode: inputFieldNode,
-                                contentController: contentController,
-                                sendOnpress: () {
-                                  setState(() {
-                                    String content = contentController.text;
-                                    DiaryCommentModel commentPost =
-                                        DiaryCommentModel(
-                                      diaryId: data.diaryId,
-                                      dataTime: focusedDay,
-                                      postId: data.postId,
-                                      content: content,
-                                    );
-
-                                    ref
-                                        .watch(diaryCommentProvider.notifier)
-                                        .saveCommentToFirestore(
-                                          diaryId: data.diaryId.toString(),
-                                          model: commentPost,
-                                          postId: commentPost.postId.toString(),
-                                        );
-                                    contentController.clear();
-                                  });
-                                },
                               ),
+                            );
+                          } else {
+                            setState(() {
+                              checkboxStates[data.postId.toString()] =
+                                  !(checkboxStates[data.postId.toString()] ??
+                                      false);
+                              if (checkboxStates[data.postId.toString()]!) {
+                                diaryIds[data.postId.toString()] =
+                                    data.diaryId.toString();
+                              } else {
+                                diaryIds.remove(data.postId.toString());
+                              }
+                            });
+                          }
+                        },
+                        child: Container(
+                          height: 100,
+                          decoration: const BoxDecoration(
+                            color: ADD_BG_COLOR,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(8),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  );
-                },
-                child: Container(
-                  height: 100,
-                  decoration: const BoxDecoration(
-                    color: ADD_BG_COLOR,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(8),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 12,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              '${data.diaryTittle.toString()}    ',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            Text(
-                              data.title.toString(),
-                              style: const TextStyle(
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            if (data.imgUrl!.isNotEmpty)
-                              Image.network(
-                                data.imgUrl![0],
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                              ),
-                            Column(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  data.content.toString(),
+                                Row(
+                                  children: [
+                                    Text(
+                                      '${data.diaryTittle.toString()}    ',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    Text(
+                                      data.title.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 17,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    if (deleted)
+                                      Checkbox(
+                                          value: checkboxStates[data.postId] ??
+                                              false,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              checkboxStates[data.postId
+                                                  .toString()] = value!;
+                                              if (checkboxStates[
+                                                  data.postId.toString()]!) {
+                                                diaryIds[data.postId
+                                                        .toString()] =
+                                                    data.diaryId.toString();
+                                              } else {
+                                                diaryIds.remove(
+                                                    data.postId.toString());
+                                              }
+                                            });
+                                          })
+                                  ],
                                 ),
+                                Row(
+                                  children: [
+                                    if (data.imgUrl!.isNotEmpty)
+                                      Image.network(
+                                        data.imgUrl![0],
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    Column(
+                                      children: [
+                                        Text(
+                                          data.content.toString(),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                const Spacer(),
+                                Center(
+                                  child: Text(
+                                    DataUtils.getTimeFromDateTime(
+                                      dateTime: data.dataTime,
+                                    ),
+                                  ),
+                                )
                               ],
-                            )
-                          ],
-                        ),
-                        const Spacer(),
-                        Center(
-                          child: Text(
-                            DataUtils.getTimeFromDateTime(
-                              dateTime: data.dataTime,
                             ),
                           ),
-                        )
-                      ],
+                        ),
+                      ),
+                    );
+                  }),
+                  noItemsFoundIndicatorBuilder: (context) => const Center(
+                    child: Text(
+                      '글을 작성해 주세요',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
+                  firstPageErrorIndicatorBuilder: (context) => const Center(
+                    child: Text(
+                      '글이 없습니다',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  newPageErrorIndicatorBuilder: (context) =>
+                      const Text('새 페이지 데이터 정보를 불러오지 못했습니다'),
+                  firstPageProgressIndicatorBuilder: (context) => listView,
+                  newPageProgressIndicatorBuilder: (context) => listView,
                 ),
               ),
-            );
-          }),
-          firstPageErrorIndicatorBuilder: (context) =>
-              const Text('데이터 정보를 불러오지 못했습니다 '),
-          newPageErrorIndicatorBuilder: (context) =>
-              const Text('새 페이지 데이터 정보를 불러오지 못했습니다'),
-          firstPageProgressIndicatorBuilder: (context) => listView,
-          newPageProgressIndicatorBuilder: (context) => listView,
+            ),
+          ],
         ),
       ),
     );

@@ -20,6 +20,8 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
   VoidCallback sendOnpress;
   String? comment;
   String? postId;
+  bool? postListbool;
+
   DiaryCommentCard({
     Key? key,
     required this.userId,
@@ -30,6 +32,7 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
     required this.sendOnpress,
     this.comment,
     this.postId,
+    this.postListbool,
   }) : super(key: key);
 
   @override
@@ -140,11 +143,14 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                   Form(
                     child: SizedBox(
                       height: 25,
-                      width: MediaQuery.of(context).size.width - 173,
+                      width: widget.postListbool == true
+                          ? MediaQuery.of(context).size.width - 130
+                          : MediaQuery.of(context).size.width - 173,
                       child: textFormField(widget.contentController),
                     ),
                   ),
-                  if (widget.contentController.text.trim().isNotEmpty)
+                  if (widget.contentController.text.trim().isNotEmpty ||
+                      widget.postListbool == true)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       child: GestureDetector(
