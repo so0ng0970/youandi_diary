@@ -9,6 +9,7 @@ import 'package:youandi_diary/user/provider/user_provider.dart';
 import '../../user/provider/firebase_auth_provider.dart';
 import '../../user/provider/profile_user_provider.dart';
 import '../../user/screens/root_tab_screen.dart';
+import '../const/color.dart';
 
 class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
@@ -85,20 +86,21 @@ class MainDrawer extends ConsumerWidget {
           ),
           textButton(
             () {
-              provider.logout(context);
-            },
-            const Text(
-              '로그아웃',
-            ),
-          ),
-          textButton(
-            () {
               context.pushNamed(RootTabScreen.routeName);
             },
             const Text(
               '프로필 수정',
             ),
-          )
+          ),
+          textButton(
+            () {
+              provider.logout(context);
+            },
+            const Text(
+              '로그아웃',
+              style: TextStyle(color: COMMENTLIST),
+            ),
+          ),
         ],
       ),
     );

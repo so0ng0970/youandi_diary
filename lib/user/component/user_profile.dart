@@ -196,6 +196,7 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                       ),
                     if (edit)
                       TextFormField(
+                        maxLength: 15,
                         controller: userNameController,
                         decoration: InputDecoration(
                           filled: true,

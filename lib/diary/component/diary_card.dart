@@ -58,6 +58,8 @@ class DiaryCard extends StatelessWidget {
                   fontSize: 30,
                   color: WHITE_COLOR,
                 ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(
                 height: 20,
@@ -68,6 +70,8 @@ class DiaryCard extends StatelessWidget {
                   fontSize: 15,
                   color: WHITE_COLOR,
                 ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
               const Spacer(),
               Center(
@@ -85,6 +89,4 @@ class DiaryCard extends StatelessWidget {
       ),
     );
   }
-
- 
 }

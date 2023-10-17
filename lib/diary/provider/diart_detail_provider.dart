@@ -134,7 +134,6 @@ class DiartDetailProvider extends StateNotifier<PostState> {
             .doc(diaryId)
             .collection('post')
             .doc(postId);
-
         batch.delete(postRef);
       }
 
@@ -177,14 +176,20 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     required String diaryId,
   }) async {
     try {
-      await _firestore
+      DocumentReference postRef = _firestore
           .collection('user')
           .doc(currentUser?.uid)
           .collection('diary')
           .doc(diaryId)
           .collection('post')
-          .doc(postId)
-          .delete();
+          .doc(postId);
+      QuerySnapshot commentQuerySnapshot =
+          await postRef.collection('comment').get();
+
+      for (var commentDoc in commentQuerySnapshot.docs) {
+        commentDoc.reference.delete();
+      }
+      postRef.delete();
     } catch (e) {
       print(e.toString());
     }

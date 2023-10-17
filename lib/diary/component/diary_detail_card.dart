@@ -117,7 +117,7 @@ class _DiaryDetailCardState extends ConsumerState<DiaryDetailCard> {
                 Text(
                   widget.title,
                   style: const TextStyle(
-                    fontSize: 25,
+                    fontSize: 20,
                   ),
                 ),
                 Row(

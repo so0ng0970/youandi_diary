@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/diary/component/diary_card.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/const/color.dart';
+import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
-
-import '../../user/component/notification.dart';
 import '../../user/layout/default_layout.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -22,19 +22,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     // 초기화
-    FlutterLocalNotification.init();
+    // FlutterLocalNotification.init();
 
     // 3초 후 권한 요청
-    Future.delayed(
-      const Duration(seconds: 3),
-      FlutterLocalNotification.requestNotificationPermission(),
-    );
+    // Future.delayed(
+    //   const Duration(seconds: 3),
+    //   FlutterLocalNotification.requestNotificationPermission(),
+    // );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final diaryList = ref.watch(diaryListProvider).diaryList;
+    final diaryDelete = ref.watch(diaryProvider);
+
     return DefaultLayout(
       color: BGUNDER_COLOR,
       homeScreen: true,
@@ -72,11 +74,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: () =>
-                            FlutterLocalNotification.showNotification('d', 'd'),
-                        child: const Text("알림 보내기"),
-                      ),
+                      // TextButton(
+                      //   onPressed: () =>
+                      //       FlutterLocalNotification.showNotification('d', 'd'),
+                      //   child: const Text("알림 보내기"),
+                      // ),
                       SizedBox(
                         width: 150,
                         child: ElevatedButton(
@@ -115,7 +117,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     motion: const ScrollMotion(),
                                     children: [
                                       SlidableAction(
-                                        onPressed: (d) {},
+                                        onPressed: (context) {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return ButtonDialogLayout(
+                                                    onPressed: () async {
+                                                      await diaryDelete
+                                                          .deleteDiaryWithSubcollections(
+                                                        diaryId: diary.diaryId
+                                                            .toString(),
+                                                      );
+
+                                                      await diaryDelete
+                                                          .removeUserFromDiary(
+                                                              diaryId: diary
+                                                                  .diaryId
+                                                                  .toString());
+                                                      context.pop();
+                                                    },
+                                                    text: '정말 삭제하시겠습니까?');
+                                              });
+                                        },
                                         backgroundColor: Colors.red,
                                         foregroundColor: Colors.white,
                                         icon: Icons.delete,
@@ -137,35 +160,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget SlideLeftBackground() {
-    return Container(
-      color: Colors.red,
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: const <Widget>[
-            Icon(
-              Icons.delete,
-              color: Colors.white,
-            ),
-            Text(
-              " 삭제",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-              textAlign: TextAlign.right,
-            ),
-            SizedBox(
-              width: 20,
-            ),
-          ],
-        ),
       ),
     );
   }

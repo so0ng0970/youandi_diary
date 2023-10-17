@@ -248,13 +248,14 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                               ),
                             );
                           },
-                          deleteOnpress: () {
-                            ref
+                          deleteOnpress: () async {
+                            await ref
                                 .watch(diaryDetailProvider.notifier)
                                 .deletePostFromFirestore(
                                   diaryId: diaryData.diaryId.toString(),
                                   postId: diaryData.postId.toString(),
                                 );
+
                             pagingController.refresh();
                             context.pop();
                           },
@@ -385,16 +386,6 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
         date1.day == date2.day;
   }
 
-  // onDaySelected(
-  //   selectedDay,
-  //   focusedDay,
-  // ) {
-  //   setState(() {
-  //     this.selectedDay = selectedDay;
-  //     this.focusedDay = selectedDay;
-  //   });
-  // }
-
   void _showCalendarModal(
     selectedDay,
     focusedDay,
@@ -424,7 +415,6 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
               selectedDay: selectedDay,
               onDaySelected: onDaySelected,
               focusedDay: focusedDay,
-              // diaryId: widget.diaryId,
             );
           },
         );

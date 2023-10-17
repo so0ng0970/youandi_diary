@@ -1,12 +1,24 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:youandi_diary/common/provider/go_router.dart';
+import 'package:youandi_diary/firebase/firebase_api.dart';
 import 'package:youandi_diary/firebase_options.dart';
 
 import 'common/const/data.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  final firebaseService = FirebaseService();
+  await firebaseService.setupFlutterNotifications();
+}
+
+final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   KakaoSdk.init(
     nativeAppKey: NATIVE_KEY,
@@ -16,6 +28,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  final firebaseService = FirebaseService();
+  await firebaseService.setupFlutterNotifications();
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(
     const ProviderScope(
@@ -31,6 +47,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'SongMyung',
       ),

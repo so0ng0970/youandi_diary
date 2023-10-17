@@ -23,7 +23,7 @@ class DiaryModal extends ConsumerStatefulWidget {
 class _DiaryModalState extends ConsumerState<DiaryModal> {
   final FocusNode titleFocus = FocusNode();
   final TextEditingController titleFocusController = TextEditingController();
-  final bool _isInitialized = false;
+
   List<String> diaryCoverImages = [
     'assets/image/diary/diary1.jpg',
     'assets/image/diary/diary2.jpg',

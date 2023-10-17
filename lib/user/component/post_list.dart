@@ -52,7 +52,6 @@ class _PostListState extends ConsumerState<PostList> {
 
   Future<void> fetchAllPage(DocumentSnapshot? pageKey) async {
     try {
-      print('Fetching new page...');
       final newSnapshots = await ref
           .watch(diaryDetailProvider.notifier)
           .getAllPosts(
@@ -70,14 +69,11 @@ class _PostListState extends ConsumerState<PostList> {
       final isLastPage = newItems.length < pageSize;
       if (isLastPage) {
         pagingController.appendLastPage(newItems);
-        print('Fetched last page with ${newItems.length} items.');
       } else {
         final nextPageKey = newSnapshots.last;
         pagingController.appendPage(newItems, nextPageKey);
-        print('Fetched new page with ${newItems.length} items.');
       }
     } catch (error) {
-      print('Error fetching page: $error');
       pagingController.error = error;
     }
   }
@@ -268,16 +264,20 @@ class _PostListState extends ConsumerState<PostList> {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      '${data.diaryTittle.toString()}    ',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
+                                    Container(
+                                      child: Text(
+                                        '${data.diaryTittle.toString()}    ',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                     Text(
                                       data.title.toString(),
                                       style: const TextStyle(
                                         fontSize: 17,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                     const Spacer(),

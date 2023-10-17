@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/provider/diary_comment_provider.dart';
 
@@ -227,6 +228,28 @@ class _CommentListState extends ConsumerState<CommentList> {
                       ),
                     );
                   }),
+                  noItemsFoundIndicatorBuilder: (context) => const Center(
+                    child: Text(
+                      '글을 작성해 주세요',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  firstPageErrorIndicatorBuilder: (context) => const Center(
+                    child: Text(
+                      '글이 없습니다',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  newPageErrorIndicatorBuilder: (context) =>
+                      const Text('새 페이지 데이터 정보를 불러오지 못했습니다'),
+                  firstPageProgressIndicatorBuilder: (context) => listView,
+                  newPageProgressIndicatorBuilder: (context) => listView,
                 ),
               ),
             )
@@ -235,4 +258,20 @@ class _CommentListState extends ConsumerState<CommentList> {
       ),
     );
   }
+
+  SizedBox listView = SizedBox(
+    height: 60,
+    child: ListView.builder(
+      itemCount: 5,
+      itemBuilder: (context, index) => const Padding(
+        padding: EdgeInsets.all(15.0),
+        child: SkeletonAvatar(
+          style: SkeletonAvatarStyle(
+            width: double.infinity,
+            height: 100,
+          ),
+        ),
+      ),
+    ),
+  );
 }

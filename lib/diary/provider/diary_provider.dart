@@ -15,8 +15,14 @@ class DiaryRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
+  // 다이어리 생성
   Future<DiaryModel> saveDiaryToFirestore(DiaryModel diary) async {
     DocumentReference docRef = _firestore.collection('diary').doc();
+    DocumentReference userRef = _firestore
+        .collection('user')
+        .doc(currentUser?.uid)
+        .collection('diary')
+        .doc(docRef.id);
     final userData = {
       'diaryId': docRef.id,
       'title': diary.title,
@@ -26,10 +32,12 @@ class DiaryRepository {
       'member': diary.member.map((UserModel user) => user.toJson()).toList(),
     };
     if (diary.diaryId == null) {
-      DocumentReference docRef = _firestore.collection('diary').doc();
-      diary.diaryId = docRef.id;
-
+      // Save the data to both locations
       await docRef.set(userData);
+      await userRef.set(userData);
+
+      // Update the model's ID
+      diary.diaryId = docRef.id;
     }
 
     return diary;
@@ -46,12 +54,11 @@ class DiaryRepository {
     }
   }
 
+  final currentUser = FirebaseAuth.instance.currentUser;
   Future<List<DiaryModel>> getDiaryListFromFirestore() async {
-    final user = FirebaseAuth.instance.currentUser;
-
     final QuerySnapshot snapshot = await _firestore
         .collection('diary')
-        .where('memberUids', arrayContains: user!.uid)
+        .where('memberUids', arrayContains: currentUser!.uid)
         .orderBy(
           'dataTime',
           descending: true,
@@ -63,6 +70,75 @@ class DiaryRepository {
     }
 
     return diaryList;
+  }
+
+  // 다이어리 삭제
+  Future<void> deleteDiaryWithSubcollections({
+    required String diaryId,
+  }) async {
+    try {
+      DocumentReference diaryRef = _firestore
+          .collection('user')
+          .doc(currentUser!.uid)
+          .collection('diary')
+          .doc(diaryId);
+
+      QuerySnapshot postQuerySnapshot = await diaryRef.collection('post').get();
+
+      for (var postDoc in postQuerySnapshot.docs) {
+        QuerySnapshot commentQuerySnapshot =
+            await postDoc.reference.collection('comment').get();
+
+        for (var commentDoc in commentQuerySnapshot.docs) {
+          await commentDoc.reference.delete();
+        }
+
+        await postDoc.reference.delete();
+      }
+
+      await diaryRef.delete();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> removeUserFromDiary({
+    required String diaryId,
+  }) async {
+    try {
+      DocumentReference diary = _firestore.collection('diary').doc(diaryId);
+
+      DocumentSnapshot docSnapshot = await diary.get();
+
+      Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
+      if (data != null &&
+          data.containsKey('memberUids') &&
+          data.containsKey('member')) {
+        List<String> memberUids = List<String>.from(data['memberUids']);
+        List<UserModel> members = (data['member'] as List)
+            .map((item) => UserModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+
+        UserModel currentUserModel =
+            members.firstWhere((user) => user.uid == currentUser!.uid);
+
+        if (memberUids.contains(currentUser!.uid)) {
+          if (memberUids.length == 1) {
+            await diary.delete();
+          } else {
+            // Otherwise, remove their UID from the 'memberUids' field.
+            final updates = {
+              'memberUids': FieldValue.arrayRemove([currentUser!.uid]),
+              'member': FieldValue.arrayRemove([currentUserModel.toJson()]),
+            };
+
+            diary.update(updates);
+          }
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }
 

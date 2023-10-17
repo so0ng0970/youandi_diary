@@ -265,6 +265,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                         child: Column(
                           children: [
                             TextFormField(
+                              maxLength: 15,
                               controller: titleController,
                               decoration: const InputDecoration(
                                 hintText: '제목',
@@ -473,6 +474,7 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
       diaryId: widget.diaryId,
       dataTime: widget.selectedDay,
     );
+
     if (widget.edit == true || widget.removeEdit == true) {
       String? updatedVideoUrl = newDiaryPost.videoUrl;
 
@@ -517,7 +519,10 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
       await ref
           .watch(diaryDetailProvider.notifier)
           .savePostToFirestore(newDiaryPost);
-      setState(() {});
+      // FlutterLocalNotification.showNotification(
+      //   postTitle,
+      //   content,
+      // );
     }
     _pagingController?.refresh();
     context.pop();
