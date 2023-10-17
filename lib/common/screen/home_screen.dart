@@ -9,6 +9,8 @@ import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
 import '../../user/layout/default_layout.dart';
 
+
+
 class HomeScreen extends ConsumerStatefulWidget {
   static String get routeName => 'home';
 
