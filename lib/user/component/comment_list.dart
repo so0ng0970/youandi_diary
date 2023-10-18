@@ -20,6 +20,7 @@ class _CommentListState extends ConsumerState<CommentList> {
   final PagingController<DocumentSnapshot?, DiaryCommentModel>
       pagingController = PagingController(firstPageKey: null);
   String? diaryId;
+  String? postId;
   bool deleted = false;
   static const pageSize = 12;
   Map<String, bool> checkboxStates = {};
@@ -43,7 +44,6 @@ class _CommentListState extends ConsumerState<CommentList> {
           .getAllComments(
             pageKey,
             pageSize,
-            diaryId.toString(),
           )
           .firstWhere((event) => event != null);
 
@@ -101,8 +101,8 @@ class _CommentListState extends ConsumerState<CommentList> {
                             .watch(diaryCommentProvider.notifier)
                             .deleteSelectedCommentsFromFirestore(
                           commentIds: [commentId],
-                          diaryId: diaryId,
-                          postId: postId,
+                          diaryIds: {commentId: diaryId},
+                          postIds: {commentId: postId},
                         );
                       }
                     }
@@ -125,6 +125,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                   itemBuilder: ((context, item, index) {
                     final data = pagingController.itemList![index];
                     diaryId = pagingController.itemList![index].diaryId;
+
                     return Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: GestureDetector(

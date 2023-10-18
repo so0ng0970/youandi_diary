@@ -2,17 +2,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youandi_diary/diary/component/custom_video_player.dart';
+import 'package:youandi_diary/diary/component/diary_comment_card.dart';
 
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
+import 'package:youandi_diary/user/component/profile_component.dart';
 
 import '../../common/const/color.dart';
 import '../../common/utils/data_utils.dart';
-import '../../user/component/profile_component.dart';
-import '../../user/provider/profile_user_provider.dart';
 import '../../user/provider/user_provider.dart';
 import '../layout/button_dialog_layout.dart';
-import 'custom_video_player.dart';
-import 'diary_comment_card.dart';
 
 class DiaryDetailCard extends ConsumerStatefulWidget {
   final String? userId;
@@ -159,39 +158,31 @@ class _DiaryDetailCardState extends ConsumerState<DiaryDetailCard> {
                 ),
               ],
             ),
-            ref.watch(userGetProvider).when(
-                  data: (data) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                            width: 30,
-                            height: 30,
-                            child: ClipOval(
-                              child: Image(
-                                image: selectImage(imageUrl: data!.photoUrl),
-                                fit: BoxFit.cover,
-                              ),
-                            )),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 5,
-                          ),
-                          child: Text(
-                            data.userName.toString(),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                  loading: () => const CircularProgressIndicator(),
-                  error: (error, stackTrace) => Text(
-                    '$error',
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: ClipOval(
+                      child: Image(
+                        image: selectImage(imageUrl: widget.photoUrl),
+                        fit: BoxFit.cover,
+                      ),
+                    )),
+                const SizedBox(
+                  width: 5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    right: 5,
+                  ),
+                  child: Text(
+                    widget.userName.toString(),
                   ),
                 ),
+              ],
+            ),
             Divider(color: widget.divColor),
             if (widget.imgUrl != null && widget.imgUrl!.isNotEmpty)
               SizedBox(

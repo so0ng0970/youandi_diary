@@ -57,7 +57,6 @@ class _PostListState extends ConsumerState<PostList> {
           .getAllPosts(
             pageKey,
             pageSize,
-            diaryId.toString(),
           )
           .firstWhere((event) => event != null);
 
@@ -111,7 +110,7 @@ class _PostListState extends ConsumerState<PostList> {
                       if (diaryId != null) {
                         ref
                             .watch(diaryDetailProvider.notifier)
-                            .deleteSelectedPostsFromFirestore(
+                            .deleteSelectedPostsAndCommentsFromFirestore(
                           postIds: [postId],
                           diaryId: diaryId,
                         );

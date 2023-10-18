@@ -239,7 +239,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                               MaterialPageRoute(
                                 builder: (context) => DiaryPostScreen(
                                   postId: diaryData.postId,
-                                  diaryId: widget.diaryId,
+                                  diaryId: diaryData.diaryId.toString(),
                                   edit: true,
                                   diaryTitle: widget.title!,
                                   selectedDay: selectedDay,

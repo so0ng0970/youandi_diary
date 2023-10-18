@@ -72,33 +72,80 @@ class DiaryRepository {
     return diaryList;
   }
 
-  // 다이어리 삭제
+  // 다이어리와 하위 컬렉션 삭제
   Future<void> deleteDiaryWithSubcollections({
     required String diaryId,
   }) async {
     try {
-      DocumentReference diaryRef = _firestore
-          .collection('user')
-          .doc(currentUser!.uid)
+      WriteBatch batch = _firestore.batch();
+
+      // diary > post 컬렉션에서 해당 다이어리의 모든 포스트 찾아서 삭제
+      QuerySnapshot diaryPostsSnapshot = await _firestore
           .collection('diary')
-          .doc(diaryId);
+          .doc(diaryId)
+          .collection('post')
+          .get();
 
-      QuerySnapshot postQuerySnapshot = await diaryRef.collection('post').get();
-
-      for (var postDoc in postQuerySnapshot.docs) {
-        QuerySnapshot commentQuerySnapshot =
+      for (DocumentSnapshot postDoc in diaryPostsSnapshot.docs) {
+        // 해당 포스트의 모든 댓글 찾아서 삭제
+        QuerySnapshot commentsSnapshot =
             await postDoc.reference.collection('comment').get();
 
-        for (var commentDoc in commentQuerySnapshot.docs) {
-          await commentDoc.reference.delete();
+        for (DocumentSnapshot commentDoc in commentsSnapshot.docs) {
+          // user > comment 에서 해당 댓글 찾아서 확인 후 내 댓글인 경우만 삭제
+          DocumentReference userCommentRef = _firestore
+              .collection('user')
+              .doc(currentUser?.uid)
+              .collection('comment')
+              .doc(commentDoc.id);
+
+          DocumentSnapshot userCommentSnap = await userCommentRef.get();
+
+          if (userCommentSnap.exists) {
+            Map<String, dynamic> data =
+                userCommentSnap.data() as Map<String, dynamic>;
+            if (data['userId'] == currentUser?.uid) {
+              batch.delete(userCommentRef);
+              batch.delete(commentDoc.reference);
+            }
+          }
         }
 
-        await postDoc.reference.delete();
+        // 포스트 자체를 삭제
+        batch.delete(postDoc.reference);
+
+        // user -> posts 에서 포스트 자체를 확인 후 내 글인 경우만 삭제
+        DocumentReference userPostRef = _firestore
+            .collection('user')
+            .doc(currentUser?.uid)
+            .collection('post')
+            .doc(postDoc.id);
+
+        DocumentSnapshot userPostSnap = await userPostRef.get();
+        if (userPostSnap.exists) {
+          Map<String, dynamic> postData =
+              userPostSnap.data() as Map<String, dynamic>;
+          if (postData['userId'] == currentUser?.uid) {
+            batch.delete(userPostRef);
+          }
+        }
       }
 
-      await diaryRef.delete();
+      // 마지막으로 다이어리 자체를 확인 후 내 다이어리인 경우만 삭제
+      DocumentReference diaryRef = _firestore.collection('diary').doc(diaryId);
+
+      DocumentSnapshot diarySnap = await diaryRef.get();
+      if (diarySnap.exists) {
+        Map<String, dynamic> diaryData =
+            diarySnap.data() as Map<String, dynamic>;
+        if (diaryData['userId'] == currentUser?.uid) {
+          batch.delete(diaryRef);
+        }
+      }
+
+      await batch.commit();
     } catch (e) {
-      print(e);
+      print(e.toString());
     }
   }
 

@@ -43,15 +43,19 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
 
     try {
       User? currentUser = FirebaseAuth.instance.currentUser;
+
       DocumentReference docRef = _firestore
           .collection('user')
           .doc(currentUser?.uid)
+          .collection('comment')
+          .doc();
+      DocumentReference commentRef = _firestore
           .collection('diary')
           .doc(diaryId)
           .collection('post')
           .doc(postId)
           .collection('comment')
-          .doc();
+          .doc(docRef.id);
 
       if (currentUser != null) {
         model.userId = currentUser.uid;
@@ -62,16 +66,17 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
         if (userData.exists) {
           model.userName = userData['userName'] ?? '';
           model.photoUrl = userData['photoUrl'] ?? '';
+          model.commentId = docRef.id;
         } else {
           model.userName = currentUser.displayName ?? '';
           model.photoUrl = currentUser.photoURL ?? '';
         }
       }
 
-      model.commentId = docRef.id;
-
       await docRef.set(model.toJson());
+      await commentRef.set(model.toJson());
 
+      model.commentId = docRef.id;
       state = CommentState(comment: model);
     } catch (e) {
       state = CommentState(error: e.toString());
@@ -88,6 +93,11 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
       await _firestore
           .collection('user')
           .doc(currentUser?.uid)
+          .collection('comment')
+          .doc(commentId)
+          .delete();
+
+      await _firestore
           .collection('diary')
           .doc(diaryId)
           .collection('post')
@@ -104,8 +114,6 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
   Stream<List<DiaryCommentModel>> getCommentListFromFirestore(
       {String? diaryId, required String postId}) {
     return FirebaseFirestore.instance
-        .collection('user')
-        .doc(currentUser?.uid)
         .collection('diary')
         .doc(diaryId)
         .collection('post')
@@ -131,8 +139,6 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
   }) async {
     try {
       await _firestore
-          .collection('user')
-          .doc(currentUser?.uid)
           .collection('diary')
           .doc(diaryId)
           .collection('post')
@@ -151,9 +157,11 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
 
   // 전체 댓글 불러오기
   Stream<List<DocumentSnapshot>> getAllComments(
-      DocumentSnapshot? pageKey, int pageSize, String diaryId) {
+      DocumentSnapshot? pageKey, int pageSize) {
     Query firebase = FirebaseFirestore.instance
-        .collectionGroup('comment')
+        .collection('user')
+        .doc(currentUser?.uid)
+        .collection('comment')
         .where('userId', isEqualTo: currentUser?.uid)
         .orderBy(
           'dataTime',
@@ -167,27 +175,33 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
     return firebase.snapshots().map((snapshot) => snapshot.docs);
   }
 
-// 선택된 댓글 삭제
+  // 전체 댓글 삭제
   Future<void> deleteSelectedCommentsFromFirestore({
     required List<String> commentIds,
-    required String diaryId,
-    required String postId,
+    required Map<String, String> diaryIds,
+    required Map<String, String> postIds,
   }) async {
     try {
       WriteBatch batch = _firestore.batch();
 
       for (String commentId in commentIds) {
-        DocumentReference postRef = _firestore
+        DocumentReference userCommentRef = _firestore
             .collection('user')
             .doc(currentUser?.uid)
-            .collection('diary')
-            .doc(diaryId)
-            .collection('post')
-            .doc(postId)
             .collection('comment')
             .doc(commentId);
 
-        batch.delete(postRef);
+        batch.delete(userCommentRef);
+
+        DocumentReference postCommentRef = _firestore
+            .collection('diary')
+            .doc(diaryIds[commentId])
+            .collection('post')
+            .doc(postIds[commentId])
+            .collection('comment')
+            .doc(commentId);
+
+        batch.delete(postCommentRef);
       }
 
       await batch.commit();

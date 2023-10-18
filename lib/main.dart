@@ -9,30 +9,28 @@ import 'package:youandi_diary/firebase_options.dart';
 
 import 'common/const/data.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+final firebaseService = FirebaseService();
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  final firebaseService = FirebaseService();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await firebaseService.setupFlutterNotifications();
 }
 
-final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   KakaoSdk.init(
     nativeAppKey: NATIVE_KEY,
   );
-  WidgetsFlutterBinding.ensureInitialized();
 
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final firebaseService = FirebaseService();
+
   await firebaseService.setupFlutterNotifications();
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   runApp(
     const ProviderScope(
       child: MyApp(),
