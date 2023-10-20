@@ -52,14 +52,15 @@ class _PostListState extends ConsumerState<PostList> {
 
   Future<void> fetchAllPage(DocumentSnapshot? pageKey) async {
     try {
-      final newSnapshots = await ref
-          .watch(diaryDetailProvider.notifier)
-          .getAllPosts(
-            pageKey,
-            pageSize,
-          )
-          .firstWhere((event) => event != null);
-
+      final newSnapshots =
+          await ref.watch(diaryDetailProvider.notifier).getAllPosts(
+                pageKey,
+                pageSize,
+              );
+      if (newSnapshots.isEmpty) {
+        pagingController.appendLastPage([]);
+        return;
+      }
       final newItems = newSnapshots
           .map((snapshot) =>
               DiaryPostModel.fromJson(snapshot.data() as Map<String, dynamic>))
@@ -101,24 +102,25 @@ class _PostListState extends ConsumerState<PostList> {
               ),
             if (deleted)
               IconButton(
-                onPressed: () {
-                  setState(() {
-                    List<String> selectedPostIds = checkboxStates.keys.toList();
-                    for (String postId in selectedPostIds) {
-                      String? diaryId = diaryIds[postId];
-                      print(diaryIds);
-                      if (diaryId != null) {
-                        ref
-                            .watch(diaryDetailProvider.notifier)
-                            .deleteSelectedPostsAndCommentsFromFirestore(
-                          postIds: [postId],
-                          diaryId: diaryId,
-                        );
-                      }
+                onPressed: () async {
+                  List<String> selectedPostIds = checkboxStates.keys.toList();
+                  for (String postId in selectedPostIds) {
+                    String? diaryId = diaryIds[postId];
+
+                    if (diaryId != null) {
+                      await ref
+                          .watch(diaryDetailProvider.notifier)
+                          .deleteSelectedPostsAndCommentsFromFirestore(
+                        postIds: [postId],
+                        diaryId: diaryId,
+                      );
                     }
-                    checkboxStates.clear();
-                    diaryIds.clear();
-                    pagingController.refresh();
+                  }
+                  pagingController.refresh();
+                  checkboxStates.clear();
+                  diaryIds.clear();
+
+                  setState(() {
                     deleted = false;
                   });
                 },

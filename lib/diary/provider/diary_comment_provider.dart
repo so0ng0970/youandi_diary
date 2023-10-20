@@ -156,8 +156,8 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
   }
 
   // 전체 댓글 불러오기
-  Stream<List<DocumentSnapshot>> getAllComments(
-      DocumentSnapshot? pageKey, int pageSize) {
+  Future<List<DocumentSnapshot>> getAllComments(
+      DocumentSnapshot? pageKey, int pageSize) async {
     Query firebase = FirebaseFirestore.instance
         .collection('user')
         .doc(currentUser?.uid)
@@ -172,7 +172,8 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
     if (pageKey != null) {
       firebase = firebase.startAfterDocument(pageKey);
     }
-    return firebase.snapshots().map((snapshot) => snapshot.docs);
+    final snapshot = await firebase.get();
+    return snapshot.docs;
   }
 
   // 전체 댓글 삭제

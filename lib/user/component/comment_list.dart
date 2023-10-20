@@ -39,14 +39,15 @@ class _CommentListState extends ConsumerState<CommentList> {
   Future<void> fetchAllPage(DocumentSnapshot? pageKey) async {
     try {
       print('Fetching new page...');
-      final newSnapshots = await ref
-          .watch(diaryCommentProvider.notifier)
-          .getAllComments(
-            pageKey,
-            pageSize,
-          )
-          .firstWhere((event) => event != null);
-
+      final newSnapshots =
+          await ref.watch(diaryCommentProvider.notifier).getAllComments(
+                pageKey,
+                pageSize,
+              );
+      if (newSnapshots.isEmpty) {
+        pagingController.appendLastPage([]);
+        return;
+      }
       final newItems = newSnapshots
           .map((snapshot) => DiaryCommentModel.fromJson(
               snapshot.data() as Map<String, dynamic>))
@@ -168,15 +169,11 @@ class _CommentListState extends ConsumerState<CommentList> {
                                 Row(
                                   children: [
                                     Text(
-                                      '${data.diaryTittle.toString()}  글 제목: ',
+                                      data.postId != null
+                                          ? '${data.diaryTittle.toString()}  글 제목: '
+                                          : '삭제된 글 입니다',
                                       style: TextStyle(
                                         color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    Text(
-                                      data.postTittle.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 17,
                                       ),
                                     ),
                                     const Spacer(),

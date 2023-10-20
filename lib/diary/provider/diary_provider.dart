@@ -72,14 +72,14 @@ class DiaryRepository {
     return diaryList;
   }
 
-  // 다이어리와 하위 컬렉션 삭제
+
   Future<void> deleteDiaryWithSubcollections({
     required String diaryId,
   }) async {
     try {
       WriteBatch batch = _firestore.batch();
 
-      // diary > post 컬렉션에서 해당 다이어리의 모든 포스트 찾아서 삭제
+
       QuerySnapshot diaryPostsSnapshot = await _firestore
           .collection('diary')
           .doc(diaryId)
@@ -87,12 +87,12 @@ class DiaryRepository {
           .get();
 
       for (DocumentSnapshot postDoc in diaryPostsSnapshot.docs) {
-        // 해당 포스트의 모든 댓글 찾아서 삭제
+
         QuerySnapshot commentsSnapshot =
             await postDoc.reference.collection('comment').get();
 
         for (DocumentSnapshot commentDoc in commentsSnapshot.docs) {
-          // user > comment 에서 해당 댓글 찾아서 확인 후 내 댓글인 경우만 삭제
+ 
           DocumentReference userCommentRef = _firestore
               .collection('user')
               .doc(currentUser?.uid)
@@ -111,10 +111,10 @@ class DiaryRepository {
           }
         }
 
-        // 포스트 자체를 삭제
+     
         batch.delete(postDoc.reference);
 
-        // user -> posts 에서 포스트 자체를 확인 후 내 글인 경우만 삭제
+   
         DocumentReference userPostRef = _firestore
             .collection('user')
             .doc(currentUser?.uid)
@@ -131,17 +131,25 @@ class DiaryRepository {
         }
       }
 
-      // 마지막으로 다이어리 자체를 확인 후 내 다이어리인 경우만 삭제
       DocumentReference diaryRef = _firestore.collection('diary').doc(diaryId);
 
       DocumentSnapshot diarySnap = await diaryRef.get();
       if (diarySnap.exists) {
         Map<String, dynamic> diaryData =
             diarySnap.data() as Map<String, dynamic>;
+
         if (diaryData['userId'] == currentUser?.uid) {
           batch.delete(diaryRef);
         }
       }
+
+      DocumentReference userDiaryRef = _firestore
+          .collection('user')
+          .doc(currentUser?.uid)
+          .collection('diary')
+          .doc(diaryId);
+
+      batch.delete(userDiaryRef);
 
       await batch.commit();
     } catch (e) {

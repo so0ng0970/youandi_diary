@@ -68,9 +68,12 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
             selectedDay,
             pageKey,
             pageSize,
-          )
-          .firstWhere((event) => event != null);
+          );
 
+      if (newSnapshots.isEmpty) {
+        pagingController.appendLastPage([]);
+        return;
+      }
       final newItems = newSnapshots
           .map((snapshot) =>
               DiaryPostModel.fromJson(snapshot.data() as Map<String, dynamic>))

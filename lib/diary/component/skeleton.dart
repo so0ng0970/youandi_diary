@@ -52,11 +52,11 @@ class SkeletonComponent extends StatelessWidget {
                       minLength: MediaQuery.of(context).size.width / 2,
                     )),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: const [
-                  SizedBox(width: 12),
+                  SizedBox(width: 10),
                   SkeletonAvatar(
                     style: SkeletonAvatarStyle(
                       shape: BoxShape.circle,
@@ -68,24 +68,21 @@ class SkeletonComponent extends StatelessWidget {
                   SkeletonAvatar(
                     style: SkeletonAvatarStyle(
                       height: 20,
-                      width: 268,
+                      width: 240,
                     ),
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: SkeletonParagraph(
-                  style: SkeletonParagraphStyle(
-                      lines: 2,
-                      spacing: 6,
-                      lineStyle: SkeletonLineStyle(
-                        randomLength: true,
-                        height: 10,
-                        borderRadius: BorderRadius.circular(8),
-                        minLength: MediaQuery.of(context).size.width / 2,
-                      )),
-                ),
+              SkeletonParagraph(
+                style: SkeletonParagraphStyle(
+                    lines: 2,
+                    spacing: 6,
+                    lineStyle: SkeletonLineStyle(
+                      randomLength: true,
+                      height: 10,
+                      borderRadius: BorderRadius.circular(8),
+                      minLength: MediaQuery.of(context).size.width / 2,
+                    )),
               ),
             ],
           ),

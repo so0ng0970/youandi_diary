@@ -110,8 +110,8 @@ class DiartDetailProvider extends StateNotifier<PostState> {
   }
 
   // 다이어리 스크롤 - get
-  Stream<List<DocumentSnapshot>> getDiaryListScrollFromFirestore(String diaryId,
-      DateTime? selectedDay, DocumentSnapshot? pageKey, int pageSize) {
+  Future<List<DocumentSnapshot>> getDiaryListScrollFromFirestore(String diaryId,
+      DateTime? selectedDay, DocumentSnapshot? pageKey, int pageSize) async {
     final start = DateTime(
         selectedDay?.year ?? DateTime.now().year,
         selectedDay?.month ?? DateTime.now().month,
@@ -134,19 +134,19 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     if (pageKey != null) {
       firebase = firebase.startAfterDocument(pageKey);
     }
-    return firebase.snapshots().map((snapshot) => snapshot.docs);
+    final snapshot = await firebase.get();
+    return snapshot.docs;
   }
 
 // 전체 글 불러오기
-  Stream<List<DocumentSnapshot>> getAllPosts(
+  Future<List<DocumentSnapshot<Object?>>> getAllPosts(
     DocumentSnapshot? pageKey,
     int pageSize,
-  ) {
+  ) async {
     Query firebase = FirebaseFirestore.instance
         .collection('user')
         .doc(currentUser?.uid)
         .collection('post')
-        .where('userId', isEqualTo: currentUser?.uid)
         .orderBy(
           'dataTime',
           descending: true,
@@ -156,7 +156,8 @@ class DiartDetailProvider extends StateNotifier<PostState> {
     if (pageKey != null) {
       firebase = firebase.startAfterDocument(pageKey);
     }
-    return firebase.snapshots().map((snapshot) => snapshot.docs);
+    final snapshot = await firebase.get();
+    return snapshot.docs;
   }
 
   // 전체 글과 댓글 삭제
@@ -168,7 +169,6 @@ class DiartDetailProvider extends StateNotifier<PostState> {
       WriteBatch batch = _firestore.batch();
 
       for (String postId in postIds) {
-      
         QuerySnapshot userCommentsSnapshot = await _firestore
             .collection('user')
             .doc(currentUser?.uid)
@@ -180,7 +180,6 @@ class DiartDetailProvider extends StateNotifier<PostState> {
           batch.delete(doc.reference);
         }
 
-      
         QuerySnapshot postCommentsSnapshot = await _firestore
             .collection('diary')
             .doc(diaryId)
@@ -193,7 +192,6 @@ class DiartDetailProvider extends StateNotifier<PostState> {
           batch.delete(doc.reference);
         }
 
-      
         DocumentReference diaryPostRef = _firestore
             .collection('diary')
             .doc(diaryId)
@@ -201,7 +199,6 @@ class DiartDetailProvider extends StateNotifier<PostState> {
             .doc(postId);
 
         batch.delete(diaryPostRef);
-
 
         DocumentReference userPostRef = _firestore
             .collection('user')
@@ -258,13 +255,34 @@ class DiartDetailProvider extends StateNotifier<PostState> {
           .doc(currentUser?.uid)
           .collection('post')
           .doc(postId);
+
       QuerySnapshot commentQuerySnapshot =
           await postRef.collection('comment').get();
 
-      for (var commentDoc in commentQuerySnapshot.docs) {
-        commentDoc.reference.delete();
+      for (var doc in commentQuerySnapshot.docs) {
+        doc.reference.delete();
       }
+
       await postRef.delete();
+
+      CollectionReference users = _firestore.collection('user');
+
+      final userDocs = await users.get();
+
+      for (var userDoc in userDocs.docs) {
+        Query firebase = _firestore
+            .collection('user')
+            .doc(userDoc.id)
+            .collection('comment')
+            .where('postId', isEqualTo: postId);
+
+        final snapshot = await firebase.get();
+
+        for (var doc in snapshot.docs) {
+          doc.reference.update({'postId': null});
+        }
+      }
+
       await allPostRef.delete();
     } catch (e) {
       print(e.toString());
