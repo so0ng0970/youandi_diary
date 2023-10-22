@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
+import 'package:youandi_diary/firebase/firebase_api.dart';
 import '../../common/const/color.dart';
 import '../../user/layout/default_layout.dart';
 import '../component/calendar.dart';
@@ -41,7 +43,8 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   static const pageSize = 6;
   final PagingController<DocumentSnapshot?, DiaryPostModel> pagingController =
       PagingController(firstPageKey: null);
-
+ final FirebaseService firebaseService = FirebaseService();
+ 
   @override
   void initState() {
     super.initState();
@@ -285,6 +288,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                                     model: commentPost,
                                     postId: commentPost.postId.toString(),
                                   );
+                              // pushFCM();
                               contentController.clear();
                             });
                           },
@@ -424,4 +428,17 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
       },
     );
   }
+
+  // Future<void> pushFCM() async {
+  //   try {
+  //     HttpsCallable callable =
+  //         FirebaseFunctions.instance.httpsCallable('addMessage');
+
+  //     final results = await callable();
+  //     print('pushFCM: success');
+  //   } catch (e) {
+  //     print('pushFAQ: $e');
+  //     throw Exception("pushFAQ: $e");
+  //   }
+  // }
 }

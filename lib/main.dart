@@ -12,10 +12,9 @@ import 'common/const/data.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 final firebaseService = FirebaseService();
 
-@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await firebaseService.setupFlutterNotifications();
+  print('A background message just showed up: ${message.messageId}');
 }
 
 void main() async {
@@ -27,8 +26,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  await firebaseService.setupFlutterNotifications();
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(
