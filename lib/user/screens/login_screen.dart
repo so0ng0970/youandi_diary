@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/const/color.dart';
@@ -94,7 +96,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   _LoginButton(
                     onPressed: () async {
-                      print('d');
                       final email = _emailController.text;
                       final password = _passwordController.text;
                       if (email.isNotEmpty && password.isNotEmpty) {
@@ -105,6 +106,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                           await FirebaseAuth.instance
                               .signInWithCredential(credential);
+                          await saveTokenToDatabase(
+                              FirebaseAuth.instance.currentUser!.uid);
+
                           context.goNamed(
                             HomeScreen.routeName,
                           );
@@ -155,6 +159,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () async {
                       final google =
                           await LoginSignModel(null).signInWithGoogle();
+                      await saveTokenToDatabase(
+                          FirebaseAuth.instance.currentUser!.uid);
                       if (google != null) {
                         context.goNamed(
                           HomeScreen.routeName,
@@ -209,6 +215,24 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> saveTokenToDatabase(String userId) async {
+    // Get the token for this device
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+    // Save it to Firestore
+    if (fcmToken != null) {
+      var tokens = FirebaseFirestore.instance.collection('user').doc(userId);
+
+      try {
+        await tokens.set({
+          'pushToken': fcmToken,
+        }, SetOptions(merge: true));
+      } catch (e) {
+        print("Failed to write FCM token to Firestore: $e");
+      }
+    }
   }
 }
 

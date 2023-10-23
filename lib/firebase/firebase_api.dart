@@ -37,7 +37,7 @@ class FirebaseService {
       if (notification != null && android != null && !kIsWeb) {
         flutterLocalNotificationsPlugin.show(
             notification.hashCode,
-            message.data['title'], // Change this line
+            message.data['title'],
             message.data['body'],
             NotificationDetails(
               android: AndroidNotificationDetails(

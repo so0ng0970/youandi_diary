@@ -43,8 +43,8 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   static const pageSize = 6;
   final PagingController<DocumentSnapshot?, DiaryPostModel> pagingController =
       PagingController(firstPageKey: null);
- final FirebaseService firebaseService = FirebaseService();
- 
+  final FirebaseService firebaseService = FirebaseService();
+
   @override
   void initState() {
     super.initState();
@@ -270,17 +270,16 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                           divColor: divColors[index % divColors.length],
                           inputFieldNode: inputFieldNode,
                           contentController: contentController,
-                          sendOnpress: () {
+                          sendOnpress: () async {
+                            String content = contentController.text;
+                            DiaryCommentModel commentPost = DiaryCommentModel(
+                                diaryId: widget.diaryId,
+                                dataTime: focusedDay,
+                                postId: diaryData.postId,
+                                content: content,
+                                postTittle: diaryData.title,
+                                diaryTittle: widget.title);
                             setState(() {
-                              String content = contentController.text;
-                              DiaryCommentModel commentPost = DiaryCommentModel(
-                                  diaryId: widget.diaryId,
-                                  dataTime: focusedDay,
-                                  postId: diaryData.postId,
-                                  content: content,
-                                  postTittle: diaryData.title,
-                                  diaryTittle: widget.title);
-
                               ref
                                   .watch(diaryCommentProvider.notifier)
                                   .saveCommentToFirestore(
@@ -288,9 +287,23 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                                     model: commentPost,
                                     postId: commentPost.postId.toString(),
                                   );
-                              // pushFCM();
-                              contentController.clear();
                             });
+                            HttpsCallable callable = FirebaseFunctions.instance
+                                .httpsCallable('addMessage');
+                            try {
+                              final HttpsCallableResult result =
+                                  await callable.call(<String, dynamic>{
+                                'diaryId': widget.diaryId.toString(),
+                                'postId': diaryData.postId.toString(),
+                                'commentId': commentPost.commentId.toString(),
+                              });
+                              print(result.data);
+                            } on FirebaseFunctionsException catch (e) {
+                              print('Error code: ${e.code}');
+                              print('Details: ${e.details}');
+                            }
+
+                            contentController.clear();
                           },
                         );
                       },
@@ -429,16 +442,21 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     );
   }
 
-  // Future<void> pushFCM() async {
-  //   try {
-  //     HttpsCallable callable =
-  //         FirebaseFunctions.instance.httpsCallable('addMessage');
+  Future<void> callFunctionAndShowNotification(
+      String functionName, Map<String, dynamic> parameters) async {
+    try {
+      HttpsCallable callable =
+          FirebaseFunctions.instance.httpsCallable(functionName);
+      final results = await callable.call(parameters);
 
-  //     final results = await callable();
-  //     print('pushFCM: success');
-  //   } catch (e) {
-  //     print('pushFAQ: $e');
-  //     throw Exception("pushFAQ: $e");
-  //   }
-  // }
+      // Show a local notification with the result of the function.
+      firebaseService.showNotification(
+          results.data['title'].toString(), results.data['body'].toString());
+
+      print('$functionName: success');
+    } catch (e) {
+      print('$functionName: $e');
+      throw Exception("$functionName: $e");
+    }
+  }
 }

@@ -12,9 +12,8 @@ const addMessage = functions.firestore
       .get();
     const postOwnerData = postDoc.data();
 
-    // Only send a notification if the comment was not made by the post owner.
-    if (postOwnerData && newValue.userId !== postOwnerData.ownerId) {
-      const userDoc = await db.doc(`user/${postOwnerData.ownerId}`).get();
+    if (postOwnerData && newValue.userId !== postOwnerData.userId) {
+      const userDoc = await db.doc(`user/${postOwnerData.userId}`).get();
       const userData = userDoc.data();
 
       if (userData) {
@@ -22,12 +21,12 @@ const addMessage = functions.firestore
 
         var message = {
           notification: {
-            title: `${newValue.title}`,
+            title: `${postDoc.diaryTittle}`,
             body: `${newValue.userName}님이 댓글을 남겼습니다`,
           },
           data: {
             // Add this
-            title: `${newValue.title}`,
+            title: `${postDoc.diaryTittle}}`,
             body: `${newValue.userName}님이 댓글을 남겼습니다`,
           },
           token: tokens,
