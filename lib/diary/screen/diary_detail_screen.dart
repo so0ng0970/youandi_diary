@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +15,7 @@ import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
 import 'package:youandi_diary/firebase/firebase_api.dart';
+import 'package:youandi_diary/user/component/user_profile.dart';
 import '../../common/const/color.dart';
 import '../../user/layout/default_layout.dart';
 import '../component/calendar.dart';
@@ -43,7 +45,10 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
   static const pageSize = 6;
   final PagingController<DocumentSnapshot?, DiaryPostModel> pagingController =
       PagingController(firstPageKey: null);
-  final FirebaseService firebaseService = FirebaseService();
+  FirebaseService firebaseService = FirebaseService();
+  String? token;
+  String? initialMessage;
+  bool resolved = false;
 
   @override
   void initState() {
@@ -51,6 +56,25 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     inputFieldNode = FocusNode();
     pagingController.addPageRequestListener((pageKey) {
       fetchPage(pageKey);
+    });
+
+    FirebaseMessaging.instance.getInitialMessage().then(
+          (value) => setState(
+            () {
+              resolved = true;
+              initialMessage = value?.data.toString();
+            },
+          ),
+        );
+
+    FirebaseMessaging.onMessage.listen(firebaseService.showFlutterNotification);
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      Navigator.pushNamed(
+        context,
+        UserProfile.routeName,
+        arguments: message,
+      );
     });
   }
 
@@ -440,23 +464,5 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
         );
       },
     );
-  }
-
-  Future<void> callFunctionAndShowNotification(
-      String functionName, Map<String, dynamic> parameters) async {
-    try {
-      HttpsCallable callable =
-          FirebaseFunctions.instance.httpsCallable(functionName);
-      final results = await callable.call(parameters);
-
-      // Show a local notification with the result of the function.
-      firebaseService.showNotification(
-          results.data['title'].toString(), results.data['body'].toString());
-
-      print('$functionName: success');
-    } catch (e) {
-      print('$functionName: $e');
-      throw Exception("$functionName: $e");
-    }
   }
 }

@@ -7,10 +7,7 @@ import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
-import 'package:youandi_diary/main.dart';
 import '../../user/layout/default_layout.dart';
-
-
 
 class HomeScreen extends ConsumerStatefulWidget {
   static String get routeName => 'home';
@@ -77,11 +74,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: () =>
-                          firebaseService.showNotification('Title', 'Body'),
-                        child: const Text("알림 보내기"),
-                      ),
                       SizedBox(
                         width: 150,
                         child: ElevatedButton(

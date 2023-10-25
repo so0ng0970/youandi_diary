@@ -25,9 +25,9 @@ const addMessage = functions.firestore
             body: `${newValue.userName}님이 댓글을 남겼습니다`,
           },
           data: {
-            // Add this
             title: `${postDoc.diaryTittle}}`,
             body: `${newValue.userName}님이 댓글을 남겼습니다`,
+            postId: context.params.postId,
           },
           token: tokens,
         };
