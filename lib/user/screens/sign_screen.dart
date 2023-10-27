@@ -21,7 +21,8 @@ class _SignScreenState extends State<SignScreen> {
   final TextEditingController emailFocusController = TextEditingController();
   final TextEditingController passwordFocusController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
+  final _email = ['직접입력', 'naver.com', 'daum.net', 'gmail.com', 'nate.com'];
+  var _selected = '직접입력';
   InputDecoration inputDecoration(String hintText) {
     return InputDecoration(
       hintText: hintText,
@@ -80,14 +81,36 @@ class _SignScreenState extends State<SignScreen> {
               const SizedBox(
                 height: 10,
               ),
-              TextFormField(
-                key: const ValueKey(2),
-                controller: emailFocusController,
-                focusNode: emailFocus,
-                validator: (value) =>
-                    CheckValidate().validateEmail(emailFocus, value!),
-                keyboardType: TextInputType.emailAddress,
-                decoration: inputDecoration('이메일'),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 100,
+                    child: TextFormField(
+                      key: const ValueKey(2),
+                      controller: emailFocusController,
+                      focusNode: emailFocus,
+                      validator: (value) =>
+                          CheckValidate().validateEmail(emailFocus, value!),
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: inputDecoration('이메일'),
+                    ),
+                  ),
+                  const Text('@'),
+                  Expanded(
+                    child: DropdownButton(
+                        items: _email
+                            .map((value) => DropdownMenuItem(
+                                  value: value,
+                                  child: Text(value),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selected = value!;
+                          });
+                        }),
+                  ),
+                ],
               ),
               const SizedBox(
                 height: 10,
