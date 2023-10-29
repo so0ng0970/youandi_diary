@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youandi_diary/common/const/color.dart';
+import 'package:youandi_diary/user/component/custom_email.dart';
 import 'package:youandi_diary/user/layout/button_layout.dart';
 import 'package:youandi_diary/user/layout/sign_login_layout.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
@@ -21,8 +22,15 @@ class _SignScreenState extends State<SignScreen> {
   final TextEditingController emailFocusController = TextEditingController();
   final TextEditingController passwordFocusController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final _email = ['직접입력', 'naver.com', 'daum.net', 'gmail.com', 'nate.com'];
-  var _selected = '직접입력';
+
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
+
+  void _removeEmailOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
   InputDecoration inputDecoration(String hintText) {
     return InputDecoration(
       hintText: hintText,
@@ -39,6 +47,9 @@ class _SignScreenState extends State<SignScreen> {
     nicknameFocusController.dispose();
     emailFocusController.dispose();
     passwordFocusController.dispose();
+    _removeEmailOverlay();
+    _overlayEntry?.dispose();
+    emailFocus.dispose();
     super.dispose();
   }
 
@@ -81,36 +92,18 @@ class _SignScreenState extends State<SignScreen> {
               const SizedBox(
                 height: 10,
               ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: 100,
-                    child: TextFormField(
-                      key: const ValueKey(2),
-                      controller: emailFocusController,
-                      focusNode: emailFocus,
-                      validator: (value) =>
-                          CheckValidate().validateEmail(emailFocus, value!),
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: inputDecoration('이메일'),
-                    ),
-                  ),
-                  const Text('@'),
-                  Expanded(
-                    child: DropdownButton(
-                        items: _email
-                            .map((value) => DropdownMenuItem(
-                                  value: value,
-                                  child: Text(value),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selected = value!;
-                          });
-                        }),
-                  ),
-                ],
+              CompositedTransformTarget(
+                link: _layerLink,
+                child: TextFormField(
+                  key: const ValueKey(2),
+                  controller: emailFocusController,
+                  focusNode: emailFocus,
+                  validator: (value) =>
+                      CheckValidate().validateEmail(emailFocus, value!),
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: inputDecoration('이메일'),
+                  onChanged: (_) => _showEmailOverlay(),
+                ),
               ),
               const SizedBox(
                 height: 10,
@@ -151,6 +144,40 @@ class _SignScreenState extends State<SignScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showEmailOverlay() {
+    if (emailFocus.hasFocus) {
+      if (emailFocusController.text.isNotEmpty) {
+        final email = emailFocusController.text;
+
+        if (!email.contains('@')) {
+          if (_overlayEntry == null) {
+            _overlayEntry = _emailListOverlayEntry();
+            Overlay.of(context).insert(_overlayEntry!);
+          }
+        } else {
+          _removeEmailOverlay();
+        }
+      } else {
+        _removeEmailOverlay();
+      }
+    }
+  }
+
+  // 이메일 자동 입력창.
+  OverlayEntry _emailListOverlayEntry() {
+    return customDropdown.emailRecommendation(
+      width: MediaQuery.of(context).size.width - 100,
+      layerLink: _layerLink,
+      controller: emailFocusController,
+      onPressed: () {
+        setState(() {
+          emailFocus.unfocus();
+          _removeEmailOverlay();
+        });
+      },
     );
   }
 }
