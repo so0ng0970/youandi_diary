@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             HomeScreen.routeName,
                           );
                         } on FirebaseAuthException catch (e) {
-                          // 로그인 실패 처리
+                          
                           print(e);
                           if (e.code == 'user-not-found') {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -137,9 +137,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                         }
                       } else {
-                        print('이메'); // 이메일과 비밀번호를 입력하라는 안내 메시지 출력
+                        print('이메'); 
                       }
-                    }, // Firebase 인증 정보가 없는 경우 버튼 비활성화
+                    }, 
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(

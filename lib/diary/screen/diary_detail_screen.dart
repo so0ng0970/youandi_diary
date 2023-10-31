@@ -13,6 +13,7 @@ import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
+import 'package:youandi_diary/user/model/user_alarm_model.dart';
 import '../../common/const/color.dart';
 import '../../user/layout/default_layout.dart';
 import '../component/calendar.dart';
@@ -281,6 +282,14 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                                 content: content,
                                 postTittle: diaryData.title,
                                 diaryTittle: widget.title);
+                            UserAlarmModel alarmPost = UserAlarmModel(
+                              diaryId: widget.diaryId,
+                              postId: diaryData.postId,
+                              postTittle: diaryData.title,
+                              diaryTittle: widget.title,
+                              userName: diaryData.userName,
+                              userId: diaryData.userId,
+                            );
                             setState(() {
                               ref
                                   .watch(diaryCommentProvider.notifier)
@@ -288,6 +297,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                                     diaryId: widget.diaryId.toString(),
                                     model: commentPost,
                                     postId: commentPost.postId.toString(),
+                                    alarmModel: alarmPost,
                                   );
                             });
                             HttpsCallable callable = FirebaseFunctions.instance

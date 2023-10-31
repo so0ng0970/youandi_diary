@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:youandi_diary/common/component/main_drawer.dart';
+import 'package:youandi_diary/user/component/alarm_list.dart';
 
 import '../../common/const/color.dart';
 
@@ -10,7 +11,6 @@ class DefaultLayout extends StatelessWidget {
   final Widget child;
   final String? title;
   final Widget? icon;
-  final VoidCallback? onPressed;
   final VoidCallback? popOnPressed;
   bool? drawerBool;
   bool? homeScreen;
@@ -21,7 +21,6 @@ class DefaultLayout extends StatelessWidget {
       required this.child,
       this.title,
       this.icon,
-      this.onPressed,
       this.popOnPressed,
       this.drawerBool = true,
       this.homeScreen = false,
@@ -43,7 +42,9 @@ class DefaultLayout extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: onPressed,
+            onPressed: () {
+              mediaDialog(context);
+            },
             icon: const Icon(
               Icons.notifications_none,
               color: WHITE_COLOR,
@@ -65,6 +66,15 @@ class DefaultLayout extends StatelessWidget {
         ),
         child: child,
       ),
+    );
+  }
+
+  Future<dynamic> mediaDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlarmList();
+      },
     );
   }
 }

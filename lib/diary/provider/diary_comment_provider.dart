@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tuple/tuple.dart';
 import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
+import 'package:youandi_diary/user/model/user_alarm_model.dart';
 
 final getCommentListProvider = StreamProvider.autoDispose
     .family<List<DiaryCommentModel>, Tuple2<String, String>>((ref, ids) {
@@ -36,6 +37,7 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
   // 댓글 저장
   Future<void> saveCommentToFirestore({
     required DiaryCommentModel model,
+    required UserAlarmModel alarmModel,
     required String diaryId,
     required String postId,
   }) async {
@@ -56,6 +58,11 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
           .doc(postId)
           .collection('comment')
           .doc(docRef.id);
+      DocumentReference alarmRef = _firestore
+          .collection('user')
+          .doc(currentUser?.uid)
+          .collection('alarm')
+          .doc();
 
       if (currentUser != null) {
         model.userId = currentUser.uid;
@@ -72,9 +79,22 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
           model.photoUrl = currentUser.photoURL ?? '';
         }
       }
-
       await docRef.set(model.toJson());
       await commentRef.set(model.toJson());
+
+      DocumentSnapshot postData = await _firestore
+          .collection('diary')
+          .doc(diaryId)
+          .collection('post')
+          .doc(postId)
+          .get();
+      String postOwnerId = postData['userId'] ?? '';
+      if (currentUser?.uid != postOwnerId) {
+        alarmModel.myId = currentUser?.uid;
+        alarmModel.alarmId = docRef.id;
+        alarmModel.commentId = docRef.id;
+        await alarmRef.set(alarmModel.toJson());
+      }
 
       model.commentId = docRef.id;
       state = CommentState(comment: model);

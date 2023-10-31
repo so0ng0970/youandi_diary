@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
+import 'package:youandi_diary/user/model/user_alarm_model.dart';
 
 import '../../common/const/color.dart';
 import '../../common/utils/data_utils.dart';
@@ -215,7 +216,15 @@ class _PostListState extends ConsumerState<PostList> {
                                                 postTittle: data.title,
                                                 diaryTittle: data.diaryTittle,
                                               );
-
+                                              UserAlarmModel alarmPost =
+                                                  UserAlarmModel(
+                                                diaryId: data.diaryId,
+                                                postId: data.postId,
+                                                postTittle: data.title,
+                                                diaryTittle: data.title,
+                                                userName: data.userName,
+                                                userId: data.userId,
+                                              );
                                               ref
                                                   .watch(diaryCommentProvider
                                                       .notifier)
@@ -225,6 +234,7 @@ class _PostListState extends ConsumerState<PostList> {
                                                     model: commentPost,
                                                     postId: commentPost.postId
                                                         .toString(),
+                                                    alarmModel: alarmPost,
                                                   );
                                               contentController.clear();
                                             });
