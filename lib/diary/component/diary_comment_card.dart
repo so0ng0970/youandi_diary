@@ -8,6 +8,7 @@ import 'package:youandi_diary/diary/component/diary_comment_list.dart';
 import 'package:youandi_diary/user/component/profile_component.dart';
 
 import '../../common/const/color.dart';
+import '../../user/model/validate.dart';
 import '../../user/provider/profile_user_provider.dart';
 import '../provider/diary_comment_provider.dart';
 
@@ -17,6 +18,7 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
   Color divColor;
   String photoUrl;
   TextEditingController contentController;
+
   VoidCallback sendOnpress;
   String? comment;
   String? postId;
@@ -61,10 +63,10 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
   }
 }
 
+FocusNode contentFocus = FocusNode();
 String? editCommentId;
 
 class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
-  @override
   @override
   Widget build(BuildContext context) {
     final getCommentList = ref.watch(
@@ -83,6 +85,9 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
     );
     TextFormField textFormField(TextEditingController controller) {
       return TextFormField(
+        focusNode: contentFocus,
+        validator: (value) =>
+            CheckValidate().validatelenght(contentFocus, value!, '댓글'),
         controller: controller,
         decoration: InputDecoration(
             filled: true,

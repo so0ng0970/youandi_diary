@@ -166,7 +166,7 @@ class _SignScreenState extends State<SignScreen> {
     }
   }
 
-  // 이메일 자동 입력창.
+  // 이메일 자동 입력창
   OverlayEntry _emailListOverlayEntry() {
     return customDropdown.emailRecommendation(
       width: MediaQuery.of(context).size.width - 100,

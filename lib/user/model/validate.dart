@@ -3,6 +3,15 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 
 class CheckValidate {
+  String? validatelenght(FocusNode focusNode, String value, String title) {
+    if (value.isEmpty) {
+      focusNode.requestFocus();
+      return '$title를 입력하세요.';
+    } else {
+      return null;
+    }
+  }
+
   String? validateNickName(FocusNode focusNode, String value) {
     if (value.isEmpty) {
       focusNode.requestFocus();

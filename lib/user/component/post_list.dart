@@ -229,6 +229,8 @@ class _PostListState extends ConsumerState<PostList> {
                                                   .watch(diaryCommentProvider
                                                       .notifier)
                                                   .saveCommentToFirestore(
+                                                    userId:
+                                                        data.userId.toString(),
                                                     diaryId:
                                                         data.diaryId.toString(),
                                                     model: commentPost,

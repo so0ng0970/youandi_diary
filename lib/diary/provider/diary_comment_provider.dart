@@ -40,6 +40,7 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
     required UserAlarmModel alarmModel,
     required String diaryId,
     required String postId,
+    required String userId,
   }) async {
     state = CommentState(isLoading: true);
 
@@ -60,7 +61,7 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
           .doc(docRef.id);
       DocumentReference alarmRef = _firestore
           .collection('user')
-          .doc(currentUser?.uid)
+          .doc(userId)
           .collection('alarm')
           .doc();
 
@@ -90,8 +91,8 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
           .get();
       String postOwnerId = postData['userId'] ?? '';
       if (currentUser?.uid != postOwnerId) {
-        alarmModel.myId = currentUser?.uid;
-        alarmModel.alarmId = docRef.id;
+        alarmModel.userId = currentUser?.uid;
+        alarmModel.alarmId = alarmRef.id;
         alarmModel.commentId = docRef.id;
         await alarmRef.set(alarmModel.toJson());
       }

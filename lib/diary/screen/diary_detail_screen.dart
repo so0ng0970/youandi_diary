@@ -288,12 +288,13 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                               postTittle: diaryData.title,
                               diaryTittle: widget.title,
                               userName: diaryData.userName,
-                              userId: diaryData.userId,
+                              myId: diaryData.userId,
                             );
                             setState(() {
                               ref
                                   .watch(diaryCommentProvider.notifier)
                                   .saveCommentToFirestore(
+                                    userId: diaryData.userId.toString(),
                                     diaryId: widget.diaryId.toString(),
                                     model: commentPost,
                                     postId: commentPost.postId.toString(),
