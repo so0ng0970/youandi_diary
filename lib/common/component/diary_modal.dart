@@ -23,7 +23,8 @@ class DiaryModal extends ConsumerStatefulWidget {
 class _DiaryModalState extends ConsumerState<DiaryModal> {
   final FocusNode titleFocus = FocusNode();
   final TextEditingController titleFocusController = TextEditingController();
-
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  late bool isError = false;
   List<String> diaryCoverImages = [
     'assets/image/diary/diary1.jpg',
     'assets/image/diary/diary2.jpg',
@@ -49,7 +50,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   Widget build(BuildContext context) {
     final selectMemberProvider = ref.watch(selectedMembersProvider.notifier);
     final dateTime = DateTime.now();
-
+    String? errorMessage;
     return DiaryModalLayout(
       onPressed: () {
         Navigator.of(context).pop();
@@ -60,65 +61,64 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
       title: '다이어리 만들기 ',
       buttonText: '제작하기',
       mainOnPressed: () async {
-        DiaryModel savedDiary =
-            await ref.watch(diaryProvider).saveDiaryToFirestore(
-                  DiaryModel(
-                    dataTime: dateTime,
-                    title: titleFocusController.text,
-                    coverImg: selectedImage,
-                    member: selectMemberProvider.state
-                        .map((UserModel user) => UserModel(
-                              uid: user.uid,
-                              userName: user.userName,
-                              photoUrl: user.photoUrl,
-                            ))
-                        .toList(),
-                  ),
-                );
-        await ref.read(diaryListProvider).addDiary(savedDiary);
+        if (formKey.currentState?.validate() ?? false) {
+          DiaryModel savedDiary =
+              await ref.watch(diaryProvider).saveDiaryToFirestore(
+                    DiaryModel(
+                      dataTime: dateTime,
+                      title: titleFocusController.text,
+                      coverImg: selectedImage,
+                      member: selectMemberProvider.state
+                          .map((UserModel user) => UserModel(
+                                uid: user.uid,
+                                userName: user.userName,
+                                photoUrl: user.photoUrl,
+                              ))
+                          .toList(),
+                    ),
+                  );
+          await ref.read(diaryListProvider).addDiary(savedDiary);
 
-        context.pop();
-        selectMemberProvider.reset();
-        ref.read(userProvider).resetSearch();
+          context.pop();
+          selectMemberProvider.reset();
+          ref.read(userProvider).resetSearch();
+        }
       },
       children: [
-        Container(
-          decoration: const ShapeDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFe6dfd8),
-                Color(
-                  0xFFf7f5ec,
-                ),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0.0, 0.4],
-              tileMode: TileMode.clamp,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  50.0,
-                ),
-              ),
-            ),
-          ),
+        Form(
+          key: formKey,
           child: TextFormField(
             key: const ValueKey(1),
             controller: titleFocusController,
             focusNode: titleFocus,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                isError = true;
+                errorMessage = '제목을 입력해주세요';
+                return errorMessage;
+              }
+              isError = false;
+              return null;
+            },
             keyboardType: TextInputType.name,
             decoration: InputDecoration(
+              filled: true,
+              fillColor: WHITE_COLOR,
               focusedBorder: OutlineInputBorder(
                 borderSide: const BorderSide(color: Colors.white),
                 borderRadius: BorderRadius.circular(32.0),
               ),
               enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.blue,
-                  width: 2.0,
+                borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(
+                    50,
+                  ),
                 ),
+              ),
+              errorBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2.0),
                 borderRadius: BorderRadius.all(
                   Radius.circular(
                     50,

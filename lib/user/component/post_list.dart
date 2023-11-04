@@ -5,14 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
-import 'package:youandi_diary/user/model/user_alarm_model.dart';
 
 import '../../common/const/color.dart';
 import '../../common/utils/data_utils.dart';
-import '../../diary/model/diary_comment_model.dart';
 import '../../diary/model/diary_post_model.dart';
 import '../../diary/provider/diart_detail_provider.dart';
-import '../../diary/provider/diary_comment_provider.dart';
 import '../../diary/screen/diary_post_screen.dart';
 
 class PostList extends ConsumerStatefulWidget {
@@ -203,44 +200,6 @@ class _PostListState extends ConsumerState<PostList> {
                                           divColor: DIVONE,
                                           inputFieldNode: inputFieldNode,
                                           contentController: contentController,
-                                          sendOnpress: () {
-                                            setState(() {
-                                              String content =
-                                                  contentController.text;
-                                              DiaryCommentModel commentPost =
-                                                  DiaryCommentModel(
-                                                diaryId: data.diaryId,
-                                                dataTime: focusedDay,
-                                                postId: data.postId,
-                                                content: content,
-                                                postTittle: data.title,
-                                                diaryTittle: data.diaryTittle,
-                                              );
-                                              UserAlarmModel alarmPost =
-                                                  UserAlarmModel(
-                                                diaryId: data.diaryId,
-                                                postId: data.postId,
-                                                postTittle: data.title,
-                                                diaryTittle: data.title,
-                                                userName: data.userName,
-                                                userId: data.userId,
-                                              );
-                                              ref
-                                                  .watch(diaryCommentProvider
-                                                      .notifier)
-                                                  .saveCommentToFirestore(
-                                                    userId:
-                                                        data.userId.toString(),
-                                                    diaryId:
-                                                        data.diaryId.toString(),
-                                                    model: commentPost,
-                                                    postId: commentPost.postId
-                                                        .toString(),
-                                                    alarmModel: alarmPost,
-                                                  );
-                                              contentController.clear();
-                                            });
-                                          },
                                         ),
                                       ),
                                     ),

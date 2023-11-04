@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,15 +8,12 @@ import 'package:skeletons/skeletons.dart';
 import 'package:youandi_diary/common/utils/data_utils.dart';
 import 'package:youandi_diary/diary/component/diary_detail_card.dart';
 import 'package:youandi_diary/diary/component/skeleton.dart';
-import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/diary/provider/diart_detail_provider.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
-import 'package:youandi_diary/user/model/user_alarm_model.dart';
 import '../../common/const/color.dart';
 import '../../user/layout/default_layout.dart';
 import '../component/calendar.dart';
-import '../provider/diary_comment_provider.dart';
 
 class DiaryDetailScreen extends ConsumerStatefulWidget {
   final String diaryId;
@@ -273,51 +269,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                           divColor: divColors[index % divColors.length],
                           inputFieldNode: inputFieldNode,
                           contentController: contentController,
-                          sendOnpress: () async {
-                            String content = contentController.text;
-                            DiaryCommentModel commentPost = DiaryCommentModel(
-                                diaryId: widget.diaryId,
-                                dataTime: focusedDay,
-                                postId: diaryData.postId,
-                                content: content,
-                                postTittle: diaryData.title,
-                                diaryTittle: widget.title);
-                            UserAlarmModel alarmPost = UserAlarmModel(
-                              diaryId: widget.diaryId,
-                              postId: diaryData.postId,
-                              postTittle: diaryData.title,
-                              diaryTittle: widget.title,
-                              userName: diaryData.userName,
-                              myId: diaryData.userId,
-                            );
-                            setState(() {
-                              ref
-                                  .watch(diaryCommentProvider.notifier)
-                                  .saveCommentToFirestore(
-                                    userId: diaryData.userId.toString(),
-                                    diaryId: widget.diaryId.toString(),
-                                    model: commentPost,
-                                    postId: commentPost.postId.toString(),
-                                    alarmModel: alarmPost,
-                                  );
-                            });
-                            HttpsCallable callable = FirebaseFunctions.instance
-                                .httpsCallable('addMessage');
-                            try {
-                              final HttpsCallableResult result =
-                                  await callable.call(<String, dynamic>{
-                                'diaryId': widget.diaryId.toString(),
-                                'postId': diaryData.postId.toString(),
-                                'commentId': commentPost.commentId.toString(),
-                              });
-                              print(result.data);
-                            } on FirebaseFunctionsException catch (e) {
-                              print('Error code: ${e.code}');
-                              print('Details: ${e.details}');
-                            }
-
-                            contentController.clear();
-                          },
+                          
                         );
                       },
                       noItemsFoundIndicatorBuilder: (context) => const Center(

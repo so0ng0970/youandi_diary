@@ -29,8 +29,6 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
   final VoidCallback editOnPressed;
   late DateTime dataTime;
   late FocusNode inputFieldNode;
-  final TextEditingController contentController;
-  final VoidCallback sendOnpress;
   bool? postListbool;
 
   DiaryDetailCard({
@@ -50,8 +48,6 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
     required this.editOnPressed,
     required this.dataTime,
     required this.inputFieldNode,
-    required this.contentController,
-    required this.sendOnpress,
     this.userId,
   }) : super(key: key);
   factory DiaryDetailCard.fromModel({
@@ -60,7 +56,6 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
     required divColor,
     required deleteOnpress,
     required editOnPressed,
-    required sendOnpress,
     required inputFieldNode,
     required contentController,
     postListbool,
@@ -81,8 +76,6 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
       deleteOnpress: deleteOnpress,
       editOnPressed: editOnPressed,
       inputFieldNode: inputFieldNode,
-      contentController: contentController,
-      sendOnpress: sendOnpress,
       postListbool: postListbool,
     );
   }
@@ -225,14 +218,14 @@ class _DiaryDetailCardState extends ConsumerState<DiaryDetailCard> {
               ),
             ),
             DiaryCommentCard(
-                diaryId: widget.diaryId.toString(),
-                userId: widget.userId.toString(),
-                postId: widget.postId,
-                photoUrl: widget.photoUrl.toString(),
-                divColor: widget.divColor,
-                sendOnpress: widget.sendOnpress,
-                contentController: widget.contentController,
-                postListbool: widget.postListbool)
+              diaryId: widget.diaryId.toString(),
+              userId: widget.userId.toString(),
+              postId: widget.postId,
+              photoUrl: widget.photoUrl.toString(),
+              divColor: widget.divColor,
+              postListbool: widget.postListbool,
+              userName: widget.userName.toString(),
+            )
           ],
         ),
       ),

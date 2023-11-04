@@ -15,7 +15,7 @@ class UserAlarmModel {
   final String? postTittle;
   final String? userName;
   final String? alarmContent;
-  bool? isChecked;
+  bool? isChecked ;
 
   UserAlarmModel({
     this.alarmId,

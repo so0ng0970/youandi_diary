@@ -1,12 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:youandi_diary/common/component/main_drawer.dart';
 import 'package:youandi_diary/user/component/alarm_list.dart';
-
+import 'package:badges/badges.dart' as badges;
+import 'package:youandi_diary/user/provider/user_alarm_provider.dart';
 import '../../common/const/color.dart';
 
-class DefaultLayout extends StatelessWidget {
+class DefaultLayout extends ConsumerStatefulWidget {
   final Color? color;
   final Widget child;
   final String? title;
@@ -28,9 +30,15 @@ class DefaultLayout extends StatelessWidget {
       : super(key: key);
 
   @override
+  ConsumerState<DefaultLayout> createState() => _DefaultLayoutState();
+}
+
+class _DefaultLayoutState extends ConsumerState<DefaultLayout> {
+  @override
   Widget build(BuildContext context) {
+    final alarmProvider = ref.watch(alarmStreamProvider);
     return Scaffold(
-      backgroundColor: color,
+      backgroundColor: widget.color,
       extendBodyBehindAppBar: true,
       // 앱바 투명하게 가능
       appBar: AppBar(
@@ -38,33 +46,69 @@ class DefaultLayout extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          title ?? '',
+          widget.title ?? '',
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              mediaDialog(context);
+          alarmProvider.when(
+            data: (data) {
+              final uncheckedAlarms =
+                  data.where((alarm) => alarm.isChecked == false);
+              final uncheckedAlarmCount = uncheckedAlarms.length;
+              final showBadge = uncheckedAlarmCount > 0;
+              return badges.Badge(
+                position: badges.BadgePosition.topEnd(top: 0, end: 0),
+                showBadge: showBadge,
+                ignorePointer: false,
+                badgeContent: Text(
+                  uncheckedAlarmCount.toString(),
+                  style: const TextStyle(
+                    color: WHITE_COLOR,
+                  ),
+                ),
+                badgeAnimation: const badges.BadgeAnimation.rotation(
+                  animationDuration: Duration(seconds: 1),
+                  colorChangeAnimationDuration: Duration(seconds: 1),
+                  loopAnimation: false,
+                  curve: Curves.fastOutSlowIn,
+                  colorChangeAnimationCurve: Curves.easeInCubic,
+                ),
+                badgeStyle: const badges.BadgeStyle(
+                  badgeColor: Colors.red,
+                  borderSide: BorderSide(color: Colors.white, width: 1),
+                  elevation: 0,
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    ref
+                        .watch(userAlarmProvider.notifier)
+                        .markAllAlarmsAsChecked(data);
+                    mediaDialog(context);
+                  },
+                  icon: const Icon(
+                    Icons.notifications_none,
+                    color: WHITE_COLOR,
+                  ),
+                ),
+              );
             },
-            icon: const Icon(
-              Icons.notifications_none,
-              color: WHITE_COLOR,
-            ),
+            loading: () => const CircularProgressIndicator(),
+            error: (error, stack) => Text('Error: $error'),
           ),
-          if (icon == null && backBool == true)
+          if (widget.icon == null && widget.backBool == true)
             IconButton(
-              onPressed: popOnPressed,
+              onPressed: widget.popOnPressed,
               icon: const Icon(Icons.arrow_back),
             )
         ],
       ),
 
-      drawer: drawerBool == true ? const MainDrawer() : null,
+      drawer: widget.drawerBool == true ? const MainDrawer() : null,
 
       body: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: homeScreen == true ? 0 : 16.0,
+          horizontal: widget.homeScreen == true ? 0 : 16.0,
         ),
-        child: child,
+        child: widget.child,
       ),
     );
   }

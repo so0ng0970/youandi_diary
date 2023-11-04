@@ -59,11 +59,8 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
           .doc(postId)
           .collection('comment')
           .doc(docRef.id);
-      DocumentReference alarmRef = _firestore
-          .collection('user')
-          .doc(userId)
-          .collection('alarm')
-          .doc();
+      DocumentReference alarmRef =
+          _firestore.collection('user').doc(userId).collection('alarm').doc();
 
       if (currentUser != null) {
         model.userId = currentUser.uid;
@@ -94,6 +91,7 @@ class DiaryCommentProvider extends StateNotifier<CommentState> {
         alarmModel.userId = currentUser?.uid;
         alarmModel.alarmId = alarmRef.id;
         alarmModel.commentId = docRef.id;
+        alarmModel.isChecked = false;
         await alarmRef.set(alarmModel.toJson());
       }
 

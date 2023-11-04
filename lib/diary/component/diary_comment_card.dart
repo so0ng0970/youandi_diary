@@ -1,13 +1,16 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tuple/tuple.dart';
 
 import 'package:youandi_diary/diary/component/diary_comment_list.dart';
+import 'package:youandi_diary/diary/model/diary_comment_model.dart';
 import 'package:youandi_diary/user/component/profile_component.dart';
 
 import '../../common/const/color.dart';
+import '../../user/model/user_alarm_model.dart';
 import '../../user/model/validate.dart';
 import '../../user/provider/profile_user_provider.dart';
 import '../provider/diary_comment_provider.dart';
@@ -17,12 +20,11 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
   String diaryId;
   Color divColor;
   String photoUrl;
-  TextEditingController contentController;
-
-  VoidCallback sendOnpress;
   String? comment;
   String? postId;
   bool? postListbool;
+
+  String userName;
 
   DiaryCommentCard({
     Key? key,
@@ -30,11 +32,10 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
     required this.diaryId,
     required this.divColor,
     required this.photoUrl,
-    required this.contentController,
-    required this.sendOnpress,
     this.comment,
     this.postId,
     this.postListbool,
+    required this.userName,
   }) : super(key: key);
 
   @override
@@ -54,19 +55,34 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
       userId: userId ?? this.userId,
       divColor: divColor ?? this.divColor,
       photoUrl: photoUrl ?? this.photoUrl,
-      contentController: contentController ?? this.contentController,
-      sendOnpress: sendOnpress ?? this.sendOnpress,
       comment: comment ?? this.comment,
       postId: postId ?? this.postId,
       diaryId: diaryId ?? this.diaryId,
+      userName: '',
     );
   }
 }
 
-FocusNode contentFocus = FocusNode();
-String? editCommentId;
-
 class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
+  @override
+  void initState() {
+    super.initState();
+    contentController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    contentController.dispose();
+    super.dispose();
+  }
+
+  late TextEditingController contentController;
+  FocusNode contentFocus = FocusNode();
+  DateTime dateTime = DateTime.now();
+  String? editCommentId;
+  final bool _isError = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     final getCommentList = ref.watch(
@@ -86,8 +102,11 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
     TextFormField textFormField(TextEditingController controller) {
       return TextFormField(
         focusNode: contentFocus,
-        validator: (value) =>
-            CheckValidate().validatelenght(contentFocus, value!, '댓글'),
+        validator: (value) => CheckValidate().validatelength(
+          focusNode: contentFocus,
+          title: '댓글',
+          value: value!,
+        ),
         controller: controller,
         decoration: InputDecoration(
             filled: true,
@@ -151,15 +170,78 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                       width: widget.postListbool == true
                           ? MediaQuery.of(context).size.width - 130
                           : MediaQuery.of(context).size.width - 173,
-                      child: textFormField(widget.contentController),
+                      child: Form(
+                        key: _formKey,
+                        child: textFormField(contentController),
+                      ),
                     ),
                   ),
-                  if (widget.contentController.text.trim().isNotEmpty ||
+                  if (contentController.text.trim().isNotEmpty ||
                       widget.postListbool == true)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       child: GestureDetector(
-                        onTap: widget.sendOnpress,
+                        onTap: () async {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            ref.watch(userGetProvider).when(
+                                  data: (data) async {
+                                    String content = contentController.text;
+                                    DiaryCommentModel commentPost =
+                                        DiaryCommentModel(
+                                      diaryId: widget.diaryId,
+                                      dataTime: dateTime,
+                                      postId: widget.postId,
+                                      content: content,
+                                    );
+                                    UserAlarmModel alarmPost = UserAlarmModel(
+                                      alarmContent: content,
+                                      diaryId: widget.diaryId,
+                                      postId: widget.postId,
+                                      userName: data?.userName,
+                                      myId: widget.userId,
+                                    );
+                                    setState(() {
+                                      ref
+                                          .watch(diaryCommentProvider.notifier)
+                                          .saveCommentToFirestore(
+                                            userId: widget.userId.toString(),
+                                            diaryId: widget.diaryId.toString(),
+                                            model: commentPost,
+                                            postId:
+                                                commentPost.postId.toString(),
+                                            alarmModel: alarmPost,
+                                          );
+                                    });
+                                    HttpsCallable callable = FirebaseFunctions
+                                        .instance
+                                        .httpsCallable('addMessage');
+                                    try {
+                                      final HttpsCallableResult result =
+                                          await callable.call(<String, dynamic>{
+                                        'diaryId': widget.diaryId.toString(),
+                                        'postId': widget.postId.toString(),
+                                        'commentId':
+                                            commentPost.commentId.toString(),
+                                      });
+                                      print(result.data);
+                                    } on FirebaseFunctionsException catch (e) {
+                                      print('Error code: ${e.code}');
+                                      print('Details: ${e.details}');
+                                    }
+
+                                    contentController.clear();
+                                  },
+                                  loading: () => const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.amber,
+                                    ),
+                                  ),
+                                  error: (error, stackTrace) => const Text(
+                                    '데이터를 불러오지 못했습니다',
+                                  ),
+                                );
+                          }
+                        },
                         child: Icon(
                           Icons.send,
                           size: 20,
@@ -184,7 +266,7 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                             commentData: commentData,
                             editCommentId: editCommentId.toString(),
                             postId: widget.postId.toString(),
-                            contentController: widget.contentController,
+                            contentController: contentController,
                             textFormField: textFormField,
                           );
                         });
