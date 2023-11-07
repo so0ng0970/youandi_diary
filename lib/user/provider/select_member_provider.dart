@@ -15,7 +15,7 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
   final ProviderContainer ref;
 
   SelectedMembers(this.ref) : super([]) {
-    _loadInitialData();
+    _initialize();
   }
 
   void add(UserModel user) {
@@ -34,18 +34,39 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
     }
   }
 
-  Future<void> _loadInitialData() async {
-    Stream<UserModel?> userStream = getUserStream();
+  Future<void> _initialize() async {
+    // 현재 로그인한 사용자 정보를 초기값으로 설정
+    currentUser = await _getCurrentUser();
+    if (currentUser != null) {
+      add(currentUser!);
+    }
 
-    await for (UserModel? userModel in userStream) {
+    // Firestore의 스트림을 통해 사용자 정보가 변경될 때마다 해당 정보를 업데이트
+    getUserStream().listen((UserModel? userModel) {
       if (userModel != null) {
         currentUser = userModel;
 
-        if (!state.contains(currentUser!)) {
-          add(currentUser!);
-        }
+        // state 초기화
+        state = [];
+
+        add(currentUser!);
+      }
+    });
+  }
+
+  Future<UserModel?> _getCurrentUser() async {
+    User? firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('user')
+          .doc(firebaseUser.uid)
+          .get();
+   Map<String, dynamic>? dataMap = snapshot.data() as Map<String, dynamic>?;
+      if (dataMap != null) {
+        return UserModel.fromJson(dataMap);
       }
     }
+    return null;
   }
 
   Stream<UserModel?> getUserStream() {
@@ -60,7 +81,6 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
         .snapshots()
         .map((snapshot) {
       Map<String, dynamic>? dataMap = snapshot.data();
-
       if (dataMap == null) {
         return null;
       } else {

@@ -20,26 +20,66 @@ final userUpdateProvider =
 
 class UserDataProvider {
   final CollectionReference userReference;
-
+  User? currentUser = FirebaseAuth.instance.currentUser;
   UserDataProvider(this.userReference);
 
   Stream<UserModel?> getUserStream() {
-    User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       return Stream.value(null);
     }
 
-    return userReference.doc(currentUser.uid).snapshots().map((snapshot) =>
+    return userReference.doc(currentUser!.uid).snapshots().map((snapshot) =>
         UserModel.fromJson(snapshot.data() as Map<String, dynamic>));
   }
 
   Future<void> updateUser(
       String uid, String displayName, String photoUrl) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
       await userReference.doc(uid).update({
         'photoUrl': photoUrl,
         'userName': displayName,
       });
+
+      QuerySnapshot userPostsSnapshot =
+          await firestore.collection('user').doc(uid).collection('post').get();
+
+      for (DocumentSnapshot postDoc in userPostsSnapshot.docs) {
+        postDoc.reference.update({
+          'userName': displayName,
+          'photoUrl': photoUrl,
+        });
+      }
+
+      QuerySnapshot diaryDocsSnapshot =
+          await firestore.collection('diary').get();
+      for (DocumentSnapshot diaryDoc in diaryDocsSnapshot.docs) {
+        List<UserModel> members = List<UserModel>.from(
+            diaryDoc['member'].map((m) => UserModel.fromJson(m)));
+
+        for (UserModel member in members) {
+          if (member.uid == uid) {
+            member.userName = displayName;
+          }
+        }
+
+        diaryDoc.reference.update({
+          'member': members.map((m) => m.toJson()).toList(),
+        });
+      }
+      for (DocumentSnapshot diaryDoc in diaryDocsSnapshot.docs) {
+        QuerySnapshot postDocsSnapshot = await diaryDoc.reference
+            .collection('post')
+            .where('userId', isEqualTo: uid)
+            .get();
+
+        for (DocumentSnapshot postDoc in postDocsSnapshot.docs) {
+          postDoc.reference.update({
+            'userName': displayName,
+            'photoUrl': photoUrl,
+          });
+        }
+      }
     } catch (e) {
       print(e.toString());
     }

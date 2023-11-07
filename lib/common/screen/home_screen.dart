@@ -18,16 +18,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool isLoading = false;
   @override
   void initState() {
-    // 초기화
-    // FlutterLocalNotification.init();
-
-    // 3초 후 권한 요청
-    // Future.delayed(
-    //   const Duration(seconds: 3),
-    //   FlutterLocalNotification.requestNotificationPermission(),
-    // );
     super.initState();
   }
 
@@ -112,22 +105,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     children: [
                                       SlidableAction(
                                         onPressed: (context) {
-                                          showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return ButtonDialogLayout(
-                                                    onPressed: () async {
-                                                      await diaryDelete
-                                                          .deleteDiaryWithSubcollections(
-                                                        diaryId: diary.diaryId
-                                                            .toString(),
-                                                      );
+                                          if (!isLoading) {
+                                            isLoading = true;
+                                            showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return ButtonDialogLayout(
+                                                      onPressed: () async {
+                                                        await diaryDelete
+                                                            .deleteDiaryWithSubcollections(
+                                                          diaryId: diary.diaryId
+                                                              .toString(),
+                                                        );
 
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    text: '정말 삭제하시겠습니까?');
-                                              });
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      text: '정말 삭제하시겠습니까?');
+                                                });
+                                          }
                                         },
                                         backgroundColor: Colors.red,
                                         foregroundColor: Colors.white,

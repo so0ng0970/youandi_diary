@@ -154,7 +154,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                 itemBuilder: (context, index) {
                   final imagePath = diaryCoverImages[index];
                   return GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       setState(() {
                         selectedImage = imagePath;
                       });
@@ -389,9 +389,9 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
   void selectFriend(bool? value, UserModel friend, selectMember) {
     friend.isChecked = value ?? false;
     if (value ?? false) {
-      selectMember.add(friend); // add method from SelectedMembers class
+      selectMember.add(friend);
     } else {
-      selectMember.remove(friend); // remove method from SelectedMembers class
+      selectMember.remove(friend);
     }
   }
 }

@@ -1,12 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/common/const/data.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
 import 'package:youandi_diary/user/provider/firebase_auth_provider.dart';
-
-
 
 final userProvider = ChangeNotifierProvider<UserProvider>((ref) {
   final firebaseAuth = ref.watch(firebase_auth_Provider);
@@ -58,8 +55,6 @@ class UserProvider with ChangeNotifier {
     searchUser = users;
     notifyListeners();
   }
-
-
 
   void search(String query) {
     searchUser = [];

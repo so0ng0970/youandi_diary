@@ -25,7 +25,7 @@ class DiaryModel {
       _$DiaryModelFromJson(json);
   Map<String, dynamic> toJson() => _$DiaryModelToJson(this);
 
-  // Firestore에서 'dataTime' 필드를 DateTime으로 변환하는 함수 추가
+
   static DateTime _fromJsonTimestamp(Timestamp timestamp) =>
       timestamp.toDate();
 
