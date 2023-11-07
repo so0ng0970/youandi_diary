@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/diary/component/diary_card.dart';
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/const/color.dart';
@@ -124,12 +123,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                             .toString(),
                                                       );
 
-                                                      await diaryDelete
-                                                          .removeUserFromDiary(
-                                                              diaryId: diary
-                                                                  .diaryId
-                                                                  .toString());
-                                                      context.pop();
+                                                      Navigator.of(context)
+                                                          .pop();
                                                     },
                                                     text: '정말 삭제하시겠습니까?');
                                               });

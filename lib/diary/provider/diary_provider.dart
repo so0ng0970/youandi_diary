@@ -72,13 +72,11 @@ class DiaryRepository {
     return diaryList;
   }
 
-
   Future<void> deleteDiaryWithSubcollections({
     required String diaryId,
   }) async {
     try {
       WriteBatch batch = _firestore.batch();
-
 
       QuerySnapshot diaryPostsSnapshot = await _firestore
           .collection('diary')
@@ -87,12 +85,10 @@ class DiaryRepository {
           .get();
 
       for (DocumentSnapshot postDoc in diaryPostsSnapshot.docs) {
-
         QuerySnapshot commentsSnapshot =
             await postDoc.reference.collection('comment').get();
 
         for (DocumentSnapshot commentDoc in commentsSnapshot.docs) {
- 
           DocumentReference userCommentRef = _firestore
               .collection('user')
               .doc(currentUser?.uid)
@@ -111,10 +107,8 @@ class DiaryRepository {
           }
         }
 
-     
         batch.delete(postDoc.reference);
 
-   
         DocumentReference userPostRef = _firestore
             .collection('user')
             .doc(currentUser?.uid)
@@ -151,6 +145,45 @@ class DiaryRepository {
 
       batch.delete(userDiaryRef);
 
+      QuerySnapshot alarmSnapshot = await _firestore
+          .collection('user')
+          .doc(currentUser!.uid)
+          .collection('alarm')
+          .where('diaryId', isEqualTo: diaryId)
+          .get();
+
+      for (var alarmDoc in alarmSnapshot.docs) {
+        await alarmDoc.reference.delete();
+      }
+      DocumentReference diary = _firestore.collection('diary').doc(diaryId);
+
+      DocumentSnapshot docSnapshot = await diary.get();
+
+      Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
+      if (data != null &&
+          data.containsKey('memberUids') &&
+          data.containsKey('member')) {
+        List<String> memberUids = List<String>.from(data['memberUids']);
+        List<UserModel> members = (data['member'] as List)
+            .map((item) => UserModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+
+        UserModel currentUserModel =
+            members.firstWhere((user) => user.uid == currentUser!.uid);
+
+        if (memberUids.contains(currentUser!.uid)) {
+          if (memberUids.length == 1) {
+            await diary.delete();
+          } else {
+            final updates = {
+              'memberUids': FieldValue.arrayRemove([currentUser!.uid]),
+              'member': FieldValue.arrayRemove([currentUserModel.toJson()]),
+            };
+
+            diary.update(updates);
+          }
+        }
+      }
       await batch.commit();
     } catch (e) {
       print(e.toString());

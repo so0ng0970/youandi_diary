@@ -61,28 +61,30 @@ class _AlarmListState extends ConsumerState<AlarmList> {
                 return ListView.separated(
                   itemBuilder: (BuildContext context, int index) {
                     UserAlarmModel alarm = alarmList[index];
+                    final post = diaryProvider.getDiaryListFromFirestore(
+                      alarm.diaryId.toString(),
+                      DateTime.now(),
+                    );
                     return StreamBuilder<List<DiaryPostModel>>(
                       stream: diaryProvider.getDiaryListFromFirestore(
                         alarm.diaryId.toString(),
                         DateTime.now(),
                       ),
                       builder: (BuildContext context,
-                          AsyncSnapshot<List<DiaryPostModel>> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
+                          AsyncSnapshot<List<DiaryPostModel>> diary) {
+                        if (diary.connectionState == ConnectionState.waiting) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
+                        } else if (diary.hasError) {
+                          return Text('Error: ${diary.error}');
                         } else {
-                          List<DiaryPostModel> diaryDataList = snapshot.data!;
-                          DiaryPostModel diaryData;
+                          List<DiaryPostModel>? diaryDataList = diary.data;
+                          DiaryPostModel? diaryData;
 
-                          if (diaryDataList.isNotEmpty) {
+                          if (diaryDataList != null) {
                             diaryData = diaryDataList.firstWhere(
-                              (diaryPostModel) =>
-                                  diaryPostModel.postId == alarm.postId,
+                              (post) => post.postId == alarm.postId,
                             );
                           }
                           return ClipRect(
@@ -147,8 +149,9 @@ class _AlarmListState extends ConsumerState<AlarmList> {
                                                       diaryId: alarm.diaryId
                                                           .toString(),
                                                       edit: true,
-                                                      diaryTitle:
-                                                          alarm.diaryTittle!,
+                                                      diaryTitle: alarm
+                                                          .diaryTittle
+                                                          .toString(),
                                                       selectedDay:
                                                           DateTime.now(),
                                                     ),
@@ -171,7 +174,7 @@ class _AlarmListState extends ConsumerState<AlarmList> {
                                                 });
                                                 context.pop();
                                               },
-                                              diaryData: diaryData,
+                                              diaryData: diaryData!,
                                               color: ONECOLOR,
                                               divColor: DIVONE,
                                               inputFieldNode: inputFieldNode,
@@ -182,6 +185,7 @@ class _AlarmListState extends ConsumerState<AlarmList> {
                                       );
                                     },
                                   ));
+                                  setState(() {});
                                 },
                                 child: SizedBox(
                                   height: 50,

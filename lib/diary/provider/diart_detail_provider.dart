@@ -175,7 +175,16 @@ class DiartDetailProvider extends StateNotifier<PostState> {
             .collection('comment')
             .where('postId', isEqualTo: postId)
             .get();
+        QuerySnapshot alarmSnapshot = await _firestore
+            .collection('user')
+            .doc(currentUser!.uid)
+            .collection('alarm')
+            .where('postId', isEqualTo: postId)
+            .get();
 
+        for (var alarmDoc in alarmSnapshot.docs) {
+          await alarmDoc.reference.delete();
+        }
         for (DocumentSnapshot doc in userCommentsSnapshot.docs) {
           batch.delete(doc.reference);
         }
@@ -231,8 +240,6 @@ class DiartDetailProvider extends StateNotifier<PostState> {
           'dataTime',
           descending: true,
         )
-        .where('dataTime', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
-        .where('dataTime', isLessThan: Timestamp.fromDate(end))
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => DiaryPostModel.fromJson(doc.data()))
@@ -283,6 +290,16 @@ class DiartDetailProvider extends StateNotifier<PostState> {
         }
       }
 
+      QuerySnapshot alarmSnapshot = await _firestore
+          .collection('user')
+          .doc(currentUser!.uid)
+          .collection('alarm')
+          .where('postId', isEqualTo: postId)
+          .get();
+
+      for (var alarmDoc in alarmSnapshot.docs) {
+        await alarmDoc.reference.delete();
+      }
       await allPostRef.delete();
     } catch (e) {
       print(e.toString());
