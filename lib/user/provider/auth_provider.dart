@@ -124,8 +124,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout(BuildContext context) async {
+    
     await FirebaseAuth.instance.signOut();
-
+    context.goNamed(LoginScreen.routeName);
     notifyListeners();
   }
 }

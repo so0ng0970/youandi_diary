@@ -18,7 +18,7 @@ class MainDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userData = ref.watch(userGetProvider);
     final authState = ref.watch(firebase_auth_Provider);
-    final provider = ref.read(authProvider);
+    final provider = ref.watch(authProvider);
     final viewModel = LoginSignModel(
       KakaoLogin(),
     );

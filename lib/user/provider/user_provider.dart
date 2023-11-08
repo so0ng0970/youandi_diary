@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/common/const/data.dart';
@@ -44,16 +45,22 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> fetchUser(String currentEmail) async {
-    users = await userReference.get().then((QuerySnapshot results) {
-      return results.docs
-          .map((DocumentSnapshot document) {
-            return UserModel.fromJson(document.data() as Map<String, dynamic>);
-          })
-          .where((user) => user.email != currentEmail)
-          .toList();
-    });
-    searchUser = users;
-    notifyListeners();
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      users = await userReference.get().then((QuerySnapshot results) {
+        return results.docs
+            .map((DocumentSnapshot document) {
+              return UserModel.fromJson(
+                  document.data() as Map<String, dynamic>);
+            })
+            .where((user) => user.email != currentEmail)
+            .toList();
+      });
+      searchUser = users;
+      notifyListeners();
+    } else {
+      print("로그인하지 않은 사용자는 사용자 정보를 가져올 수 없습니다.");
+    }
   }
 
   void search(String query) {

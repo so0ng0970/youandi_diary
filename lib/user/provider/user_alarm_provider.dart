@@ -1,10 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:youandi_diary/user/model/user_alarm_model.dart';
-
-import '../../diary/provider/diart_detail_provider.dart';
 
 final alarmStreamProvider =
     StreamProvider.autoDispose<List<UserAlarmModel>>((ref) {
@@ -28,23 +27,31 @@ class AlarmState {
 class UserAlarmProvider extends StateNotifier<AlarmState> {
   UserAlarmProvider() : super(AlarmState());
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  // 알림 불러오기
+  User? currentUser = FirebaseAuth.instance.currentUser;
   Stream<List<UserAlarmModel>> getAlarmListFromFirestore() {
-    return FirebaseFirestore.instance
-        .collection('user')
-        .doc(currentUser?.uid)
-        .collection('alarm')
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => UserAlarmModel.fromJson(doc.data()))
-            .toList());
+    if (currentUser != null) {
+      return FirebaseFirestore.instance
+          .collection('user')
+          .doc(currentUser!.uid)
+          .collection('alarm')
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+              .map((doc) => UserAlarmModel.fromJson(doc.data()))
+              .toList());
+    } else {
+      print("로그인하지 않은 사용자는 알림 정보를 가져올 수 없습니다.");
+      return Stream.value([]);
+    }
   }
 
   // 알림 삭제
   Future<void> deleteAlarmFromFirestore({
     required String alarmId,
   }) async {
+    if (currentUser == null) {
+      print("로그인하지 않은 사용자는 알림 정보를 삭제할 수 없습니다.");
+      return;
+    }
     try {
       await _firestore
           .collection('user')
@@ -59,6 +66,10 @@ class UserAlarmProvider extends StateNotifier<AlarmState> {
 
   //  알림 읽음 처리
   Future<void> markAllAlarmsAsChecked(List<UserAlarmModel> alarms) async {
+    if (currentUser == null) {
+      print("로그인하지 않은 사용자는 알림 정보를 삭제할 수 없습니다.");
+      return;
+    }
     for (var alarm in alarms) {
       try {
         await _firestore

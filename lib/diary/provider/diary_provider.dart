@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,7 +16,7 @@ final diaryListProvider = ChangeNotifierProvider<DiaryListNotifier>(
 class DiaryRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-
+  User? currentUser = FirebaseAuth.instance.currentUser;
   // 다이어리 생성
   Future<DiaryModel> saveDiaryToFirestore(DiaryModel diary) async {
     DocumentReference docRef = _firestore.collection('diary').doc();
@@ -44,37 +46,52 @@ class DiaryRepository {
   }
 
   Future<DiaryModel?> getDiaryById(String diaryId) async {
-    final DocumentSnapshot snapshot =
-        await _firestore.collection('diary').doc(diaryId).get();
+    if (currentUser != null) {
+      final DocumentSnapshot snapshot =
+          await _firestore.collection('diary').doc(diaryId).get();
 
-    if (snapshot.exists) {
-      return DiaryModel.fromJson(snapshot.data() as Map<String, dynamic>);
-    } else {
-      return null;
+      if (snapshot.exists) {
+        return DiaryModel.fromJson(snapshot.data() as Map<String, dynamic>);
+      } else {
+        return null;
+      }
     }
+    return null;
   }
 
-  final currentUser = FirebaseAuth.instance.currentUser;
   Future<List<DiaryModel>> getDiaryListFromFirestore() async {
-    final QuerySnapshot snapshot = await _firestore
-        .collection('diary')
-        .where('memberUids', arrayContains: currentUser!.uid)
-        .orderBy(
-          'dataTime',
-          descending: true,
-        )
-        .get();
-    final List<DiaryModel> diaryList = [];
-    for (var doc in snapshot.docs) {
-      diaryList.add(DiaryModel.fromJson(doc.data() as Map<String, dynamic>));
+    if (currentUser == null) {
+      print("로그인하지 않은 사용자는 일기를 가져올 수 없습니다.");
+      return [];
     }
+    if (currentUser != null) {
+      final QuerySnapshot snapshot = await _firestore
+          .collection('diary')
+          .where('memberUids', arrayContains: currentUser!.uid)
+          .orderBy(
+            'dataTime',
+            descending: true,
+          )
+          .get();
+      final List<DiaryModel> diaryList = [];
+      for (var doc in snapshot.docs) {
+        diaryList.add(DiaryModel.fromJson(doc.data() as Map<String, dynamic>));
+      }
 
-    return diaryList;
+      return diaryList;
+    } else {
+      print("로그인하지 않은 사용자는 일기를 가져올 수 없습니다.");
+      return [];
+    }
   }
 
   Future<void> deleteDiaryWithSubcollections({
     required String diaryId,
   }) async {
+    if (currentUser == null) {
+      print("로그인하지 않은 사용자는 일기를 삭제할 수 없습니다.");
+      return;
+    }
     try {
       WriteBatch batch = _firestore.batch();
 
@@ -232,7 +249,7 @@ class DiaryRepository {
 
 class DiaryListNotifier with ChangeNotifier {
   DiaryListNotifier({required this.repository}) {
-    loadDiaries();
+    // loadDiaries();
   }
 
   final DiaryRepository repository;
@@ -254,34 +271,35 @@ class DiaryListNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadDiaries() async {
-    _isLoading = true;
-    notifyListeners();
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      _isLoading = false;
+  // Future<void> loadDiaries() async {
+  //   _isLoading = true;
+  //   notifyListeners();
+  //   User? user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) {
+  //     _isLoading = false;
 
-      notifyListeners();
-      return;
-    }
-    repository._firestore
-        .collection('diary')
-        .where('memberUids', arrayContains: user.uid)
-        .orderBy('dataTime', descending: true)
-        .snapshots()
-        .listen((QuerySnapshot snapshot) {
-      final List<DiaryModel> newDiaryList = [];
-      for (var doc in snapshot.docs) {
-        newDiaryList.add(
-          DiaryModel.fromJson(
-            doc.data() as Map<String, dynamic>,
-          ),
-        );
-      }
+  //     notifyListeners();
+  //     return;
+  //   }
 
-      _diaryList = newDiaryList;
-      _isLoading = false;
-      notifyListeners();
-    });
-  }
+  //   repository._firestore
+  //       .collection('diary')
+  //       .where('memberUids', arrayContains: user.uid)
+  //       .orderBy('dataTime', descending: true)
+  //       .snapshots()
+  //       .listen((QuerySnapshot snapshot) {
+  //     final List<DiaryModel> newDiaryList = [];
+  //     for (var doc in snapshot.docs) {
+  //       newDiaryList.add(
+  //         DiaryModel.fromJson(
+  //           doc.data() as Map<String, dynamic>,
+  //         ),
+  //       );
+  //     }
+
+  //     _diaryList = newDiaryList;
+  //     _isLoading = false;
+  //     notifyListeners();
+  //   });
+  // }
 }

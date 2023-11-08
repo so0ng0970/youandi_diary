@@ -24,12 +24,14 @@ class UserDataProvider {
   UserDataProvider(this.userReference);
 
   Stream<UserModel?> getUserStream() {
-    if (currentUser == null) {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      return userReference.doc(currentUser.uid).snapshots().map((snapshot) =>
+          UserModel.fromJson(snapshot.data() as Map<String, dynamic>));
+    } else {
+      print("로그인하지 않은 사용자는 사용자 정보를 가져올 수 없습니다.");
       return Stream.value(null);
     }
-
-    return userReference.doc(currentUser!.uid).snapshots().map((snapshot) =>
-        UserModel.fromJson(snapshot.data() as Map<String, dynamic>));
   }
 
   Future<void> updateUser(
