@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,9 +15,10 @@ final selectedMembersProvider =
 class SelectedMembers extends StateNotifier<List<UserModel>> {
   UserModel? currentUser;
   final ProviderContainer ref;
+  StreamSubscription<UserModel?>? userSubscription;
 
   SelectedMembers(this.ref) : super([]) {
-    // _initialize();
+    _initialize();
   }
 
   void add(UserModel user) {
@@ -34,23 +37,23 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
     }
   }
 
-  // Future<void> _initialize() async {
-  //   currentUser = await _getCurrentUser();
-  //   if (currentUser != null) {
-  //     add(currentUser!);
-  //   }
+  Future<void> _initialize() async {
+    currentUser = await _getCurrentUser();
+    if (currentUser != null) {
+      add(currentUser!);
+    }
 
-  //   getUserStream().listen((UserModel? userModel) {
-  //     if (userModel != null) {
-  //       currentUser = userModel;
+    userSubscription = getUserStream().listen((UserModel? userModel) {
+      if (userModel != null) {
+        currentUser = userModel;
 
-  //       // state 초기화
-  //       state = [];
+        // state 초기화
+        state = [];
 
-  //       add(currentUser!);
-  //     }
-  //   });
-  // }
+        add(currentUser!);
+      }
+    });
+  }
 
   Future<UserModel?> _getCurrentUser() async {
     User? firebaseUser = FirebaseAuth.instance.currentUser;
@@ -85,5 +88,9 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
         return UserModel.fromJson(dataMap);
       }
     });
+  }
+
+  Future<void> cleanUp() async {
+    await userSubscription?.cancel();
   }
 }

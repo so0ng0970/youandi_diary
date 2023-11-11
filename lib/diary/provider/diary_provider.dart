@@ -249,13 +249,13 @@ class DiaryRepository {
 
 class DiaryListNotifier with ChangeNotifier {
   DiaryListNotifier({required this.repository}) {
-    // loadDiaries();
+    loadDiaries();
   }
 
   final DiaryRepository repository;
   List<DiaryModel> _diaryList = [];
   bool _isLoading = false;
-
+  StreamSubscription<QuerySnapshot>? _diarySubscription;
   List<DiaryModel> get diaryList => _diaryList;
   bool get isLoading => _isLoading;
 
@@ -271,35 +271,39 @@ class DiaryListNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<void> loadDiaries() async {
-  //   _isLoading = true;
-  //   notifyListeners();
-  //   User? user = FirebaseAuth.instance.currentUser;
-  //   if (user == null) {
-  //     _isLoading = false;
+  Future<void> loadDiaries() async {
+    _isLoading = true;
+    notifyListeners();
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _isLoading = false;
 
-  //     notifyListeners();
-  //     return;
-  //   }
+      notifyListeners();
+      return;
+    }
 
-  //   repository._firestore
-  //       .collection('diary')
-  //       .where('memberUids', arrayContains: user.uid)
-  //       .orderBy('dataTime', descending: true)
-  //       .snapshots()
-  //       .listen((QuerySnapshot snapshot) {
-  //     final List<DiaryModel> newDiaryList = [];
-  //     for (var doc in snapshot.docs) {
-  //       newDiaryList.add(
-  //         DiaryModel.fromJson(
-  //           doc.data() as Map<String, dynamic>,
-  //         ),
-  //       );
-  //     }
+    _diarySubscription = repository._firestore
+        .collection('diary')
+        .where('memberUids', arrayContains: user.uid)
+        .orderBy('dataTime', descending: true)
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+      final List<DiaryModel> newDiaryList = [];
+      for (var doc in snapshot.docs) {
+        newDiaryList.add(
+          DiaryModel.fromJson(
+            doc.data() as Map<String, dynamic>,
+          ),
+        );
+      }
 
-  //     _diaryList = newDiaryList;
-  //     _isLoading = false;
-  //     notifyListeners();
-  //   });
-  // }
+      _diaryList = newDiaryList;
+      _isLoading = false;
+      notifyListeners();
+    });
+  }
+
+  Future<void> cleanUp() async {
+    await _diarySubscription?.cancel();
+  }
 }

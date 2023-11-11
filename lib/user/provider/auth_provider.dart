@@ -7,9 +7,11 @@ import 'package:youandi_diary/common/screen/home_screen.dart';
 import 'package:youandi_diary/diary/component/calendar.dart';
 import 'package:youandi_diary/diary/screen/diary_detail_screen.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
+import 'package:youandi_diary/user/provider/select_member_provider.dart';
 import 'package:youandi_diary/user/screens/sign_screen.dart';
 
 import '../../common/screen/splash_screen.dart';
+import '../../diary/provider/diary_provider.dart';
 import '../screens/login_screen.dart';
 import '../screens/root_tab_screen.dart';
 
@@ -20,8 +22,13 @@ final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
 class AuthProvider extends ChangeNotifier {
   final Ref ref;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
-  AuthProvider({required this.ref});
+  final DiaryListNotifier? diaryListNotifier;
+  final SelectedMembers? selectedMembers;
+  AuthProvider({
+    required this.ref,
+    this.diaryListNotifier,
+    this.selectedMembers,
+  });
 
   List<GoRoute> get routes => [
         GoRoute(
@@ -124,7 +131,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout(BuildContext context) async {
-    
+    await diaryListNotifier?.cleanUp();
+    await selectedMembers?.cleanUp();
+
     await FirebaseAuth.instance.signOut();
     context.goNamed(LoginScreen.routeName);
     notifyListeners();
