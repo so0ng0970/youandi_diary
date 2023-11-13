@@ -131,8 +131,12 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout(BuildContext context) async {
-    await diaryListNotifier?.cleanUp();
-    await selectedMembers?.cleanUp();
+    if (diaryListNotifier != null) {
+      await diaryListNotifier?.cleanUp();
+    }
+    if (selectedMembers != null) {
+      await selectedMembers?.cleanUp();
+    }
 
     await FirebaseAuth.instance.signOut();
     context.goNamed(LoginScreen.routeName);

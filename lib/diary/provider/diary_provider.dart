@@ -304,6 +304,12 @@ class DiaryListNotifier with ChangeNotifier {
   }
 
   Future<void> cleanUp() async {
-    await _diarySubscription?.cancel();
+    if (_diarySubscription == null) {
+      print('_diarySubscription is null');
+    } else {
+      print('cancel function starts');
+      await _diarySubscription?.cancel();
+      print('cancel function ends');
+    }
   }
 }

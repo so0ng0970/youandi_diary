@@ -91,6 +91,11 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
   }
 
   Future<void> cleanUp() async {
-    await userSubscription?.cancel();
+    if (userSubscription == null) {
+      print('userSubscription is null');
+    } else {
+      print('cancel function starts');
+      await userSubscription?.cancel();
+    }
   }
 }
