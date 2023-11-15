@@ -223,11 +223,7 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                                         'commentId':
                                             commentPost.commentId.toString(),
                                       });
-                                      print(result.data);
-                                    } on FirebaseFunctionsException catch (e) {
-                                      print('Error code: ${e.code}');
-                                      print('Details: ${e.details}');
-                                    }
+                                    } on FirebaseFunctionsException {}
 
                                     contentController.clear();
                                   },

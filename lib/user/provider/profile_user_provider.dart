@@ -29,7 +29,6 @@ class UserDataProvider {
         return userReference.doc(user.uid).get().then((snapshot) =>
             UserModel.fromJson(snapshot.data() as Map<String, dynamic>));
       } else {
-        print("로그인하지 않은 사용자는 사용자 정보를 가져올 수 없습니다.");
         return null;
       }
     });

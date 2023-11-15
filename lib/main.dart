@@ -20,7 +20,6 @@ void main() async {
 
   FirebaseMessaging.onMessageOpenedApp.listen(
     (RemoteMessage message) {
-      print('onMessageOpenedApp dtriggered!');
       navigatorKey.currentState?.pushNamed(
         UserProfile.routeName,
         arguments: message,

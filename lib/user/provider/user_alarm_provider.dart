@@ -39,7 +39,7 @@ class UserAlarmProvider extends StateNotifier<AlarmState> {
               .map((doc) => UserAlarmModel.fromJson(doc.data()))
               .toList());
     } else {
-      print("로그인하지 않은 사용자는 알림 정보를 가져올 수 없습니다.");
+   
       return Stream.value([]);
     }
   }
@@ -48,10 +48,7 @@ class UserAlarmProvider extends StateNotifier<AlarmState> {
   Future<void> deleteAlarmFromFirestore({
     required String alarmId,
   }) async {
-    if (currentUser == null) {
-      print("로그인하지 않은 사용자는 알림 정보를 삭제할 수 없습니다.");
-      return;
-    }
+  
     try {
       await _firestore
           .collection('user')
@@ -66,10 +63,7 @@ class UserAlarmProvider extends StateNotifier<AlarmState> {
 
   //  알림 읽음 처리
   Future<void> markAllAlarmsAsChecked(List<UserAlarmModel> alarms) async {
-    if (currentUser == null) {
-      print("로그인하지 않은 사용자는 알림 정보를 삭제할 수 없습니다.");
-      return;
-    }
+ 
     for (var alarm in alarms) {
       try {
         await _firestore
