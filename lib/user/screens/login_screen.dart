@@ -113,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             HomeScreen.routeName,
                           );
                         } on FirebaseAuthException catch (e) {
-                          
                           print(e);
                           if (e.code == 'user-not-found') {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -137,9 +136,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                         }
                       } else {
-                        print('이메'); 
+                        print('오류가 발생했습니다 ');
                       }
-                    }, 
+                    },
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(
