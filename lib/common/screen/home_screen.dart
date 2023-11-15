@@ -6,6 +6,7 @@ import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/const/color.dart';
 import 'package:youandi_diary/diary/layout/button_dialog_layout.dart';
 import 'package:youandi_diary/diary/provider/diary_provider.dart';
+import '../../diary/model/diary_model.dart';
 import '../../user/layout/default_layout.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -26,7 +27,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final diaryList = ref.watch(diaryListProvider).diaryList;
+    final diaryList = ref.watch(diaryListProvider.notifier).getDiary();
     final diaryDelete = ref.watch(diaryProvider);
 
     return DefaultLayout(
@@ -78,67 +79,74 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                       ),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: 20.0,
-                          ),
-                          child: GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio: 4 / 5.3,
-                              crossAxisSpacing: 15,
-                              mainAxisSpacing: 20,
-                            ),
-                            itemCount: diaryList.length,
-                            itemBuilder: (context, index) {
-                              final diary = diaryList[index];
+                      StreamBuilder<List<DiaryModel>>(
+                        stream:
+                            ref.watch(diaryListProvider.notifier).getDiary(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('오류: ${snapshot.error}');
+                          } else {
+                            final diaryList = snapshot.data ?? [];
+                            return GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 4 / 5.3,
+                                crossAxisSpacing: 15,
+                                mainAxisSpacing: 20,
+                              ),
+                              itemCount: diaryList.length,
+                              itemBuilder: (context, index) {
+                                final diary = diaryList[index];
 
-                              return Slidable(
-                                key: const ValueKey(0),
-                                endActionPane: ActionPane(
-                                    motion: const ScrollMotion(),
-                                    children: [
-                                      SlidableAction(
-                                        onPressed: (context) {
-                                          if (!isLoading) {
-                                            isLoading = true;
-                                            showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return ButtonDialogLayout(
-                                                      onPressed: () async {
-                                                        await diaryDelete
-                                                            .deleteDiaryWithSubcollections(
-                                                          diaryId: diary.diaryId
-                                                              .toString(),
-                                                        );
+                                return Slidable(
+                                  key: const ValueKey(0),
+                                  endActionPane: ActionPane(
+                                      motion: const ScrollMotion(),
+                                      children: [
+                                        SlidableAction(
+                                          onPressed: (context) {
+                                            if (!isLoading) {
+                                              isLoading = true;
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return ButtonDialogLayout(
+                                                        onPressed: () async {
+                                                          await diaryDelete
+                                                              .deleteDiaryWithSubcollections(
+                                                            diaryId: diary
+                                                                .diaryId
+                                                                .toString(),
+                                                          );
 
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      text: '정말 삭제하시겠습니까?');
-                                                });
-                                          }
-                                        },
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                        icon: Icons.delete,
-                                        label: '삭제',
-                                      ),
-                                    ]),
-                                child: DiaryCard.fromModel(
-                                  diaryList: diary,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        text: '정말 삭제하시겠습니까?');
+                                                  });
+                                            }
+                                          },
+                                          backgroundColor: Colors.red,
+                                          foregroundColor: Colors.white,
+                                          icon: Icons.delete,
+                                          label: '삭제',
+                                        ),
+                                      ]),
+                                  child: DiaryCard.fromModel(
+                                    diaryList: diary,
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),

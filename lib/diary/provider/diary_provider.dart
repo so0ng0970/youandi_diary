@@ -3,15 +3,14 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youandi_diary/diary/model/diary_model.dart';
 import 'package:youandi_diary/user/model/user_model.dart';
 
 final diaryProvider = Provider<DiaryRepository>((ref) => DiaryRepository());
-final diaryListProvider = ChangeNotifierProvider<DiaryListNotifier>(
-    (ref) => DiaryListNotifier(repository: ref.read(diaryProvider)));
+final diaryListProvider =
+    StateNotifierProvider<DiaryListNotifier, List<DiaryModel>>(
+        (ref) => DiaryListNotifier());
 
 class DiaryRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -59,11 +58,7 @@ class DiaryRepository {
     return null;
   }
 
-  Future<List<DiaryModel>> getDiaryListFromFirestore() async {
-    if (currentUser == null) {
-      print("로그인하지 않은 사용자는 일기를 가져올 수 없습니다.");
-      return [];
-    }
+  Future<List> getDiaryListFromFirestore() async {
     if (currentUser != null) {
       final QuerySnapshot snapshot = await _firestore
           .collection('diary')
@@ -80,7 +75,6 @@ class DiaryRepository {
 
       return diaryList;
     } else {
-      print("로그인하지 않은 사용자는 일기를 가져올 수 없습니다.");
       return [];
     }
   }
@@ -247,69 +241,33 @@ class DiaryRepository {
   }
 }
 
-class DiaryListNotifier with ChangeNotifier {
-  DiaryListNotifier({required this.repository}) {
-    loadDiaries();
-  }
+class DiaryListNotifier extends StateNotifier<List<DiaryModel>> {
 
-  final DiaryRepository repository;
-  List<DiaryModel> _diaryList = [];
+  DiaryListNotifier() : super([]);
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+
   bool _isLoading = false;
-  StreamSubscription<QuerySnapshot>? _diarySubscription;
-  List<DiaryModel> get diaryList => _diaryList;
+
   bool get isLoading => _isLoading;
 
-  Future<void> addDiary(DiaryModel diary) async {
-    if (_diaryList.contains(diary)) {
-      return;
-    }
-    _isLoading = true;
-    notifyListeners();
-    await repository.saveDiaryToFirestore(diary);
 
-    _isLoading = false;
-    notifyListeners();
-  }
 
-  Future<void> loadDiaries() async {
-    _isLoading = true;
-    notifyListeners();
+Stream<List<DiaryModel>> getDiary() {
     User? user = FirebaseAuth.instance.currentUser;
+
     if (user == null) {
       _isLoading = false;
-
-      notifyListeners();
-      return;
+      throw Exception("사용자가 로그인하지 않았습니다.");
     }
 
-    _diarySubscription = repository._firestore
+    return _firestore
         .collection('diary')
         .where('memberUids', arrayContains: user.uid)
         .orderBy('dataTime', descending: true)
         .snapshots()
-        .listen((QuerySnapshot snapshot) {
-      final List<DiaryModel> newDiaryList = [];
-      for (var doc in snapshot.docs) {
-        newDiaryList.add(
-          DiaryModel.fromJson(
-            doc.data() as Map<String, dynamic>,
-          ),
-        );
-      }
-
-      _diaryList = newDiaryList;
-      _isLoading = false;
-      notifyListeners();
-    });
-  }
-
-  Future<void> cleanUp() async {
-    if (_diarySubscription == null) {
-      print('_diarySubscription is null');
-    } else {
-      print('cancel function starts');
-      await _diarySubscription?.cancel();
-      print('cancel function ends');
-    }
-  }
+        .map((snapshot) => snapshot.docs.map((doc) {
+            return DiaryModel.fromJson(doc.data());
+        }).toList());
+}
 }

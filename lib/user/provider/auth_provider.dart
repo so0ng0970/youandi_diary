@@ -1,17 +1,17 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:youandi_diary/common/component/diary_modal.dart';
 import 'package:youandi_diary/common/screen/home_screen.dart';
 import 'package:youandi_diary/diary/component/calendar.dart';
 import 'package:youandi_diary/diary/screen/diary_detail_screen.dart';
 import 'package:youandi_diary/diary/screen/diary_post_screen.dart';
-import 'package:youandi_diary/user/provider/select_member_provider.dart';
 import 'package:youandi_diary/user/screens/sign_screen.dart';
 
 import '../../common/screen/splash_screen.dart';
-import '../../diary/provider/diary_provider.dart';
 import '../screens/login_screen.dart';
 import '../screens/root_tab_screen.dart';
 
@@ -22,12 +22,9 @@ final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
 class AuthProvider extends ChangeNotifier {
   final Ref ref;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final DiaryListNotifier? diaryListNotifier;
-  final SelectedMembers? selectedMembers;
+
   AuthProvider({
     required this.ref,
-    this.diaryListNotifier,
-    this.selectedMembers,
   });
 
   List<GoRoute> get routes => [
@@ -131,15 +128,8 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout(BuildContext context) async {
-    if (diaryListNotifier != null) {
-      await diaryListNotifier?.cleanUp();
-    }
-    if (selectedMembers != null) {
-      await selectedMembers?.cleanUp();
-    }
-
     await FirebaseAuth.instance.signOut();
-    context.goNamed(LoginScreen.routeName);
+
     notifyListeners();
   }
 }

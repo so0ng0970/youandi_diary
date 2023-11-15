@@ -134,12 +134,29 @@ class LoginSignModel {
 
     final userCredential =
         await FirebaseAuth.instance.signInWithCredential(credential);
-    await saveUserFirestore({
-      'userName': userCredential.user?.displayName ?? '',
-      'email': userCredential.user?.email ?? '',
-      'photoUrl': userCredential.user?.photoURL ?? '',
-      'uid': userCredential.user?.uid ?? '',
-    });
+
+    final docRef = FirebaseFirestore.instance
+        .collection('user')
+        .doc(userCredential.user?.uid);
+    final docSnapshot = await docRef.get();
+
+    if (!docSnapshot.exists) {
+      // Firestore에 사용자 정보가 없으면, 새로 저장합니다.
+      await saveUserFirestore({
+        'userName': userCredential.user?.displayName ?? '',
+        'email': userCredential.user?.email ?? '',
+        'photoUrl': userCredential.user?.photoURL ?? '',
+        'uid': userCredential.user?.uid ?? '',
+      });
+    } else {
+      // Firestore에 사용자 정보가 있으면, 그 정보를 사용합니다.
+      final userData = docSnapshot.data();
+      // ignore: deprecated_member_use
+      userCredential.user?.updateProfile(
+        displayName: userData?['userName'],
+        photoURL: userData?['photoUrl'],
+      );
+    }
 
     return userCredential;
   }

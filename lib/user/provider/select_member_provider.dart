@@ -43,16 +43,18 @@ class SelectedMembers extends StateNotifier<List<UserModel>> {
       add(currentUser!);
     }
 
-    userSubscription = getUserStream().listen((UserModel? userModel) {
-      if (userModel != null) {
-        currentUser = userModel;
+    userSubscription = getUserStream().listen(
+      (UserModel? userModel) {
+        if (userModel != null) {
+          currentUser = userModel;
 
-        // state 초기화
-        state = [];
+          // state 초기화
+          state = [];
 
-        add(currentUser!);
-      }
-    });
+          add(currentUser!);
+        }
+      },
+    );
   }
 
   Future<UserModel?> _getCurrentUser() async {

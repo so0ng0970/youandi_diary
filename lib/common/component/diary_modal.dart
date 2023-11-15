@@ -77,7 +77,7 @@ class _DiaryModalState extends ConsumerState<DiaryModal> {
                           .toList(),
                     ),
                   );
-          await ref.read(diaryListProvider).addDiary(savedDiary);
+          // await ref.read(diaryListProvider).addDiary(savedDiary);
 
           context.pop();
           selectMemberProvider.reset();

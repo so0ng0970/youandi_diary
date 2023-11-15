@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
 import 'package:youandi_diary/user/model/social_view_model.dart';
 import 'package:youandi_diary/user/provider/auth_provider.dart';
 import 'package:youandi_diary/user/provider/user_provider.dart';
 
-import '../../user/provider/firebase_auth_provider.dart';
 import '../../user/provider/profile_user_provider.dart';
+import '../../user/provider/select_member_provider.dart';
 import '../../user/screens/root_tab_screen.dart';
 import '../const/color.dart';
 
@@ -17,14 +18,17 @@ class MainDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userData = ref.watch(userGetProvider);
-    final authState = ref.watch(firebase_auth_Provider);
+    final cleanUp = ref.watch(selectedMembersProvider.notifier);
     final provider = ref.watch(authProvider);
     final viewModel = LoginSignModel(
       KakaoLogin(),
     );
 
     TextButton textButton(VoidCallback onpressed, Text text) {
-      return TextButton(onPressed: onpressed, child: text);
+      return TextButton(
+        onPressed: onpressed,
+        child: text,
+      );
     }
 
     return Drawer(
@@ -93,8 +97,10 @@ class MainDrawer extends ConsumerWidget {
             ),
           ),
           textButton(
-            () {
-              provider.logout(context);
+            () async {
+            await cleanUp.cleanUp();
+              await GoogleSignIn().signOut();
+              await provider.logout(context);
             },
             const Text(
               '로그아웃',
