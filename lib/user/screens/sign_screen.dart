@@ -18,6 +18,7 @@ class _SignScreenState extends State<SignScreen> {
   final FocusNode nicknameFocus = FocusNode();
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
+  final FocusNode confirmPasswordFocus = FocusNode();
   final TextEditingController nicknameFocusController = TextEditingController();
   final TextEditingController emailFocusController = TextEditingController();
   final TextEditingController passwordFocusController = TextEditingController();
@@ -29,17 +30,6 @@ class _SignScreenState extends State<SignScreen> {
   void _removeEmailOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-  }
-
-  InputDecoration inputDecoration(String hintText) {
-    return InputDecoration(
-      hintText: hintText,
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(
-          color: UNDERLINE_INPUT_COLOR,
-        ),
-      ),
-    );
   }
 
   @override
@@ -68,7 +58,7 @@ class _SignScreenState extends State<SignScreen> {
           },
         ),
       ),
-      titleText: '회원가입',
+      titleText: 'Sign',
       child: Form(
         key: formKey,
         child: Padding(
@@ -80,48 +70,56 @@ class _SignScreenState extends State<SignScreen> {
           ),
           child: Column(
             children: [
-              TextFormField(
+              textFormField(
                 key: const ValueKey(1),
+                maxLength: 15,
                 controller: nicknameFocusController,
                 focusNode: nicknameFocus,
                 validator: (value) =>
                     CheckValidate().validateNickName(nicknameFocus, value!),
                 keyboardType: TextInputType.name,
-                decoration: inputDecoration('닉네임'),
-              ),
-              const SizedBox(
-                height: 10,
+                hintText: '닉네임',
               ),
               CompositedTransformTarget(
                 link: _layerLink,
-                child: TextFormField(
+                child: textFormField(
                   key: const ValueKey(2),
                   controller: emailFocusController,
                   focusNode: emailFocus,
                   validator: (value) =>
                       CheckValidate().validateEmail(emailFocus, value!),
                   keyboardType: TextInputType.emailAddress,
-                  decoration: inputDecoration('이메일'),
-                  onChanged: (_) => _showEmailOverlay(),
+                  hintText: '이메일',
+                  onChanged: (_) => {
+                    _showEmailOverlay(),
+                    _updateEmailOverlay(),
+                  },
                 ),
               ),
               const SizedBox(
                 height: 10,
               ),
-              TextFormField(
+              textFormField(
                 key: const ValueKey(3),
                 controller: passwordFocusController,
                 focusNode: passwordFocus,
                 validator: (value) =>
                     CheckValidate().validatePassword(passwordFocus, value!),
                 keyboardType: TextInputType.name,
-                decoration: inputDecoration('비밀번호'),
+                obscureText: true,
+                hintText: '비밀번호',
               ),
               const SizedBox(
                 height: 10,
               ),
-              TextFormField(
-                decoration: inputDecoration('비밀번호(확인)'),
+              textFormField(
+                key: const ValueKey(4),
+                keyboardType: TextInputType.name,
+                obscureText: true,
+                validator: (val) => CheckValidate()
+                    .validatePasswordConfirmation(confirmPasswordFocus, val!,
+                        passwordFocusController.text),
+                hintText: '비밀번호(확인)',
               ),
               const SizedBox(
                 height: 50,
@@ -164,6 +162,10 @@ class _SignScreenState extends State<SignScreen> {
         _removeEmailOverlay();
       }
     }
+  }
+
+  void _updateEmailOverlay() {
+    _overlayEntry?.markNeedsBuild(); 
   }
 
   // 이메일 자동 입력창

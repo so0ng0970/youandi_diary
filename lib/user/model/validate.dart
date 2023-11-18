@@ -2,6 +2,40 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 
+import '../../common/const/color.dart';
+
+TextFormField textFormField({
+  required String hintText,
+  TextEditingController? controller,
+  FocusNode? focusNode,
+  String? Function(String?)? validator,
+  void Function(String)? onChanged,
+  int? maxLength,
+  bool? obscureText,
+  required TextInputType keyboardType,
+  required Key key,
+}) {
+  return TextFormField(
+    key: key,
+    autovalidateMode: AutovalidateMode.onUserInteraction,
+    controller: controller,
+    onChanged: onChanged,
+    focusNode: focusNode,
+    validator: validator,
+    maxLength: maxLength,
+    keyboardType: keyboardType,
+    obscureText: obscureText ?? false,
+    decoration: InputDecoration(
+      hintText: hintText,
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: UNDERLINE_INPUT_COLOR,
+        ),
+      ),
+    ),
+  );
+}
+
 class CheckValidate {
   String? validatelength({
     required FocusNode focusNode,
@@ -61,6 +95,19 @@ class CheckValidate {
       } else {
         return null;
       }
+    }
+  }
+
+  String? validatePasswordConfirmation(
+      FocusNode focusNode, String value, String password) {
+    if (value.isEmpty) {
+      focusNode.requestFocus();
+      return '비밀번호 (확인)을 입력하세요.';
+    } else if (value != password) {
+      focusNode.requestFocus();
+      return '비밀번호가 일치하지 않습니다.';
+    } else {
+      return null;
     }
   }
 }

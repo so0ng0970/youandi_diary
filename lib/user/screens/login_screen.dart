@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:youandi_diary/common/const/color.dart';
+import 'package:youandi_diary/user/component/custom_email.dart';
 import 'package:youandi_diary/user/layout/button_layout.dart';
 import 'package:youandi_diary/user/layout/sign_login_layout.dart';
 import 'package:youandi_diary/user/model/kakao_login.dart';
@@ -32,10 +33,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final FocusNode passwordFocus = FocusNode();
   bool isLoginScreen = true;
 
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
+  void _removeEmailOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _overlayEntry?.dispose();
 
     super.dispose();
   }
@@ -72,24 +81,34 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextFormField(
-                    key: const ValueKey(1),
-                    validator: (value) =>
-                        CheckValidate().validateEmail(emailFocus, value!),
-                    controller: _emailController,
-                    focusNode: emailFocus,
-                    decoration: inputDecoration('이메일 주소'),
+                  CompositedTransformTarget(
+                    link: _layerLink,
+                    child: textFormField(
+                      key: const ValueKey(1),
+                      controller: _emailController,
+                      focusNode: emailFocus,
+                      validator: (value) =>
+                          CheckValidate().validateEmail(emailFocus, value!),
+                      keyboardType: TextInputType.emailAddress,
+                      hintText: '이메일',
+                      onChanged: (_) => {
+                        _showEmailOverlay(),
+                        _updateEmailOverlay(),
+                      },
+                    ),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  TextFormField(
+                  textFormField(
                     key: const ValueKey(2),
                     controller: _passwordController,
                     focusNode: passwordFocus,
-                    decoration: inputDecoration('비밀번호'),
                     validator: (value) =>
                         CheckValidate().validatePassword(passwordFocus, value!),
+                    keyboardType: TextInputType.name,
+                    obscureText: true,
+                    hintText: '비밀번호',
                   ),
                   const SizedBox(
                     height: 50,
@@ -214,6 +233,44 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _showEmailOverlay() {
+    if (emailFocus.hasFocus) {
+      if (_emailController.text.isNotEmpty) {
+        final email = _emailController.text;
+
+        if (!email.contains('@')) {
+          if (_overlayEntry == null) {
+            _overlayEntry = _emailListOverlayEntry();
+            Overlay.of(context).insert(_overlayEntry!);
+          }
+        } else {
+          _removeEmailOverlay();
+        }
+      } else {
+        _removeEmailOverlay();
+      }
+    }
+  }
+
+  // 이메일 자동 입력창
+  OverlayEntry _emailListOverlayEntry() {
+    return customDropdown.emailRecommendation(
+      width: MediaQuery.of(context).size.width - 100,
+      layerLink: _layerLink,
+      controller: _emailController,
+      onPressed: () {
+        setState(() {
+          emailFocus.unfocus();
+          _removeEmailOverlay();
+        });
+      },
+    );
+  }
+
+  void _updateEmailOverlay() {
+    _overlayEntry?.markNeedsBuild();
   }
 
   Future<void> saveTokenToDatabase(String userId) async {

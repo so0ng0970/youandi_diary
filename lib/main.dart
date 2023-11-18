@@ -9,8 +9,7 @@ import 'package:youandi_diary/user/component/user_profile.dart';
 import 'common/const/data.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
-
-void main() async {
+ void main() async {
   KakaoSdk.init(
     nativeAppKey: NATIVE_KEY,
   );
