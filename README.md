@@ -8,6 +8,7 @@
 ## 프로젝트 만든 계기
 
 어릴 적 친구들과 함께 기록했던 다이어리의 추억이 떠올라 <br> 이 프로젝트를 시작하게 되었습니다.
+<br>
 
 ## 프로젝트 소개
 
@@ -16,13 +17,18 @@
 - 알림 설정을 통해 다른 사용자가 자신의 글에 댓글을 남기면 알림을 받을 수 있습니다.
 - 다이어리는 사용자가 현재 날짜로 내부를 표시하며, 달력을 통해 이전에 작성한 글들을 확인할 수 있습니다.
 - 사용자는 프로필 사진 또는 닉네임을 변경할 수 있습니다. 또한, 사용자가 다이어리에 남긴 전체 글과 댓글을 한눈에 확인할 수 있습니다.
+  <br>
 
-<br>
-
-## 개요
+## 1. 개요
 
 - 프로젝트 이름: YOU AND I Diary ✍️
 - 프로젝트 기간: 2023.06-2023.11
 - 개발 언어: Dart
+- 개발자: 김승원
+  <br>
 
-## 프로젝트 설명
+## 2. 개발 환경
+
+- Front-end : Flutter, riverpod, json_annotation, retrofit, go_router
+- Back-end : firebase
+- Design : [Figma](https://www.figma.com/file/mqoSaVF6Oy7s00ftXuCXg4/YOU-%26-I-Diary-UI?type=design&node-id=0%3A1&mode=design&t=Ckjps325O3ymPRyA-1)
