@@ -1,12 +1,13 @@
 <div align="center">
 <h2>YOU AND I Diary</h2>
+
 ![readme_mockup2](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcddVd6%2FbtsDHl5nqZ8%2FCpGOYOOIKDwjRFkTQztKkk%2Fimg.jpg)
+
 </div>
 
 ## 프로젝트 만든 계기
+
 어릴 적 친구들과 함께 기록했던 다이어리의 추억이 떠올라 <br> 이 프로젝트를 시작하게 되었습니다.
-
-
 
 ## 프로젝트 소개
 
