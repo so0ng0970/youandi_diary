@@ -69,3 +69,22 @@
 ![socialLogin](https://github.com/so0ng0970/youandi_diary/assets/108356773/daefd06a-75eb-4fdf-855c-51fcfd2fc156)|
 
 <br>
+
+### [다이어리 제작,친구초대]
+
+- 제목에도 유효성 검사로 제목을 한글자 이상 써야합니다.
+- 다이어리 표지를 원하는 사진으로 선택할 수 있으면 선택 안할시 맨 처음 사진이 표지로 됩니다.
+- 친구초대시
+
+| 로그인,소셜로그인 |
+| ----------------- |
+
+|![login](https://github.com/so0ng0970/youandi_diary/assets/108356773/12555f0a-af14-472f-89fd-f352872e780d)|
+
+<center>로그인 화면</center>
+
+![socialLogin](https://github.com/so0ng0970/youandi_diary/assets/108356773/daefd06a-75eb-4fdf-855c-51fcfd2fc156)|
+
+<center>로그인 화면</center>
+
+<br>
