@@ -49,6 +49,8 @@
 | 초기화면&회원가입 |
 | ----------------- |
 
-![splash](https://blog.kakaocdn.net/dn/nZatz/btsDGYKOAq7/8l2yJkR9bfhSY5BBfEsUJK/img.gif)
+|![splash & sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/a23389a6-ff7d-4658-bdc8-9e4ad28b35aa)
+|
+![sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/b2169f9e-3afa-4da9-9041-42d8c2e4711f)|
 
 <br>
