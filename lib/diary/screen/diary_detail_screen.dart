@@ -269,7 +269,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
                           divColor: divColors[index % divColors.length],
                           inputFieldNode: inputFieldNode,
                           contentController: contentController,
-                          
+                          diaryTitle: diaryData.diaryTittle,
                         );
                       },
                       noItemsFoundIndicatorBuilder: (context) => const Center(

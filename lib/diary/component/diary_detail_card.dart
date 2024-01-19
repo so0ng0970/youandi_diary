@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:youandi_diary/diary/component/custom_video_player.dart';
 import 'package:youandi_diary/diary/component/diary_comment_card.dart';
-
 import 'package:youandi_diary/diary/model/diary_post_model.dart';
 import 'package:youandi_diary/user/component/profile_component.dart';
 
@@ -22,6 +22,7 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
   late String? photoUrl;
   late String? userName;
   final String? videoUrl;
+  final String diaryTitle;
   final List<String>? imgUrl;
   final Color color;
   final Color divColor;
@@ -33,6 +34,7 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
 
   DiaryDetailCard({
     Key? key,
+    this.userId,
     this.diaryId,
     this.postId,
     required this.title,
@@ -40,15 +42,15 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
     this.photoUrl,
     this.userName,
     this.videoUrl,
+    required this.diaryTitle,
     this.imgUrl,
-    this.postListbool,
     required this.color,
     required this.divColor,
     required this.deleteOnpress,
     required this.editOnPressed,
     required this.dataTime,
     required this.inputFieldNode,
-    this.userId,
+    this.postListbool,
   }) : super(key: key);
   factory DiaryDetailCard.fromModel({
     required DiaryPostModel diaryData,
@@ -58,6 +60,7 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
     required editOnPressed,
     required inputFieldNode,
     required contentController,
+    required diaryTitle,
     postListbool,
   }) {
     return DiaryDetailCard(
@@ -77,6 +80,7 @@ class DiaryDetailCard extends ConsumerStatefulWidget {
       editOnPressed: editOnPressed,
       inputFieldNode: inputFieldNode,
       postListbool: postListbool,
+      diaryTitle: diaryTitle,
     );
   }
 
@@ -225,6 +229,8 @@ class _DiaryDetailCardState extends ConsumerState<DiaryDetailCard> {
               divColor: widget.divColor,
               postListbool: widget.postListbool,
               userName: widget.userName.toString(),
+              postTittle: widget.title,
+              diaryTittle: widget.diaryTitle.toString(),
             )
           ],
         ),

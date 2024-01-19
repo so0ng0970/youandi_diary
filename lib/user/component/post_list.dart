@@ -200,6 +200,7 @@ class _PostListState extends ConsumerState<PostList> {
                                           divColor: DIVONE,
                                           inputFieldNode: inputFieldNode,
                                           contentController: contentController,
+                                          diaryTitle: data.diaryTittle,
                                         ),
                                       ),
                                     ),

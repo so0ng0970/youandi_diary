@@ -125,7 +125,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                                 .diaryId
                                                                 .toString(),
                                                           );
-
+                                                          setState(() {});
                                                           Navigator.of(context)
                                                               .pop();
                                                         },

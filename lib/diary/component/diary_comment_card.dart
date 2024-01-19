@@ -23,7 +23,8 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
   String? comment;
   String? postId;
   bool? postListbool;
-
+  String diaryTittle;
+  String postTittle;
   String userName;
 
   DiaryCommentCard({
@@ -35,6 +36,8 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
     this.comment,
     this.postId,
     this.postListbool,
+    required this.diaryTittle,
+    required this.postTittle,
     required this.userName,
   }) : super(key: key);
 
@@ -50,6 +53,8 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
     VoidCallback? sendOnpress,
     String? comment,
     String? postId,
+    String? diaryTittle,
+    String? postTittle,
   }) {
     return DiaryCommentCard(
       userId: userId ?? this.userId,
@@ -59,6 +64,8 @@ class DiaryCommentCard extends ConsumerStatefulWidget {
       postId: postId ?? this.postId,
       diaryId: diaryId ?? this.diaryId,
       userName: '',
+      diaryTittle: diaryTittle ?? this.diaryTittle,
+      postTittle: postTittle ?? this.postTittle,
     );
   }
 }
@@ -194,12 +201,13 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
                                       content: content,
                                     );
                                     UserAlarmModel alarmPost = UserAlarmModel(
-                                      alarmContent: content,
-                                      diaryId: widget.diaryId,
-                                      postId: widget.postId,
-                                      userName: data?.userName,
-                                      myId: widget.userId,
-                                    );
+                                        alarmContent: content,
+                                        diaryId: widget.diaryId,
+                                        postId: widget.postId,
+                                        userName: data?.userName,
+                                        myId: widget.userId,
+                                        diaryTittle: widget.diaryTittle,
+                                        postTittle: widget.postTittle);
                                     setState(() {
                                       ref
                                           .watch(diaryCommentProvider.notifier)

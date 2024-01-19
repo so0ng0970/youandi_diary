@@ -170,7 +170,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                                   children: [
                                     Text(
                                       data.postId != null
-                                          ? '${data.diaryTittle.toString()}  글 제목: '
+                                          ? '${data.diaryTittle.toString()}  글 제목: ${data.postTittle.toString()}'
                                           : '삭제된 글 입니다',
                                       style: TextStyle(
                                         color: Colors.grey[600],

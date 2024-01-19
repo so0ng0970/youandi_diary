@@ -178,7 +178,7 @@ class _AlarmListState extends ConsumerState<AlarmList> {
                                               color: ONECOLOR,
                                               divColor: DIVONE,
                                               inputFieldNode: inputFieldNode,
-                                              contentController: null,
+                                              contentController: null, diaryTitle: diaryData.diaryTittle,
                                             ),
                                           ),
                                         ),
