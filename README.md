@@ -107,6 +107,7 @@
 
 | 다이어리 글 쓰기, 동영상 재생 (동영상) |
 | ----------------- |
+
 | Diary post - video | video play |
 |----------|----------|
 |![Diary post - video](https://github.com/so0ng0970/youandi_diary/assets/108356773/f3b77d3d-fec3-4e9e-95cb-ed671005d979)|![video play](https://github.com/so0ng0970/youandi_diary/assets/108356773/f5b8161d-d1be-4718-93e3-62bab1c61bd2)|
