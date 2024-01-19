@@ -114,6 +114,7 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
     ];
 
     return DefaultLayout(
+      resizeToAvoidBottomInset: false,
       drawerBool: false,
       backBool: false,
       title: widget.title.toString(),

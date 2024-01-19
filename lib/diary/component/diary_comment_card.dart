@@ -134,153 +134,158 @@ class _DiaryCommentCardState extends ConsumerState<DiaryCommentCard> {
             color: Colors.black,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(5, 10, 0, 5),
-              child: Row(
-                children: [
-                  Container(
-                    height: 25,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: widget.divColor,
-                      ),
-                    ),
-                    child: userData.when(
-                      data: (data) {
-                        if (data != null) {
-                          return ClipOval(
-                            child: ProfileComponent(
-                              imgUrl: data.photoUrl.toString(),
-                              width: 20,
-                            ),
-                          );
-                        } else {
-                          const CircularProgressIndicator();
-                        }
-                        return null;
-                      },
-                      loading: () => const CircularProgressIndicator(),
-                      error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Form(
-                    child: SizedBox(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(5, 10, 0, 5),
+                child: Row(
+                  children: [
+                    Container(
                       height: 25,
-                      width: widget.postListbool == true
-                          ? MediaQuery.of(context).size.width - 130
-                          : MediaQuery.of(context).size.width - 173,
-                      child: Form(
-                        key: _formKey,
-                        child: textFormField(contentController),
-                      ),
-                    ),
-                  ),
-                  if (contentController.text.trim().isNotEmpty ||
-                      widget.postListbool == true)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: GestureDetector(
-                        onTap: () async {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            ref.watch(userGetProvider).when(
-                                  data: (data) async {
-                                    String content = contentController.text;
-                                    DiaryCommentModel commentPost =
-                                        DiaryCommentModel(
-                                      diaryId: widget.diaryId,
-                                      dataTime: dateTime,
-                                      postId: widget.postId,
-                                      content: content,
-                                    );
-                                    UserAlarmModel alarmPost = UserAlarmModel(
-                                        alarmContent: content,
-                                        diaryId: widget.diaryId,
-                                        postId: widget.postId,
-                                        userName: data?.userName,
-                                        myId: widget.userId,
-                                        diaryTittle: widget.diaryTittle,
-                                        postTittle: widget.postTittle);
-                                    setState(() {
-                                      ref
-                                          .watch(diaryCommentProvider.notifier)
-                                          .saveCommentToFirestore(
-                                            userId: widget.userId.toString(),
-                                            diaryId: widget.diaryId.toString(),
-                                            model: commentPost,
-                                            postId:
-                                                commentPost.postId.toString(),
-                                            alarmModel: alarmPost,
-                                          );
-                                    });
-                                    HttpsCallable callable = FirebaseFunctions
-                                        .instance
-                                        .httpsCallable('addMessage');
-                                    try {
-                                      final HttpsCallableResult result =
-                                          await callable.call(<String, dynamic>{
-                                        'diaryId': widget.diaryId.toString(),
-                                        'postId': widget.postId.toString(),
-                                        'commentId':
-                                            commentPost.commentId.toString(),
-                                      });
-                                    } on FirebaseFunctionsException {}
-
-                                    contentController.clear();
-                                  },
-                                  loading: () => const Center(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.amber,
-                                    ),
-                                  ),
-                                  error: (error, stackTrace) => const Text(
-                                    '데이터를 불러오지 못했습니다',
-                                  ),
-                                );
-                          }
-                        },
-                        child: Icon(
-                          Icons.send,
-                          size: 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
                           color: widget.divColor,
                         ),
                       ),
+                      child: userData.when(
+                        data: (data) {
+                          if (data != null) {
+                            return ClipOval(
+                              child: ProfileComponent(
+                                imgUrl: data.photoUrl.toString(),
+                                width: 20,
+                              ),
+                            );
+                          } else {
+                            const CircularProgressIndicator();
+                          }
+                          return null;
+                        },
+                        loading: () => const CircularProgressIndicator(),
+                        error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
+                      ),
                     ),
-                ],
-              ),
-            ),
-            SingleChildScrollView(
-              child: SizedBox(
-                height: 58,
-                child: getCommentList.when(
-                  data: (data) {
-                    return ListView.builder(
-                        itemCount: data.length,
-                        itemBuilder: (context, index) {
-                          final commentData = data[index];
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Form(
+                      child: SizedBox(
+                        height: 25,
+                        width: widget.postListbool == true
+                            ? MediaQuery.of(context).size.width - 130
+                            : MediaQuery.of(context).size.width - 173,
+                        child: Form(
+                          key: _formKey,
+                          child: textFormField(contentController),
+                        ),
+                      ),
+                    ),
+                    if (contentController.text.trim().isNotEmpty ||
+                        widget.postListbool == true)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: GestureDetector(
+                          onTap: () async {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              ref.watch(userGetProvider).when(
+                                    data: (data) async {
+                                      String content = contentController.text;
+                                      DiaryCommentModel commentPost =
+                                          DiaryCommentModel(
+                                        diaryId: widget.diaryId,
+                                        dataTime: dateTime,
+                                        postId: widget.postId,
+                                        content: content,
+                                      );
+                                      UserAlarmModel alarmPost = UserAlarmModel(
+                                          alarmContent: content,
+                                          diaryId: widget.diaryId,
+                                          postId: widget.postId,
+                                          userName: data?.userName,
+                                          myId: widget.userId,
+                                          diaryTittle: widget.diaryTittle,
+                                          postTittle: widget.postTittle);
+                                      setState(() {
+                                        ref
+                                            .watch(
+                                                diaryCommentProvider.notifier)
+                                            .saveCommentToFirestore(
+                                              userId: widget.userId.toString(),
+                                              diaryId:
+                                                  widget.diaryId.toString(),
+                                              model: commentPost,
+                                              postId:
+                                                  commentPost.postId.toString(),
+                                              alarmModel: alarmPost,
+                                            );
+                                      });
+                                      HttpsCallable callable = FirebaseFunctions
+                                          .instance
+                                          .httpsCallable('addMessage');
+                                      try {
+                                        final HttpsCallableResult result =
+                                            await callable
+                                                .call(<String, dynamic>{
+                                          'diaryId': widget.diaryId.toString(),
+                                          'postId': widget.postId.toString(),
+                                          'commentId':
+                                              commentPost.commentId.toString(),
+                                        });
+                                      } on FirebaseFunctionsException {}
 
-                          return DiaryCommentList(
-                            commentData: commentData,
-                            editCommentId: editCommentId.toString(),
-                            postId: widget.postId.toString(),
-                            contentController: contentController,
-                            textFormField: textFormField,
-                          );
-                        });
-                  },
-                  loading: () => const CircularProgressIndicator(),
-                  error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
+                                      contentController.clear();
+                                    },
+                                    loading: () => const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.amber,
+                                      ),
+                                    ),
+                                    error: (error, stackTrace) => const Text(
+                                      '데이터를 불러오지 못했습니다',
+                                    ),
+                                  );
+                            }
+                          },
+                          child: Icon(
+                            Icons.send,
+                            size: 20,
+                            color: widget.divColor,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            )
-          ],
+              SingleChildScrollView(
+                child: SizedBox(
+                  height: 58,
+                  child: getCommentList.when(
+                    data: (data) {
+                      return ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (context, index) {
+                            final commentData = data[index];
+
+                            return DiaryCommentList(
+                              commentData: commentData,
+                              editCommentId: editCommentId.toString(),
+                              postId: widget.postId.toString(),
+                              contentController: contentController,
+                              textFormField: textFormField,
+                            );
+                          });
+                    },
+                    loading: () => const CircularProgressIndicator(),
+                    error: (_, __) => const Text('데이터 정보를 불러오지 못했습니다 '),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -43,6 +43,7 @@ class _RootTabScreenState extends State<RootTabScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: PRFBG,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
