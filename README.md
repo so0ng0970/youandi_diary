@@ -102,7 +102,7 @@
 
 | Diary post - photo | post edit & delete |
 |----------|----------|
-|![Diary post - photo]!(https://github.com/so0ng0970/youandi_diary/assets/108356773/ff5516d7-ed99-4e2a-84d4-cd1fa79bcd94)|![post edit & delete](https://github.com/so0ng0970/youandi_diary/assets/108356773/9a8fd4e0-fa7f-4964-844f-dbe6125e4b71)
+|![Diary post - photo](https://github.com/so0ng0970/youandi_diary/assets/108356773/ff5516d7-ed99-4e2a-84d4-cd1fa79bcd94)|![post edit & delete](https://github.com/so0ng0970/youandi_diary/assets/108356773/9a8fd4e0-fa7f-4964-844f-dbe6125e4b71)
 |
 
 | 다이어리 글 쓰기, 동영상 재생 (동영상) |
