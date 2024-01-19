@@ -49,6 +49,6 @@
 | 초기화면&회원가입 |
 | ----------------- |
 
-![splash](https://blog.kakaocdn.net/dn/mcWPM/btsDI7NDalW/JMC0wGDqA4P58hqxrJmrgK/img.gif)
+![splash](https://blog.kakaocdn.net/dn/nZatz/btsDGYKOAq7/8l2yJkR9bfhSY5BBfEsUJK/img.gif)
 
 <br>
