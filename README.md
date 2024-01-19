@@ -65,6 +65,7 @@
 | 로그인,소셜로그인 |
 | ----------------- |
 
+|login|socialLogin|
 |![login](https://github.com/so0ng0970/youandi_diary/assets/108356773/12555f0a-af14-472f-89fd-f352872e780d)|
 ![socialLogin](https://github.com/so0ng0970/youandi_diary/assets/108356773/daefd06a-75eb-4fdf-855c-51fcfd2fc156)|
 
@@ -80,11 +81,6 @@
 | ----------------- |
 
 |![login](https://github.com/so0ng0970/youandi_diary/assets/108356773/12555f0a-af14-472f-89fd-f352872e780d)|
-
-<center>로그인 화면</center>
-
 ![socialLogin](https://github.com/so0ng0970/youandi_diary/assets/108356773/daefd06a-75eb-4fdf-855c-51fcfd2fc156)|
-
-<center>로그인 화면</center>
 
 <br>
