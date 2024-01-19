@@ -35,7 +35,7 @@
 
 <br>
 
-## 7. 페이지별 기능
+## 3. 페이지별 기능
 
 <br>
 
@@ -49,8 +49,6 @@
 | 초기화면&회원가입 |
 | ----------------- |
 
-| ![join](https://blog.kakaocdn.net/dn/dnOb3Z/btsDEUhnY4T/YHmu6Hfs6rSVzXkRQIF4vK/img.gif)
-![join](https://blog.kakaocdn.net/dn/D6mhV/btsDGtcZqfp/Z32FIy6dhK7oN2b3utAzx0/img.gif)
-|
+|![splash&logout](https://blog.kakaocdn.net/dn/dnOb3Z/btsDEUhnY4T/YHmu6Hfs6rSVzXkRQIF4vK/img.gif)|![logout](https://blog.kakaocdn.net/dn/D6mhV/btsDGtcZqfp/Z32FIy6dhK7oN2b3utAzx0/img.gif)|
 
 <br>
