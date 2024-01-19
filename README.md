@@ -66,6 +66,8 @@
 | ----------------- |
 
 |login|socialLogin|
+|login|socialLogin|
+|---|---|
 |![login](https://github.com/so0ng0970/youandi_diary/assets/108356773/12555f0a-af14-472f-89fd-f352872e780d)|
 ![socialLogin](https://github.com/so0ng0970/youandi_diary/assets/108356773/daefd06a-75eb-4fdf-855c-51fcfd2fc156)|
 
