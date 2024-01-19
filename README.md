@@ -49,7 +49,7 @@
 | 초기화면&회원가입 |
 | ----------------- |
 
-|![splash & sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/a23389a6-ff7d-4658-bdc8-9e4ad28b35aa)
+|![splash & sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/00ecb367-8699-48ff-8174-956bc2aa6b8e)
 |
 ![sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/b2169f9e-3afa-4da9-9041-42d8c2e4711f)|
 
