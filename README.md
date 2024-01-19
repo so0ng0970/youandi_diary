@@ -50,9 +50,10 @@
 | 초기화면&회원가입 |
 | ----------------- |
 
-|![splash & sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/00ecb367-8699-48ff-8174-956bc2aa6b8e)
-|
-![sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/b2169f9e-3afa-4da9-9041-42d8c2e4711f)|
+| splash & sign | sign |
+|----------|----------|
+|![splash & sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/00ecb367-8699-48ff-8174-956bc2aa6b8e)|![sign](https://github.com/so0ng0970/youandi_diary/assets/108356773/b2169f9e-3afa-4da9-9041-42d8c2e4711f)|
+
 
 <br>
 
@@ -74,14 +75,17 @@
 
 ### [다이어리 제작,친구초대]
 
-- 제목에도 유효성 검사로 제목을 한글자 이상 써야합니다.
-- 다이어리 표지를 원하는 사진으로 선택할 수 있으면 선택 안할시 맨 처음 사진이 표지로 됩니다.
-- 친구초대시
+- 제목은 최소 한 글자 이상 입력해야 하는 유효성 검사가 설정되어 있습니다.
+- 사용자는 원하는 사진을 다이어리 표지로 선택할 수 있으며, 선택하지 않을 경우 초기 설정된 사진이 표지로 사용됩니다.
+- Cloud Firestore에 저장된 회원들을 이메일로 검색하여, 원하는 사용자를 다이어리에 추가할 수 있습니다.
+- 추가된 사용자들은 프로필 사진, 닉네임, 이메일을 통해 확인할 수 있습니다. 또한, 사진 위에 위치한 'delete' 버튼을 통해 다이어리에서 추가한 사용자를 제거할 수 있습니다.
 
-| 로그인,소셜로그인 |
+| 다이어리 제작,친구초대 |
 | ----------------- |
 
-|![login](https://github.com/so0ng0970/youandi_diary/assets/108356773/12555f0a-af14-472f-89fd-f352872e780d)|
-![socialLogin](https://github.com/so0ng0970/youandi_diary/assets/108356773/daefd06a-75eb-4fdf-855c-51fcfd2fc156)|
+| Diary Create | Add User |
+|----------|----------|
+|![Create](https://github.com/so0ng0970/youandi_diary/assets/108356773/80b5bf67-1d11-4f39-833d-a4815d289485)|![User](https://github.com/so0ng0970/youandi_diary/assets/108356773/8856c8b4-3f7a-4bba-b3f3-a8f958bddf6f)|
+
 
 <br>
