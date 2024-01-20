@@ -110,8 +110,7 @@
 
 | Diary post - video | video play |
 |----------|----------|
-|![Diary post - video](https://github.com/so0ng0970/youandi_diary/assets/108356773/f3b77d3d-fec3-4e9e-95cb-ed671005d979)|![video play](https://github.com/so0ng0970/youandi_diary/assets/108356773/ac070f62-bc5d-45cc-95e5-84d65d9bcda8)
-|
+|![Diary post - video](https://github.com/so0ng0970/youandi_diary/assets/108356773/f3b77d3d-fec3-4e9e-95cb-ed671005d979)|![video play](https://github.com/so0ng0970/youandi_diary/assets/108356773/ac070f62-bc5d-45cc-95e5-84d65d9bcda8)|
 
 <br>
 
@@ -128,8 +127,7 @@
 
 | Comment Writing | Notification |
 |----------|----------|
-|![댓글쓰기](https://github.com/so0ng0970/youandi_diary/assets/108356773/134bd66e-12c2-4b44-8141-d1eb6662e53f)|![알림](https://github.com/so0ng0970/youandi_diary/assets/108356773/7bd13ed6-8a06-44a3-98d1-12b7ea355ff8)
-|
+|![댓글쓰기](https://github.com/so0ng0970/youandi_diary/assets/108356773/134bd66e-12c2-4b44-8141-d1eb6662e53f)|![알림](https://github.com/so0ng0970/youandi_diary/assets/108356773/fd220a9f-be75-42cc-b2fc-b4621987f4bd)|
 
 
 <br>
