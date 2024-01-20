@@ -131,3 +131,25 @@
 
 
 <br>
+
+### [마이페이지 프로필 수정,작성된 글,댓글 모두보기]
+
+- 사용자는 프로필 수정 기능을 통해 닉네임과 프로필 사진을 변경할 수 있습니다.
+- 프로필 사진 변경 시에는 앨범에서 원하는 사진을 선택하거나, 앱에 기본으로 설정된 프로필 사진으로 변경할 수 있습니다.
+- 'TabBarView'와 'BottomNavigationBar'를 사용하여, 하단 버튼을 클릭하거나 화면을 좌우로 스와이프하여 원하는 페이지로 이동할 수 있습니다.
+- 사용자는 모든 다이어리에 작성된 글과 댓글을 한 번에 볼 수 있으며, 삭제 버튼을 통해 여러 개의 글이나 댓글을 한꺼번에 삭제할 수 있습니다.
+
+| 마이페이지 프로필 수정,작성된 글,댓글 모두보기 |
+| ----------------- |
+
+| My Page Profile Edit |
+|----------|----------|
+|![프로필 수정](https://github.com/so0ng0970/youandi_diary/assets/108356773/026e23bc-0fe7-48df-93cb-5d597a8c1964)
+|![프로필 변경](https://github.com/so0ng0970/youandi_diary/assets/108356773/9a9015c7-deb6-4e07-9210-547c83148015)|
+
+| My Page Profile Posts Comments | Posts Comments Delete |
+|----------|----------|
+|![KakaoTalk_20240121_003101278_02](https://github.com/so0ng0970/youandi_diary/assets/108356773/cdced96c-4a47-4d39-abe8-ccc1f844d619)|![알림](https://github.com/so0ng0970/youandi_diary/assets/108356773/fd220a9f-be75-42cc-b2fc-b4621987f4bd)|
+
+
+<br>
