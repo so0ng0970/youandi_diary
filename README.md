@@ -144,8 +144,7 @@
 
 | My Page Profile Edit |
 |----------|----------|
-|![프로필 수정](https://github.com/so0ng0970/youandi_diary/assets/108356773/026e23bc-0fe7-48df-93cb-5d597a8c1964)
-|![프로필 변경](https://github.com/so0ng0970/youandi_diary/assets/108356773/9a9015c7-deb6-4e07-9210-547c83148015)|
+|![KakaoTalk_20240121_003101278](https://github.com/so0ng0970/youandi_diary/assets/108356773/edbc24bf-4e7b-4360-8933-d333f42b823f)|![프로필 변경](https://github.com/so0ng0970/youandi_diary/assets/108356773/9a9015c7-deb6-4e07-9210-547c83148015)|
 
 | My Page Profile Posts Comments | Posts Comments Delete |
 |----------|----------|
