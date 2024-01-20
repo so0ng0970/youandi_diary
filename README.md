@@ -143,10 +143,10 @@
 | ----------------- |
 
 | My Page Profile Edit |
-|----------|----------|
-|![KakaoTalk_20240121_003101278](https://github.com/so0ng0970/youandi_diary/assets/108356773/edbc24bf-4e7b-4360-8933-d333f42b823f)|![프로필 변경](https://github.com/so0ng0970/youandi_diary/assets/108356773/9a9015c7-deb6-4e07-9210-547c83148015)|
+|----------|
+|![KakaoTalk_20240121_003101278](https://github.com/so0ng0970/youandi_diary/assets/108356773/edbc24bf-4e7b-4360-8933-d333f42b823f)|
 
-| My Page Profile Posts Comments | Posts Comments Delete |
+| My Page | Posts Comments Delete |
 |----------|----------|
 |![KakaoTalk_20240121_003101278_02](https://github.com/so0ng0970/youandi_diary/assets/108356773/cdced96c-4a47-4d39-abe8-ccc1f844d619)|![알림](https://github.com/so0ng0970/youandi_diary/assets/108356773/fd220a9f-be75-42cc-b2fc-b4621987f4bd)|
 
