@@ -128,8 +128,7 @@
 
 | Comment Writing | Notification |
 |----------|----------|
-|![댓글쓰기](https://github.com/so0ng0970/youandi_diary/assets/108356773/134bd66e-12c2-4b44-8141-d1eb6662e53f)
-|![알림](https://github.com/so0ng0970/youandi_diary/assets/108356773/7bd13ed6-8a06-44a3-98d1-12b7ea355ff8)
+|![댓글쓰기](https://github.com/so0ng0970/youandi_diary/assets/108356773/134bd66e-12c2-4b44-8141-d1eb6662e53f)|![알림](https://github.com/so0ng0970/youandi_diary/assets/108356773/7bd13ed6-8a06-44a3-98d1-12b7ea355ff8)
 |
 
 
