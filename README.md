@@ -92,9 +92,10 @@
 
 ### [다이어리 글 쓰기,글 수정 & 삭제]
 
-- 글 제목,내용, 사진 또는 동영상을 올릴 수 있습니다.
+- 글 제목,내용,사진 또는 동영상을 올릴 수 있습니다.
 - 사진은 여러장 올릴 수 있으며 슬라이더로 양옆으로 넘기며 볼 수 있습니다.
 - 글 수정에서 전에 썼던 글이 보이게 했고 수정과 삭제를 완료시 한번 더 묻는 모달이 나타납니다.
+- 수정,삭제는 유저 본인이 쓴 글만 아이콘이 보여 수정,삭제를 할 수 있습니다. 
 - 동영상은 재생,일시정지,몇초 뒤,앞으로 가게 하는 버튼을 동영상 클릭시 나타나게 했으며 재생바를 통해 원하는 구간으로 이동하게 하였습니다.
 
 | 다이어리 글 쓰기,글 수정 & 삭제 (사진) |
@@ -102,9 +103,27 @@
 
 | Diary post - photo | post edit & delete |
 |----------|----------|
-|![Diary post - photo](https://github.com/so0ng0970/youandi_diary/assets/108356773/ff5516d7-ed99-4e2a-84d4-cd1fa79bcd94)|![post edit & delete](https://github.com/so0ng0970/youandi_diary/assets/108356773/9a8fd4e0-fa7f-4964-844f-dbe6125e4b71)|
+|![Diary post - photo](https://github.com/so0ng0970/youandi_diary/assets/108356773/ff5516d7-ed99-4e2a-84d4-cd1fa79bcd94)|![post edit & delete](https://github.com/so0ng0970/youandi_diary/assets/108356773/bf329757-ab8a-4122-953c-662fe51825b0)|
 
 | 다이어리 글 쓰기, 동영상 재생 (동영상) |
+| ----------------- |
+
+| Diary post - video | video play |
+|----------|----------|
+|![Diary post - video](https://github.com/so0ng0970/youandi_diary/assets/108356773/f3b77d3d-fec3-4e9e-95cb-ed671005d979)|![video play](https://github.com/so0ng0970/youandi_diary/assets/108356773/ac070f62-bc5d-45cc-95e5-84d65d9bcda8)
+|
+
+<br>
+
+### [댓글 쓰기,댓글 알람]
+
+- 글 쓰기와 마찬가지로 유저 본인이 쓴 댓글만 아이콘이 보여 수정,삭제를 할 수 있습니다. 
+- 알람은 cloud Fuction과 firebase_messaging 라이브러리를 사용하여 제작했습니다.
+- 본인이 쓴 글에 상대방이 댓글을 달면 백그라운드 상태에서도 배너에 알람 메세지를 받을 수 있습니다.
+- 앱 상단 우측에 종모양 아이콘에 확인 못한 알람을 숫자로 확인할 수 있습니다. 아이콘을 클릭하면 모달이 뜨고 확인한 즉시 확인 못한 알람 숫자가 사라집니다
+- 아이콘을 클릭하면 모달에서 댓글 알람 내용을 볼 수 있으며 왼쪽으로 스와이프하면 삭제 할 수 있습니다.
+
+| 댓글 쓰기,댓글 알람 |
 | ----------------- |
 
 | Diary post - video | video play |
