@@ -96,42 +96,49 @@ class DiaryRepository {
           .get();
 
       for (DocumentSnapshot postDoc in diaryPostsSnapshot.docs) {
-        QuerySnapshot commentsSnapshot =
-            await postDoc.reference.collection('comment').get();
+        Map<String, dynamic> postData = postDoc.data() as Map<String, dynamic>;
+        if (postData['userId'] == currentUser?.uid) {
+          batch.delete(postDoc.reference);
 
-        for (DocumentSnapshot commentDoc in commentsSnapshot.docs) {
-          DocumentReference userCommentRef = _firestore
+          DocumentReference userPostRef = _firestore
               .collection('user')
               .doc(currentUser?.uid)
-              .collection('comment')
-              .doc(commentDoc.id);
+              .collection('post')
+              .doc(postDoc.id);
 
-          DocumentSnapshot userCommentSnap = await userCommentRef.get();
-
-          if (userCommentSnap.exists) {
-            Map<String, dynamic> data =
-                userCommentSnap.data() as Map<String, dynamic>;
-            if (data['userId'] == currentUser?.uid) {
-              batch.delete(userCommentRef);
-              batch.delete(commentDoc.reference);
+          DocumentSnapshot userPostSnap = await userPostRef.get();
+          if (userPostSnap.exists) {
+            Map<String, dynamic> postData =
+                userPostSnap.data() as Map<String, dynamic>;
+            if (postData['userId'] == currentUser?.uid) {
+              batch.delete(userPostRef);
             }
           }
         }
 
-        batch.delete(postDoc.reference);
+        QuerySnapshot commentsSnapshot =
+            await postDoc.reference.collection('comment').get();
 
-        DocumentReference userPostRef = _firestore
-            .collection('user')
-            .doc(currentUser?.uid)
-            .collection('post')
-            .doc(postDoc.id);
+        for (DocumentSnapshot commentDoc in commentsSnapshot.docs) {
+          Map<String, dynamic> commentData =
+              commentDoc.data() as Map<String, dynamic>;
+          if (commentData['userId'] == currentUser?.uid) {
+            DocumentReference userCommentRef = _firestore
+                .collection('user')
+                .doc(currentUser?.uid)
+                .collection('comment')
+                .doc(commentDoc.id);
 
-        DocumentSnapshot userPostSnap = await userPostRef.get();
-        if (userPostSnap.exists) {
-          Map<String, dynamic> postData =
-              userPostSnap.data() as Map<String, dynamic>;
-          if (postData['userId'] == currentUser?.uid) {
-            batch.delete(userPostRef);
+            DocumentSnapshot userCommentSnap = await userCommentRef.get();
+
+            if (userCommentSnap.exists) {
+              Map<String, dynamic> data =
+                  userCommentSnap.data() as Map<String, dynamic>;
+              if (data['userId'] == currentUser?.uid) {
+                batch.delete(userCommentRef);
+                batch.delete(commentDoc.reference);
+              }
+            }
           }
         }
       }
@@ -242,18 +249,14 @@ class DiaryRepository {
 }
 
 class DiaryListNotifier extends StateNotifier<List<DiaryModel>> {
-
   DiaryListNotifier() : super([]);
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
 
   bool _isLoading = false;
 
   bool get isLoading => _isLoading;
 
-
-
-Stream<List<DiaryModel>> getDiary() {
+  Stream<List<DiaryModel>> getDiary() {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
@@ -267,7 +270,7 @@ Stream<List<DiaryModel>> getDiary() {
         .orderBy('dataTime', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
-            return DiaryModel.fromJson(doc.data());
-        }).toList());
-}
+              return DiaryModel.fromJson(doc.data());
+            }).toList());
+  }
 }
