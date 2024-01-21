@@ -177,10 +177,11 @@
 
 | My Page | Posts Comments Delete |
 |----------|----------|
-|![KakaoTalk_20240121_003101278_02](https://github.com/so0ng0970/youandi_diary/assets/108356773/cdced96c-4a47-4d39-abe8-ccc1f844d619)|![모든글 삭제](https://github.com/so0ng0970/youandi_diary/assets/108356773/f3636043-c2b0-4eb8-8b07-75f9a7a69246)|
+|![마이페이지](https://github.com/so0ng0970/youandi_diary/assets/108356773/927acc1f-3284-45d4-bc94-25182addca77)|![모든글 삭제](https://github.com/so0ng0970/youandi_diary/assets/108356773/f3636043-c2b0-4eb8-8b07-75f9a7a69246)|
 
 
 <br>
+
 ### [다이어리 삭제]
 
 - 다른 사용자가 참여한 다이어리를 해당 사용자가 삭제하면, 메인 화면의 다이어리 표지의 사용자 닉네임과 다이어리 내부에 해당 사용자의 글과 댓글이 모두 삭제됩니다.
