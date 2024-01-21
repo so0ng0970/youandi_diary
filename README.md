@@ -134,19 +134,17 @@
 
 <br>
 
-### [무한 스크롤,다이어리 삭제]
+### [무한 스크롤]
 
 - 다이어리 글과 마이페이지에서 사용자가 작성한 모든 글과 댓글을 무한 스크롤로 편리하게 조회할 수 있습니다.
 - 다이어리를 확인하는 도중 해당 날짜에 다른 사용자가 글을 작성하면, 화면 상단을 당겨 새로고침하면 해당 사용자의 글이 표시됩니다.
-- 다른 사용자가 참여한 다이어리를 해당 사용자가 삭제하면, 메인 화면의 다이어리 표지와 다이어리 내부에 해당 사용자의 글과 댓글이 모두 삭제됩니다.
-- 다이어리를 삭제하고 싶을 경우, 메인 화면에서 다이어리 표지를 왼쪽으로 스와이프하면 삭제 버튼이 나타납니다. 이후 진행 여부를 한 번 더 확인하는 알림창을 통해 삭제를 진행할 수 있습니다.
 
-| 무한 스크롤,다이어리 삭제 |
+| 무한 스크롤,다이어리 세로고침 |
 | ----------------- |
 
-| Infinite Scroll| Delete Diary |
+| Infinite Scroll| Refresh |
 |----------|----------|
-|![댓글쓰기](https://github.com/so0ng0970/youandi_diary/assets/108356773/134bd66e-12c2-4b44-8141-d1eb6662e53f)|![알림](https://github.com/so0ng0970/youandi_diary/assets/108356773/fd220a9f-be75-42cc-b2fc-b4621987f4bd)|
+|![Infinite Scroll](https://github.com/so0ng0970/youandi_diary/assets/108356773/00bfe7eb-1f95-4882-81a5-531f85faa45c)|![refresh](https://github.com/so0ng0970/youandi_diary/assets/108356773/c4799391-3231-4637-ada8-b0e68d5226a3)|
 
 
 <br>
@@ -168,8 +166,21 @@
 
 | My Page | Posts Comments Delete |
 |----------|----------|
-|![KakaoTalk_20240121_003101278_02](https://github.com/so0ng0970/youandi_diary/assets/108356773/cdced96c-4a47-4d39-abe8-ccc1f844d619)|![모든글 삭제](https://github.com/so0ng0970/youandi_diary/assets/108356773/f3636043-c2b0-4eb8-8b07-75f9a7a69246)
-|
+|![KakaoTalk_20240121_003101278_02](https://github.com/so0ng0970/youandi_diary/assets/108356773/cdced96c-4a47-4d39-abe8-ccc1f844d619)|![모든글 삭제](https://github.com/so0ng0970/youandi_diary/assets/108356773/f3636043-c2b0-4eb8-8b07-75f9a7a69246)|
+
+
+<br>
+### [다이어리 삭제]
+
+- 다른 사용자가 참여한 다이어리를 해당 사용자가 삭제하면, 메인 화면의 다이어리 표지와 다이어리 내부에 해당 사용자의 글과 댓글이 모두 삭제됩니다.
+- 다이어리를 삭제하고 싶을 경우, 메인 화면에서 다이어리 표지를 왼쪽으로 스와이프하면 삭제 버튼이 나타납니다. 이후 진행 여부를 한 번 더 확인하는 알림창을 통해 삭제를 진행할 수 있습니다.
+
+| 다이어리 삭제,다이어리 삭제 후 |
+| ----------------- |
+
+| Diary Delete | Diary Delete after |
+|----------|----------|
+|![Infinite Scroll](https://github.com/so0ng0970/youandi_diary/assets/108356773/00bfe7eb-1f95-4882-81a5-531f85faa45c)|![refresh](https://github.com/so0ng0970/youandi_diary/assets/108356773/c4799391-3231-4637-ada8-b0e68d5226a3)|
 
 
 <br>
