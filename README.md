@@ -23,7 +23,7 @@
 
 - 데이터들은 모델 클래스를 활용해 데이터의 구조를 명확하게 유지 보수성을 높였습니다. 
 - factory 생성자로 JSON을 모델 클래스로 변환하는 중복 코드를 제거했습니다.
-- @JsonSerializable() 어노테이션을 사용해 JSON 직렬화 및 역직렬화 코드를 자동 생성하여, 코드 간결성을 유지하면서 효율적으로 데이터를 처리할 수 있었습니다.
+- @JsonSerializable() annotation를 사용해 JSON 직렬화 및 역직렬화 코드를 자동 생성하여, 코드 간결성을 유지하면서 효율적으로 데이터를 처리할 수 있었습니다.
 
 더 자세한 구현 내용을 볼려면 ➡️
 [Notion](https://animated-tractor-257.notion.site/e5ba9182c4ac42169d7aee51f07f9863)
