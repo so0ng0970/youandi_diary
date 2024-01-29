@@ -122,90 +122,123 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                         mediaDialog(context);
                       }
                     },
-                    child: Container(
-                      height: MediaQuery.of(context).size.height / 3.5,
-                      width: MediaQuery.of(context).size.width - 70,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: WHITE_COLOR,
-                          width: 2,
+                    child: Center(
+                      child: Container(
+                        height: MediaQuery.of(context).size.height / 3.5,
+                        width: MediaQuery.of(context).size.width - 70,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: WHITE_COLOR,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            50,
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(
-                          50,
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          50,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            if (selectedImages.isEmpty &&
-                                video == null &&
-                                videoUrl == null &&
-                                imageUrl!.isEmpty)
-                              Column(
-                                children: [
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Image.asset(
-                                    'assets/image/icon/photo.png',
-                                    scale: 4,
-                                  ),
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                ],
-                              ),
-                            if (selectedImages.isEmpty &&
-                                video == null &&
-                                videoUrl == null &&
-                                !widget.edit)
-                              const Text(
-                                'add photo & video +',
-                                style: TextStyle(
-                                  color: WHITE_COLOR,
-                                  fontSize: 20,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            50,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              if (selectedImages.isEmpty &&
+                                  video == null &&
+                                  videoUrl == null &&
+                                  imageUrl!.isEmpty)
+                                Column(
+                                  children: [
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    Image.asset(
+                                      'assets/image/icon/photo.png',
+                                      scale: 4,
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            if (selectedImages.isNotEmpty)
-                              Expanded(
-                                child: SlideImage(
-                                  isLoading: isLoading,
-                                  selectedImages: selectedImages,
-                                  imgSetState: setState,
+                              if (selectedImages.isEmpty &&
+                                  video == null &&
+                                  videoUrl == null &&
+                                  !widget.edit)
+                                const Text(
+                                  'add photo & video +',
+                                  style: TextStyle(
+                                    color: WHITE_COLOR,
+                                    fontSize: 20,
+                                  ),
                                 ),
-                              ),
-                            if (selectedImages.isEmpty && imageUrl != null)
-                              Expanded(
-                                child: SlideImage(
-                                  removeEdit: (bool value) {
-                                    setState(() {
-                                      widget.removeEdit = value;
-                                    });
-                                  },
-                                  isLoading: isLoading,
-                                  imageUrl: imageUrl,
-                                  imgSetState: setState,
+                              if (selectedImages.isNotEmpty)
+                                Expanded(
+                                  child: SlideImage(
+                                    isLoading: isLoading,
+                                    selectedImages: selectedImages,
+                                    imgSetState: setState,
+                                  ),
                                 ),
-                              ),
-                            if (video != null)
-                              Stack(
-                                children: [
+                              if (selectedImages.isEmpty && imageUrl != null)
+                                Expanded(
+                                  child: SlideImage(
+                                    removeEdit: (bool value) {
+                                      setState(() {
+                                        widget.removeEdit = value;
+                                      });
+                                    },
+                                    isLoading: isLoading,
+                                    imageUrl: imageUrl,
+                                    imgSetState: setState,
+                                  ),
+                                ),
+                              if (video != null)
+                                Stack(
+                                  children: [
+                                    SizedBox(
+                                      height: 200.0,
+                                      child: CustomVideoPlayer(
+                                          edit: true,
+                                          onNewVideoPressed: onNewVideoPressed,
+                                          video: video!),
+                                    ),
+                                    if (!isLoading)
+                                      Positioned(
+                                        right: 10.0,
+                                        child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              video = null;
+                                              videoUrl = null;
+
+                                              videoController?.dispose();
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.remove_circle_outlined,
+                                            size: 30,
+                                            color: WHITE_COLOR,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              if (videoUrl != null && widget.edit == true)
+                                Stack(children: [
                                   CustomVideoPlayer(
-                                      edit: true,
-                                      onNewVideoPressed: onNewVideoPressed,
-                                      video: video!),
+                                    edit: widget.edit,
+                                    videoUrl: videoUrl,
+                                    onNewVideoPressed: onNewVideoPressed,
+                                  ),
                                   if (!isLoading)
                                     Positioned(
                                       right: 10.0,
                                       child: IconButton(
                                         onPressed: () {
                                           setState(() {
-                                            video = null;
+                                            widget.removeEdit = true;
                                             videoUrl = null;
+                                            imageUrl!.isEmpty;
 
                                             videoController?.dispose();
                                           });
@@ -217,37 +250,9 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
                                         ),
                                       ),
                                     ),
-                                ],
-                              ),
-                            if (videoUrl != null && widget.edit == true)
-                              Stack(children: [
-                                CustomVideoPlayer(
-                                  edit: widget.edit,
-                                  videoUrl: videoUrl,
-                                  onNewVideoPressed: onNewVideoPressed,
-                                ),
-                                if (!isLoading)
-                                  Positioned(
-                                    right: 10.0,
-                                    child: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          widget.removeEdit = true;
-                                          videoUrl = null;
-                                          imageUrl!.isEmpty;
-
-                                          videoController?.dispose();
-                                        });
-                                      },
-                                      icon: const Icon(
-                                        Icons.remove_circle_outlined,
-                                        size: 30,
-                                        color: WHITE_COLOR,
-                                      ),
-                                    ),
-                                  ),
-                              ]),
-                          ],
+                                ]),
+                            ],
+                          ),
                         ),
                       ),
                     ),

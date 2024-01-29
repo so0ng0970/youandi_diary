@@ -55,7 +55,7 @@ class CheckValidate {
       focusNode.requestFocus();
       return '닉네임을 입력하세요(1-9이하).';
     } else {
-      RegExp pattern = RegExp(r'^[a-zA-Z0-9_]{1,9}$');
+      RegExp pattern = RegExp(r'^[\wㄱ-ㅎㅏ-ㅣ가-힣]{1,9}$');
       if (!pattern.hasMatch(value)) {
         focusNode.requestFocus();
         return '닉네임은 1자에서 9자까지 허용됩니다.';

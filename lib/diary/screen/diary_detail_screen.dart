@@ -211,16 +211,16 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
               height: 10,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                height: MediaQuery.of(context).size.height - 150,
+                height: MediaQuery.of(context).size.height - 200,
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: WHITE_COLOR,
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(
-                    150,
+                    200,
                   ),
                   image: const DecorationImage(
                     fit: BoxFit.fill,
