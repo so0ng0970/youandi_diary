@@ -212,86 +212,89 @@ class _DiaryDetailScreenState extends ConsumerState<DiaryDetailScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                height: MediaQuery.of(context).size.height - 200,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: WHITE_COLOR,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(
-                    200,
-                  ),
-                  image: const DecorationImage(
-                    fit: BoxFit.fill,
-                    image: AssetImage(
-                      'assets/image/diary/diary4.jpg',
+              child: SingleChildScrollView(
+                child: Container(
+                  height: MediaQuery.of(context).size.height - 200,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: WHITE_COLOR,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      200,
+                    ),
+                    image: const DecorationImage(
+                      fit: BoxFit.fill,
+                      image: AssetImage(
+                        'assets/image/diary/diary4.jpg',
+                      ),
                     ),
                   ),
-                ),
-                child: RefreshIndicator(
-                  onRefresh: () => Future.sync(
-                    () => pagingController.refresh(),
-                  ),
-                  child: PagedListView<DocumentSnapshot?, DiaryPostModel>(
-                    pagingController: pagingController,
-                    builderDelegate: PagedChildBuilderDelegate<DiaryPostModel>(
-                      itemBuilder: (context, diaryData, index) {
-                        final diaryData = pagingController.itemList![index];
-                        return DiaryDetailCard.fromModel(
-                          editOnPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DiaryPostScreen(
-                                  postId: diaryData.postId,
-                                  diaryId: diaryData.diaryId.toString(),
-                                  edit: true,
-                                  diaryTitle: widget.title!,
-                                  selectedDay: selectedDay,
-                                  pagingController: pagingController,
+                  child: RefreshIndicator(
+                    onRefresh: () => Future.sync(
+                      () => pagingController.refresh(),
+                    ),
+                    child: PagedListView<DocumentSnapshot?, DiaryPostModel>(
+                      pagingController: pagingController,
+                      builderDelegate:
+                          PagedChildBuilderDelegate<DiaryPostModel>(
+                        itemBuilder: (context, diaryData, index) {
+                          final diaryData = pagingController.itemList![index];
+                          return DiaryDetailCard.fromModel(
+                            editOnPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DiaryPostScreen(
+                                    postId: diaryData.postId,
+                                    diaryId: diaryData.diaryId.toString(),
+                                    edit: true,
+                                    diaryTitle: widget.title!,
+                                    selectedDay: selectedDay,
+                                    pagingController: pagingController,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          deleteOnpress: () async {
-                            await ref
-                                .watch(diaryDetailProvider.notifier)
-                                .deletePostFromFirestore(
-                                  diaryId: diaryData.diaryId.toString(),
-                                  postId: diaryData.postId.toString(),
-                                );
+                              );
+                            },
+                            deleteOnpress: () async {
+                              await ref
+                                  .watch(diaryDetailProvider.notifier)
+                                  .deletePostFromFirestore(
+                                    diaryId: diaryData.diaryId.toString(),
+                                    postId: diaryData.postId.toString(),
+                                  );
 
-                            pagingController.refresh();
-                            context.pop();
-                          },
-                          diaryData: diaryData,
-                          color: colors[index % colors.length],
-                          divColor: divColors[index % divColors.length],
-                          inputFieldNode: inputFieldNode,
-                          contentController: contentController,
-                          diaryTitle: diaryData.diaryTittle,
-                        );
-                      },
-                      noItemsFoundIndicatorBuilder: (context) => const Center(
-                        child: Text(
-                          '글을 작성해 주세요',
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
+                              pagingController.refresh();
+                              context.pop();
+                            },
+                            diaryData: diaryData,
+                            color: colors[index % colors.length],
+                            divColor: divColors[index % divColors.length],
+                            inputFieldNode: inputFieldNode,
+                            contentController: contentController,
+                            diaryTitle: diaryData.diaryTittle,
+                          );
+                        },
+                        noItemsFoundIndicatorBuilder: (context) => const Center(
+                          child: Text(
+                            '글을 작성해 주세요',
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
+                        firstPageErrorIndicatorBuilder: (context) =>
+                            const Text('데이터 정보를 불러오지 못했습니다 '),
+                        newPageErrorIndicatorBuilder: (context) =>
+                            const Text('새 페이지 데이터 정보를 불러오지 못했습니다'),
+                        firstPageProgressIndicatorBuilder: (context) {
+                          return const SkeletonComponent();
+                        },
+                        newPageProgressIndicatorBuilder: (context) {
+                          return const SkeletonComponent();
+                        },
                       ),
-                      firstPageErrorIndicatorBuilder: (context) =>
-                          const Text('데이터 정보를 불러오지 못했습니다 '),
-                      newPageErrorIndicatorBuilder: (context) =>
-                          const Text('새 페이지 데이터 정보를 불러오지 못했습니다'),
-                      firstPageProgressIndicatorBuilder: (context) {
-                        return const SkeletonComponent();
-                      },
-                      newPageProgressIndicatorBuilder: (context) {
-                        return const SkeletonComponent();
-                      },
                     ),
                   ),
                 ),
