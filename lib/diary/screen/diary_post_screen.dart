@@ -96,8 +96,8 @@ class _DiaryPostScreenState extends ConsumerState<DiaryPostScreen> {
     print(widget.diaryId);
     // 뒤로가기 막기 - 안드로이드
 
-    return WillPopScope(
-      onWillPop: () async => !isLoading ? true : false,
+    return PopScope(
+      canPop: !isLoading,
       child: DefaultLayout(
         popOnPressed: () {
           context.pop();
