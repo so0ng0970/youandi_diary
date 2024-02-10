@@ -67,6 +67,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
+                      const SizedBox(
+                        height: 5,
+                      ),
                       SizedBox(
                         width: 150,
                         child: ElevatedButton(
@@ -76,6 +79,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           onPressed: _showDiaryModal,
                           child: const Text(
                             '다이어리 생성 +',
+                            style: TextStyle(
+                              color: WHITE_COLOR,
+                            ),
                           ),
                         ),
                       ),
@@ -151,6 +157,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(
+                  height: 10,
+                )
               ],
             ),
           ),

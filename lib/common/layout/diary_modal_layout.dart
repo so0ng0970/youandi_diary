@@ -30,9 +30,7 @@ class DiaryModalLayout extends StatelessWidget {
         height: 500,
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(
-              10.0,
-            ),
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
             child: Form(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,6 +78,7 @@ class DiaryModalLayout extends StatelessWidget {
                       buttonText,
                       style: const TextStyle(
                         fontSize: 15,
+                        color: WHITE_COLOR,
                       ),
                     ),
                   )
